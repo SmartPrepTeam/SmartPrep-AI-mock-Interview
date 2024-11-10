@@ -1,11 +1,11 @@
 from fastapi import APIRouter
-from utils.MistralAIModel import client
-from utils.prompts import generate_mock_interview_prompt,score_the_answers
+from lib.MistralAIModel import client
+from lib.prompts import generate_mock_interview_prompt,score_the_answers
 import json
 from models.model import Difficulty,Answer,InterviewFormSelection
 from typing import List
 from uuid import UUID,uuid4
-from config.db import textQuiz_collection,textAns_collection
+from database.db import textQuiz_collection,textAns_collection
 from datetime import datetime
 from bson import Binary
 

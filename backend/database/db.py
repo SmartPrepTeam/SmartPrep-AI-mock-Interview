@@ -1,6 +1,6 @@
 from pymongo import MongoClient
-from utils.Constants import MONGODB_ATLAS
-client = MongoClient(MONGODB_ATLAS)
+from config.config import Config
+client = MongoClient(Config.MONGODB_ATLAS)
 
 db = client.smartprep_db
 
