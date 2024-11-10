@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from lib.MistralAIModel import client
 from lib.prompts import generate_mock_interview_prompt,score_the_answers
-import json
+from utils.helpers import clean_llm_response
 from models.model import Difficulty,Answer,InterviewFormSelection
 from typing import List
 from uuid import UUID,uuid4
@@ -22,9 +22,7 @@ async def create_new_textual_quiz(selection : InterviewFormSelection):
     raw_response = chat_response.choices[0].message.content
 
     # Cleaning the response 
-    cleaned_response = raw_response.strip('```json\n').strip('```')
-    cleaned_response = cleaned_response.replace(r'\n', '\n').replace(r'\"', '"')
-    json_data = json.loads(cleaned_response)
+    json_data = clean_llm_response(raw_response)
 
     mockId_binary = Binary.from_uuid(uuid4())
     # making a new entry in the db
@@ -59,9 +57,7 @@ async def score_textual_quiz(mockId:UUID, data : Answer):
     raw_response = chat_response.choices[0].message.content
 
     # Cleaning the response 
-    cleaned_response = raw_response.strip('```json\n').strip('```')
-    cleaned_response = cleaned_response.replace(r'\n', '\n').replace(r'\"', '"')
-    json_data = json.loads(cleaned_response)
+    json_data = clean_llm_response(raw_response)
 
     # making a new entry in the db
     textAns_collection.insert_one(
