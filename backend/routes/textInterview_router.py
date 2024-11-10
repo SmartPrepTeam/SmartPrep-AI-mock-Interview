@@ -9,9 +9,9 @@ from config.db import textQuiz_collection,textAns_collection
 from datetime import datetime
 from bson import Binary
 
-router = APIRouter()
+textInterview_router = APIRouter()
 
-@router.post("/textQuiz/")
+@textInterview_router.post("/textQuiz/")
 async def create_new_textual_quiz(selection : InterviewFormSelection):
     # generating questions
     prompt = generate_mock_interview_prompt(selection.job_title,selection.job_description,selection.difficulty_level)
@@ -40,7 +40,7 @@ async def create_new_textual_quiz(selection : InterviewFormSelection):
     })
     return {"data" : json_data,"id" : str(mock_id)}
 
-@router.post("/textScore/{mockId}")
+@textInterview_router.post("/textScore/{mockId}")
 async def score_textual_quiz(mockId:UUID, data : Answer):
     # Fetch questions from the DB
     mockId_binary = Binary.from_uuid(mockId)
