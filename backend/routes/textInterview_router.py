@@ -1,17 +1,17 @@
 from fastapi import APIRouter
-from utils.MistralAIModel import client
-from utils.prompts import generate_mock_interview_prompt,score_the_answers
-import json
+from lib.MistralAIModel import client
+from lib.prompts import generate_mock_interview_prompt,score_the_answers
+from utils.helpers import clean_llm_response
 from models.model import Difficulty,Answer,InterviewFormSelection
 from typing import List
 from uuid import UUID,uuid4
-from config.db import textQuiz_collection,textAns_collection
+from database.db import textQuiz_collection,textAns_collection
 from datetime import datetime
 from bson import Binary
 
-router = APIRouter()
+textInterview_router = APIRouter()
 
-@router.post("/interviews/")
+@textInterview_router.post("/interviews")
 async def create_new_textual_quiz(selection : InterviewFormSelection):
     # generating questions
     prompt = generate_mock_interview_prompt(selection.job_title,selection.job_description,selection.difficulty_level)
@@ -22,9 +22,7 @@ async def create_new_textual_quiz(selection : InterviewFormSelection):
     raw_response = chat_response.choices[0].message.content
 
     # Cleaning the response 
-    cleaned_response = raw_response.strip('```json\n').strip('```')
-    cleaned_response = cleaned_response.replace(r'\n', '\n').replace(r'\"', '"')
-    json_data = json.loads(cleaned_response)
+    json_data = clean_llm_response(raw_response)
 
     mockId_binary = Binary.from_uuid(uuid4())
     # making a new entry in the db
@@ -40,7 +38,7 @@ async def create_new_textual_quiz(selection : InterviewFormSelection):
     })
     return {"data" : json_data,"id" : str(mock_id)}
 
-@router.post("/interviews/{mockId}")
+@textInterview_router.post("/interviews/{mockId}")
 async def score_textual_quiz(mockId:UUID, data : Answer):
     # Fetch questions from the DB
     mockId_binary = Binary.from_uuid(mockId)
@@ -59,9 +57,7 @@ async def score_textual_quiz(mockId:UUID, data : Answer):
     raw_response = chat_response.choices[0].message.content
 
     # Cleaning the response 
-    cleaned_response = raw_response.strip('```json\n').strip('```')
-    cleaned_response = cleaned_response.replace(r'\n', '\n').replace(r'\"', '"')
-    json_data = json.loads(cleaned_response)
+    json_data = clean_llm_response(raw_response)
 
     # making a new entry in the db
     textAns_collection.insert_one(

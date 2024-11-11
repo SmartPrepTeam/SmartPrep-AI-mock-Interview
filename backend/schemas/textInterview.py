@@ -1,3 +1,6 @@
+# Request and response schemas for Textual Interviews API endpoints
+
+
 from pydantic import BaseModel
 from typing import List
 from enum import Enum 

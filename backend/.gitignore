@@ -7,3 +7,6 @@ Constants.py
 # Ignore the virtual environment
 myenv/
 myenv/*
+
+# Ignore the environment Variables 
+.env
