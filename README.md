@@ -8,7 +8,7 @@
 <p align="center">
   <a href="#introduction"><strong>Introduction</strong></a> ·
   <a href="#tech-stack--features"><strong>Tech Stack + Features</strong></a> ·
-  <a href="#author"><strong>Author</strong></a>
+  <a href="#author"><strong>Team</strong></a>
 </p>
 <br/>
 
@@ -25,7 +25,7 @@ SmartPrep is an interview preparation tool that provides AI feedback on your tex
 ### UI
 
 - [Tailwind CSS](https://tailwindcss.com/) – Utility-first CSS framework for rapid UI development
-
+- [ShadCN](https://ui.shadcn.com/) - Component library for building modern user interfaces with a focus on accessibility, flexibility, and developer-friendly design.
 
 ### Code Quality
 
