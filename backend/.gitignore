@@ -1,9 +1,10 @@
 # Ignore __pycache__ directories
 __pycache__/
 
-# Ignore the Constants.py file
-Constants.py
 
 # Ignore the virtual environment
 myenv/
 myenv/*
+
+# ignore the .env file
+.env
