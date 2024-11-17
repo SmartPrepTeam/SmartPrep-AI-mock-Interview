@@ -1,5 +1,5 @@
-from fastapi import FastAPI
-from routes.textInterview_router import textInterview_router
+from fastapi import FastAPI,APIRouter
+from routes import textual_interview
 from config.db import db_lifespan
 
 version = 'v1'
@@ -9,4 +9,9 @@ app = FastAPI(
     version = version,
     lifespan = db_lifespan)
 
-app.include_router(textInterview_router,prefix=f"/api/{version}/interviews",tags=['Textual Interview'])
+
+api_router = APIRouter(prefix="/api")
+
+api_router.include_router(textual_interview.router)
+
+app.include_router(api_router)

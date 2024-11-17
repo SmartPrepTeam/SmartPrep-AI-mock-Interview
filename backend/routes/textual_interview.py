@@ -8,7 +8,10 @@ from typing import List
 from datetime import datetime
 from bson import Binary
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/textual_interviews",
+    tags=['Textual Interview']
+)
 
 @router.post("/interviews/")
 async def create_new_textual_quiz(selection : InterviewFormSelection):
