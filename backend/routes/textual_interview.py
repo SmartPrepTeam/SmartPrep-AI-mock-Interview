@@ -1,77 +1,34 @@
 from fastapi import APIRouter
-from config.mistral_ai import client
-from utils.prompts import generate_mock_interview_prompt,score_the_answers
-import json
-from schemas import Difficulty,Answer,InterviewFormSelection
-from typing import List
-# from config.db import textQuiz_collection,textAns_collection
-from datetime import datetime
-from bson import Binary
+from app.controllers.textual_interview_controller import TextualInterviewController
 
 router = APIRouter(
     prefix="/textual_interviews",
     tags=['Textual Interview']
 )
 
-@router.post("/interviews/")
-async def create_new_textual_quiz(selection : InterviewFormSelection):
-    # generating questions
-    prompt = generate_mock_interview_prompt(selection.job_title,selection.job_description,selection.difficulty_level)
-    chat_response = client.chat.complete(
-        model = "mistral-large-latest",
-        messages = prompt
-    )
-    raw_response = chat_response.choices[0].message.content
+def get_textual_interview_controller() -> TextualInterviewController:
+    return TextualInterviewController()
 
-    # Cleaning the response 
-    cleaned_response = raw_response.strip('```json\n').strip('```')
-    cleaned_response = cleaned_response.replace(r'\n', '\n').replace(r'\"', '"')
-    json_data = json.loads(cleaned_response)
+@router.post("/questions",status_code=status.HTTP_201_CREATED)
+async def get_questions(
+    selection : InterviewFormSelection,
+    textual_interview_controller: TextualInterviewController =  Depends(get_textual_interview_controller)
+):
+    return await textual_interview_controller.get_questions(selection)
 
-    mockId_binary = Binary.from_uuid(uuid4())
-    # making a new entry in the db
-    textQuiz_collection.insert_one(
-        {
-        "job_description": selection.job_description,
-        "job_title": selection.job_title,
-        "difficulty_level": selection.difficulty_level,
-        "id": mockId_binary,
-        "questions" : json_data,
-        "userID" : selection.userID,
-        "createdAt" : datetime.now()
-    })
-    return {"data" : json_data,"id" : str(mock_id)}
+@router.post("/questions/{question_id}",status_code=status.HTTP_201_CREATED)
+async def get_score(
+    data : Answer,
+    question_id : str,
+    textual_interview_controller: TextualInterviewController =  Depends(get_textual_interview_controller)
+):
+    return await textual_interview_controller.get_score(data,question_id)
 
-@router.post("/interviews/{mockId}")
-async def score_textual_quiz(mockId:UUID, data : Answer):
-    # Fetch questions from the DB
-    mockId_binary = Binary.from_uuid(mockId)
-    response = textQuiz_collection.find_one({"id": mockId_binary})
+@router.delete("/questions/{question_id}")
+async def remove_textual_interview(
+    question_id: str,
+    textual_interview_controller: TextualInterviewController =  Depends(get_textual_interview_controller)
+):
+    return await textual_interview_controller.remove_textual_interview(question_id)
 
-    if not response:
-        # Handle no document found
-        raise HTTPException(status_code=404, detail="Quiz not found")
 
-    # scoring the answers
-    prompt = score_the_answers(response["questions"],data.answers)
-    chat_response = client.chat.complete(
-        model = "mistral-large-latest",
-        messages = prompt
-    )
-    raw_response = chat_response.choices[0].message.content
-
-    # Cleaning the response 
-    cleaned_response = raw_response.strip('```json\n').strip('```')
-    cleaned_response = cleaned_response.replace(r'\n', '\n').replace(r'\"', '"')
-    json_data = json.loads(cleaned_response)
-
-    # making a new entry in the db
-    textAns_collection.insert_one(
-        {
-            "id":Binary.from_uuid(uuid4()),
-            "answers" : data.answers,
-            "score" : json_data,
-            "quizId" : mockId_binary,
-            "createdAt" : datetime.now().strftime("%d-%m-%Y")
-    })
-    return json_data
