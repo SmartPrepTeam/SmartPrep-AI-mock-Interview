@@ -8,8 +8,23 @@ from models.textual_question import TextualQuestion
 from datetime import datetime
 from bson import Binary
 from fastapi import HTTPException,status
+from pydantic import PydanticObjectId
 
 class TextualInterviewService():
+
+    @staticmethod
+    def validate_object_id(id: str):
+    """Validates the given ID format."""
+    if not ObjectId.is_valid(id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid ID format"
+        )
+
+    @staticmethod
+    def convert_to_pydantic_object_id(id: str) -> PydanticObjectId:
+        """Converts a string ID to a PydanticObjectId."""
+        return PydanticObjectId(id)
 
     @staticmethod
     async def clean_llm_response(raw_response : str ) -> dict:
@@ -42,13 +57,13 @@ class TextualInterviewService():
             user_id : selection.userID
         ) 
         await new_question.insert()
-        return {"data" : json_data,"id" : str(mock_id)}
+        return {"data" : json_data,"id" : new_question._id}
 
     async def get_scores(data : Answer,question_id : str):
         # Fetch questions from the DB
         validateObjectId(question_id)
 
-        question_object_id = convert_to_pydantic_object_Id(question_id)
+        question_object_id = convert_to_pydantic_object_id(question_id)
         question = await TextualQuestion.find_one({"_id": question_object_id})
 
         if not question:
