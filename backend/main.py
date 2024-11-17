@@ -1,7 +1,12 @@
 from fastapi import FastAPI
-from routes.route import router
+from routes.textInterview_router import textInterview_router
 from config.db import db_lifespan
 
-app = FastAPI(lifespan = db_lifespan)
+version = 'v1'
+app = FastAPI(
+    title = "SmartPrep",
+    description = " SmartPrep API provides a collection of tools and resources to assist users in preparing for various types of interviews.Modules include text-based interviews, user profile management, and more.",
+    version = version,
+    lifespan = db_lifespan)
 
-app.include_router(router)
+app.include_router(textInterview_router,prefix=f"/api/{version}/interviews",tags=['Textual Interview'])
