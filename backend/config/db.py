@@ -1,13 +1,13 @@
 from motor.motor_asyncio import AsyncIOMotorClient
-from utils.Constants import MONGODB_ATLAS
+from setting import settings
 from beanie import init_beanie
 from fastapi import FastAPI
-from models.textualQuiz import TextualQuiz
-from models.textualAnswer import TextualAnswer
+from models.textual_question import TextualQuestion
+from models.textual_answer import TextualAnswer
 
 async def db_lifespan(app:FastAPI):
     # on starting the app
-    app.mongodb_client = AsyncIOMotorClient(MONGODB_ATLAS)
+    app.mongodb_client = AsyncIOMotorClient(settings.mongodb_url)
     app.database = app.mongodb_client["smartprep_db"]
     await init_beanie(database = app.database, document_models = [TextualQuiz,TextualAnswer])
     ping_response = await app.database.command("ping")

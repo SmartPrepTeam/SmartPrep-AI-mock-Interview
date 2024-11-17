@@ -1,11 +1,10 @@
 from fastapi import APIRouter
-from utils.MistralAIModel import client
+from config.mistral_ai import client
 from utils.prompts import generate_mock_interview_prompt,score_the_answers
 import json
-from models.model import Difficulty,Answer,InterviewFormSelection
+from schemas import Difficulty,Answer,InterviewFormSelection
 from typing import List
-from uuid import UUID,uuid4
-from config.db import textQuiz_collection,textAns_collection
+# from config.db import textQuiz_collection,textAns_collection
 from datetime import datetime
 from bson import Binary
 
@@ -36,7 +35,7 @@ async def create_new_textual_quiz(selection : InterviewFormSelection):
         "id": mockId_binary,
         "questions" : json_data,
         "userID" : selection.userID,
-        "createdAt" : datetime.now().strftime("%d-%m-%Y")
+        "createdAt" : datetime.now()
     })
     return {"data" : json_data,"id" : str(mock_id)}
 
