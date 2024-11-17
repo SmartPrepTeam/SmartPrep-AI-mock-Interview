@@ -2,24 +2,22 @@ from schemas import Answer,InterviewFormSelection
 from utils.prompts import generate_mock_interview_prompt,score_the_answers
 from config.mistral_ai import client
 import json
-from schemas import Difficulty,Answer,InterviewFormSelection
+from schemas import Answer,InterviewFormSelection
 from typing import List
 from models.textual_question import TextualQuestion
-from datetime import datetime
-from bson import Binary
 from fastapi import HTTPException,status
-from pydantic import PydanticObjectId
+from beanie import PydanticObjectId
 
 class TextualInterviewService():
 
     @staticmethod
     def validate_object_id(id: str):
-    """Validates the given ID format."""
-    if not ObjectId.is_valid(id):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid ID format"
-        )
+        """Validates the given ID format."""
+        if not ObjectId.is_valid(id):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid ID format"
+            )
 
     @staticmethod
     def convert_to_pydantic_object_id(id: str) -> PydanticObjectId:
@@ -54,10 +52,10 @@ class TextualInterviewService():
             job_title = selection.job_title,
             difficulty_level = selection.difficulty_level,
             questions = json_data,
-            user_id : selection.userID
+            user_id = selection.userID
         ) 
         await new_question.insert()
-        return {"data" : json_data,"id" : new_question._id}
+        return {"data" : json_data,"id" : str(new_question._id)}
 
     async def get_scores(data : Answer,question_id : str):
         # Fetch questions from the DB

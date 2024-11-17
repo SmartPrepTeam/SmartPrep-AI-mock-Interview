@@ -1,5 +1,6 @@
-from fastapi import APIRouter
-from app.controllers.textual_interview_controller import TextualInterviewController
+from fastapi import APIRouter,status,Depends
+from controllers.textual_interview_controller import TextualInterviewController
+from schemas import InterviewFormSelection,Answer
 
 router = APIRouter(
     prefix="/textual_interviews",

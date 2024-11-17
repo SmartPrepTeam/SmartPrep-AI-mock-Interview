@@ -1,6 +1,6 @@
 import os
 from mistralai import Mistral
-from setting import settings
+from .setting import settings
 
 api_key = os.environ["MISTRAL_API_KEY"] = settings.mistral_api_key
 
