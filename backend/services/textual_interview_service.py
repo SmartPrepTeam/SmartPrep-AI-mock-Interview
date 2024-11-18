@@ -34,7 +34,7 @@ class TextualInterviewService():
             raise ValueError(f"Failed to parse response: {e}")
         return json_data
 
-    async def get_questions(selection : InterviewFormSelection):
+    async def get_questions(self,selection : InterviewFormSelection):
         # generating questions
         prompt = generate_mock_interview_prompt(selection.job_title,selection.job_description,selection.difficulty_level)
         chat_response = client.chat.complete(
@@ -44,22 +44,24 @@ class TextualInterviewService():
         raw_response = chat_response.choices[0].message.content
 
         # Cleaning the response 
-        json_data = clean_llm_response(raw_response)
+        json_data = await self.clean_llm_response(raw_response)
 
+        validate_object_id(selection.userID)
+        user_object_id = convert_to_pydantic_object_id(selection.userID)
         # making a new entry in the db
         new_question = TextualQuestion(
             job_description = selection.job_description,
             job_title = selection.job_title,
             difficulty_level = selection.difficulty_level,
             questions = json_data,
-            user_id = selection.userID
+            user_id = user_object_id
         ) 
         await new_question.insert()
         return {"data" : json_data,"id" : str(new_question._id)}
 
-    async def get_scores(data : Answer,question_id : str):
+    async def get_scores(self,data : Answer,question_id : str):
         # Fetch questions from the DB
-        validateObjectId(question_id)
+        validate_object_id(question_id)
 
         question_object_id = convert_to_pydantic_object_id(question_id)
         question = await TextualQuestion.find_one({"_id": question_object_id})
@@ -77,7 +79,7 @@ class TextualInterviewService():
         raw_response = chat_response.choices[0].message.content
 
         # Cleaning the response 
-        json_data = clean_llm_response(raw_response)
+        json_data = await self.clean_llm_response(raw_response)
 
         # making a new entry in the db
         new_scores = TextualAnswer(
