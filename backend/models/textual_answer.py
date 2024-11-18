@@ -5,7 +5,7 @@ from datetime import datetime
 
 class TextualAnswer(Document):
     answers : List[str]
-    score : Json
+    score : dict
     question_id : PydanticObjectId
     createdAt : datetime = datetime.now()
 

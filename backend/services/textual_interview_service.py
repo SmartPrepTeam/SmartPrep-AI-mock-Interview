@@ -5,13 +5,15 @@ import json
 from schemas import Answer,InterviewFormSelection
 from typing import List
 from models.textual_question import TextualQuestion
+from models.textual_answer import TextualAnswer
 from fastapi import HTTPException,status
 from beanie import PydanticObjectId
+from bson import ObjectId
 
 class TextualInterviewService():
 
     @staticmethod
-    def validate_object_id(id: str):
+    async def validate_object_id(id: str):
         """Validates the given ID format."""
         if not ObjectId.is_valid(id):
             raise HTTPException(
@@ -20,7 +22,7 @@ class TextualInterviewService():
             )
 
     @staticmethod
-    def convert_to_pydantic_object_id(id: str) -> PydanticObjectId:
+    async def convert_to_pydantic_object_id(id: str) -> PydanticObjectId:
         """Converts a string ID to a PydanticObjectId."""
         return PydanticObjectId(id)
 
@@ -45,9 +47,12 @@ class TextualInterviewService():
 
         # Cleaning the response 
         json_data = await self.clean_llm_response(raw_response)
+        if isinstance(json_data, dict):
+            json_data = json_data.get('questions', [])
 
-        validate_object_id(selection.userID)
-        user_object_id = convert_to_pydantic_object_id(selection.userID)
+        await self.validate_object_id(selection.userID)
+        user_object_id =await self.convert_to_pydantic_object_id(selection.userID)
+
         # making a new entry in the db
         new_question = TextualQuestion(
             job_description = selection.job_description,
@@ -57,21 +62,23 @@ class TextualInterviewService():
             user_id = user_object_id
         ) 
         await new_question.insert()
-        return {"data" : json_data,"id" : str(new_question._id)}
+        return {"data" : json_data,"id" : str(new_question.id)}
 
-    async def get_scores(self,data : Answer,question_id : str):
+    async def get_score(self,data : Answer,question_id : str):
         # Fetch questions from the DB
-        validate_object_id(question_id)
 
-        question_object_id = convert_to_pydantic_object_id(question_id)
+        await self.validate_object_id(question_id)
+
+        question_object_id =await self.convert_to_pydantic_object_id(question_id)
+        print(f"Searching for question with ID: {question_object_id}")
         question = await TextualQuestion.find_one({"_id": question_object_id})
-
-        if not question:
+        # print(f"Questions from DB: {question['questions']}")
+        if question is None:
             # Handle no document found
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Textual interview not found")
 
         # scoring the answers
-        prompt = score_the_answers(question["questions"],data.answers)
+        prompt = score_the_answers(question.questions,data.answers)
         chat_response = client.chat.complete(
             model = "mistral-large-latest",
             messages = prompt

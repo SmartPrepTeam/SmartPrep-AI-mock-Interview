@@ -13,7 +13,7 @@ async def db_lifespan(app:FastAPI):
     ping_response = await app.database.command("ping")
     if int(ping_response["ok"]) != 1:
         raise Exception("Problem connecting to database cluster.")
-
+    print("connected to db")
     yield
 
     # on shutting down the app

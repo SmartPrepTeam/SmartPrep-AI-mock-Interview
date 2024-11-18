@@ -1,6 +1,6 @@
 from beanie import Document,PydanticObjectId
 from schemas import Difficulty
-from pydantic import Json
+from typing import List
 from datetime import datetime
 # PydanticObjectId ensures smooth working with mongodb ObjectIds
 
@@ -8,7 +8,7 @@ class TextualQuestion(Document):
     job_description: str
     job_title: str
     difficulty_level: Difficulty
-    questions : Json
+    questions : List[dict]
     user_id : PydanticObjectId
     createdAt : datetime =  datetime.now() 
 
