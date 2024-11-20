@@ -2,7 +2,7 @@ import {ReactNode} from 'react'
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-export function cn(...inputs: ClassValue[]) {
+function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 interface Props extends React.HTMLAttributes<HTMLDivElement>{
@@ -11,7 +11,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement>{
 
 export const Card = ({className,children,...props}:Props) => {
   return (
-    <div className={cn('bg-red',className)} {...props}>
+    <div className={cn('mx-auto',className)} {...props}>
         {children}
     </div>
   )
@@ -19,7 +19,7 @@ export const Card = ({className,children,...props}:Props) => {
 
 export const CardHeader = ({className,children,...props}:Props) => {
     return (
-      <div {...props}>
+      <div className='text-center' {...props}>
           {children}
       </div>
     )
@@ -28,7 +28,7 @@ export const CardHeader = ({className,children,...props}:Props) => {
 
 export const CardTitle = ({className,children,...props}:Props) => {
     return (
-      <div {...props}>
+      <div className='text-2xl font-bold mb-2' {...props}>
           {children}
       </div>
     )
@@ -36,7 +36,7 @@ export const CardTitle = ({className,children,...props}:Props) => {
 
 export const CardDescription = ({className,children,...props}:Props) => {
 return (
-    <div {...props}>
+    <div className="text-card-description mb-6" {...props}>
         {children}
     </div>
 )
