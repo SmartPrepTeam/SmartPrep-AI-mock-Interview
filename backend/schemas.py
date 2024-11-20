@@ -25,3 +25,7 @@ class InterviewFormSelection(BaseModel):
 class Answer(BaseModel):
     answers : List[str]
 
+class User(BaseModel):
+    email:str
+    password:str
+

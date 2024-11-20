@@ -1,5 +1,5 @@
 from fastapi import FastAPI,APIRouter
-from routes import textual_interview
+from routes import textual_interview,auth
 from config.db import db_lifespan
 
 version = 'v1'
@@ -13,5 +13,5 @@ app = FastAPI(
 api_router = APIRouter(prefix="/api")
 
 api_router.include_router(textual_interview.router)
-
+api_router.include_router(auth.router)
 app.include_router(api_router)
