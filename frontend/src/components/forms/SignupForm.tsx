@@ -15,7 +15,13 @@ const SignupForm = () => {
             navigate('/login')
         }
         catch(err){
-            toast(`Error : ${err?.response?.data?.message}`)
+            if(axios.isAxiosError(err)){
+                const errorMessage = err.response?.data?.message || "An unexpected Error occured"
+                toast(`Error : ${errorMessage}`)
+            }
+            else{
+                toast("An unexpected Error occured")
+            }
         }
     }
   return (
