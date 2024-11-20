@@ -14,7 +14,7 @@ const AuthCard = ({title,description,message,additionalMessage,linkText,linkHref
   return (
     <Card>
         <CardHeader>
-            <CardTitle>{title}</CardTitle>
+            <CardTitle className="text-3xl">{title}</CardTitle>
             <CardDescription>{description}</CardDescription>
         </CardHeader>
         <CardBody>
