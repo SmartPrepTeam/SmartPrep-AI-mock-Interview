@@ -7,7 +7,10 @@ export default{
         Manrope: ["Manrope", "sans-serif"],
       },
       colors:{
-        'card-description': '#010306',  
+        'card-description': '#80858c',  
+        'inputBackground' : "#2d2d2d",
+        'primary': '#6f42f5',
+        'secondary' : '#cdbff5'
       }
     },
   },

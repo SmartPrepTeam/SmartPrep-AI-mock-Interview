@@ -11,7 +11,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement>{
 
 export const Card = ({className,children,...props}:Props) => {
   return (
-    <div className={cn('mx-auto',className)} {...props}>
+    <div className='w-2/5' {...props}>
         {children}
     </div>
   )
@@ -36,14 +36,14 @@ export const CardTitle = ({className,children,...props}:Props) => {
 
 export const CardDescription = ({className,children,...props}:Props) => {
 return (
-    <div className="text-card-description mb-6" {...props}>
+    <div className="text-card-description mb-6 text-sm" {...props}>
         {children}
     </div>
 )
 }
 export const CardBody = ({className,children,...props}:Props) => {
     return (
-      <div {...props}>
+      <div className={className} {...props}>
           {children}
       </div>
     )
