@@ -53,7 +53,6 @@ const AuthContainer = ({
             </label>
             <input
               {...register('email')}
-              ref={userRef}
               id="email"
               placeholder="Email"
               className="border-2 border-secondary p-2 mb-1 w-full rounded-lg"

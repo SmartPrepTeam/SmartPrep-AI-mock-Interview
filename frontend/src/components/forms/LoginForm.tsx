@@ -14,13 +14,15 @@ const LoginForm = () => {
   const handleLogin: SubmitHandler<FormFields> = async (data) => {
     try {
       const res = await axios.post(ENDPOINTS.auth.login, data);
-      auth?.setToken(res.data.access_token);
-      auth?.setUserId(res.data.user_id);
+      auth?.setToken(res.data.data.access_token);
+      auth?.setUserId(res.data.data.user_id);
       toast.success('Logged in Successfully');
       navigate('/home');
     } catch (e) {
       if (axios.isAxiosError(e)) {
-        toast.error(e.response?.data.message || 'An unexpected error occured');
+        if (e.response?.status === 400) {
+          toast.error('Invalid Credentials');
+        } else toast.error(e.response?.data?.message);
       } else {
         toast.error('An unexpected error occured');
       }
