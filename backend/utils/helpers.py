@@ -1,8 +1,8 @@
-from typing import Any,Dict
+from typing import Any,Dict,Optional
 from passlib.context import CryptContext
 from config.setting import settings
 from datetime import datetime,timedelta
-
+from jose import jwt,JWTError
 pwd_context=CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def create_response(status : str,msg : str,data : Any = None) -> Dict:
@@ -39,3 +39,17 @@ def create_access_token(data : dict) -> str:
 def create_refresh_token(data : dict) -> str :
     expires_delta = timedelta(minutes = settings.refresh_token_expire_minutes)
     return self.create_token(data,expires_delta)
+
+def verify_refresh_token(token : str)->Optional[str]:
+    try:
+        payload = jwt.decode(token,settings.secret_key,algorithms= [settings.algorithm])
+
+        user_id = payload.get("user_id")
+
+        if not user_id:
+            return None
+        return user_id
+
+    except JWTError as e:
+        print(f"JWT ERROR : {e}")
+        return None

@@ -1,8 +1,8 @@
 from schemas import User as UserSchema
 from models.user import User
-from fastapi import status,HTTPException,Response
-from utils.helpers import hash_password,verify_password,create_access_token,create_refresh_token
-
+from fastapi import status,HTTPException,Request
+from utils.helpers import hash_password,verify_password,create_access_token,create_refresh_token,verify_refresh_token
+from fastapi.responses import Response
 
 class AuthService():
 
@@ -59,5 +59,33 @@ class AuthService():
             "user_id" = existing_user.id
         }
         
+    async def generate_new_access_token(response : Response,request: Request):
+
+        """get the refresh token"""
+        refresh_token = request.cookies.get("refresh_token")
+
+        if not refresh_token:
+            raise HTTPException(
+                status_code = status.HTTP_401_UNAUTHORIZED,
+                detail = "Refresh token not present"
+            )
+
+        """verify its correct and still has not expired and get user id from it"""
+        user_id = verify_refresh_token(refresh_token)
+
+        if not user_id:
+            raise HTTPException(
+                status_code = status.HTTP_401_UNAUTHORIZED,
+                email = "Invaild or Expired Refresh token"
+            )
+        
+        """Generate new tokens for more security"""
+        access_token = create_access_token({"user_id" : user_id})
+        new_refresh_token  = create_refresh_token({"user_id" :  user_id})
+
+        self.set_refresh_token(response,new_refresh_token)
+
+        return access_token
+
 
         
