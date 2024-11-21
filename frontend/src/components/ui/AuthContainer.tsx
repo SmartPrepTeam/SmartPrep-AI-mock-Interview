@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import img from '@/assets/Illustration.svg';
+import { useEffect } from 'react';
 
 const schema = z.object({
   email: z.string().email('Invalid email address'),
@@ -31,6 +32,7 @@ const AuthContainer = ({
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setFocus,
   } = useForm<FormFields>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -38,6 +40,9 @@ const AuthContainer = ({
       password: '',
     },
   });
+  useEffect(() => {
+    setFocus('email');
+  }, [setFocus]);
   return (
     <div className="flex w-full h-screen justify-center items-center font-Manrope">
       <div className="w-1/2 flex justify-center items-center">
@@ -48,6 +53,7 @@ const AuthContainer = ({
             </label>
             <input
               {...register('email')}
+              ref={userRef}
               id="email"
               placeholder="Email"
               className="border-2 border-secondary p-2 mb-1 w-full rounded-lg"

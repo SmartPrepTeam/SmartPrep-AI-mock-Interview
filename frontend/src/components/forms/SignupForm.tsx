@@ -10,6 +10,7 @@ const SignupForm = () => {
   const navigate = useNavigate();
   const handleSignup: SubmitHandler<FormFields> = async (data) => {
     try {
+      console.log(ENDPOINTS.auth.signup);
       const res = await axios.post(ENDPOINTS.auth.signup, data);
       toast.success('Signed up successfully');
       navigate('/login');
