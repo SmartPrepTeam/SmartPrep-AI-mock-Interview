@@ -37,7 +37,7 @@ class TextualInterviewService():
         return json_data
 
     async def get_questions(self,selection : InterviewFormSelection):
-        # generating questions
+        '''   Generates questions   '''
         prompt = generate_mock_interview_prompt(selection.job_title,selection.job_description,selection.difficulty_level)
         chat_response = client.chat.complete(
             model = "mistral-large-latest",
@@ -45,7 +45,7 @@ class TextualInterviewService():
         )
         raw_response = chat_response.choices[0].message.content
 
-        # Cleaning the response 
+        '''  Cleans the response '''
         json_data = await self.clean_llm_response(raw_response)
         if isinstance(json_data, dict):
             json_data = json_data.get('questions', [])
@@ -53,7 +53,7 @@ class TextualInterviewService():
         await self.validate_object_id(selection.userID)
         user_object_id =await self.convert_to_pydantic_object_id(selection.userID)
 
-        # making a new entry in the db
+        '''  makes a new entry in the db  '''
         new_question = TextualQuestion(
             job_description = selection.job_description,
             job_title = selection.job_title,
@@ -65,19 +65,19 @@ class TextualInterviewService():
         return {"data" : json_data,"id" : str(new_question.id)}
 
     async def get_score(self,data : Answer,question_id : str):
-        # Fetch questions from the DB
-
+        '''Fetch questions from the DB'''
         await self.validate_object_id(question_id)
 
         question_object_id =await self.convert_to_pydantic_object_id(question_id)
         print(f"Searching for question with ID: {question_object_id}")
         question = await TextualQuestion.find_one({"_id": question_object_id})
-        # print(f"Questions from DB: {question['questions']}")
+    
         if question is None:
             # Handle no document found
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Textual interview not found")
 
-        # scoring the answers
+
+        ''' scores the answers '''
         prompt = score_the_answers(question.questions,data.answers)
         chat_response = client.chat.complete(
             model = "mistral-large-latest",
@@ -85,10 +85,10 @@ class TextualInterviewService():
         )
         raw_response = chat_response.choices[0].message.content
 
-        # Cleaning the response 
+        '''  Cleans the response   ''' 
         json_data = await self.clean_llm_response(raw_response)
 
-        # making a new entry in the db
+        '''  makes a new entry in the db  '''
         new_scores = TextualAnswer(
             answers = data.answers,
             score = json_data,

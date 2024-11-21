@@ -8,7 +8,7 @@ class AuthService():
     async def register_new_user(user_data:UserSchema):
 
         '''check the uniqueness of the email'''
-        const res = await User.find_one({'email' = user_data.email})
+        res = await User.find_one({"email" : user_data.email})
         if res:
             raise HTTPException(
                 status_code = status.HTTP_400_BAD_REQUEST,
@@ -19,11 +19,11 @@ class AuthService():
         hashed_password = hash_password(user_data.password)
 
         '''Register the user'''
-        const new_user = User(
+        new_user = User(
             email = user_data.email,
             password = hashed_password
         )
         await new_user.insert()
 
     async def login(user_data : UserSchema):
-
+        print("hello")
