@@ -18,8 +18,8 @@ class AuthController():
     async def login(self,user_data:User):
 
         try:
-            token = await self.auth_service.login(user_data)
-            return create_response(SUCCESS_STATUS,"logged in successfully",data = {'access_token' = token })
+            data = await self.auth_service.login(user_data)
+            return create_response(SUCCESS_STATUS,"logged in successfully",data = data)
         except Exception as e:
             return create_error_response(ERROR_STATUS,"Failed to login",error = e)
 

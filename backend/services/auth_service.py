@@ -54,7 +54,10 @@ class AuthService():
         self.set_refresh_token(response,refresh_token)
 
         '''Send the access token back to the client'''
-        return access_token
+        return {
+            "access_token"  = access_token,
+            "user_id" = existing_user.id
+        }
         
 
         
