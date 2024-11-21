@@ -2,12 +2,14 @@ import { ReactNode, createContext, useLayoutEffect, useState } from 'react';
 import axios from 'axios';
 import { api } from '@/api/index';
 import { ENDPOINTS } from '@/api/api-config';
+import { useNavigate } from 'react-router-dom';
 
 type AuthContextType = {
   userId: string | null;
   setUserId: (userId: string | null) => void;
   setToken: (token: string | null) => void;
   token: string | null;
+  handleLogout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,6 +25,14 @@ interface TokenResponse {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [userId, setUserId] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await axios.post(ENDPOINTS.auth.logout);
+    setUserId(null);
+    setToken(null);
+    navigate('/login');
+  };
 
   useLayoutEffect(() => {
     const requestInterceptor = axios.interceptors.request.use(
@@ -64,11 +74,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
             return axios(originalRequest);
           } catch (tokenRefreshError) {
-            // TODO : logout the user
-
+            handleLogout();
             console.error('Token refresh failed', tokenRefreshError);
-            setToken(null);
-            setUserId(null);
             return Promise.reject(tokenRefreshError);
           }
         }
@@ -82,7 +89,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
   }, [setToken, setUserId]);
   return (
-    <AuthContext.Provider value={{ userId, setUserId, token, setToken }}>
+    <AuthContext.Provider
+      value={{ userId, setUserId, token, setToken, handleLogout }}
+    >
       {children}
     </AuthContext.Provider>
   );

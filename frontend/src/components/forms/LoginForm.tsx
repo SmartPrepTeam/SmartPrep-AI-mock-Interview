@@ -1,7 +1,7 @@
 import AuthContainer from '@/components/ui/AuthContainer';
 import { SubmitHandler } from 'react-hook-form';
 import { FormFields } from '@/components/ui/AuthContainer';
-import { ENDPOINTS } from '@/api-config';
+import { ENDPOINTS } from '@/api/api-config';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
