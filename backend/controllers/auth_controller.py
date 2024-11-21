@@ -31,4 +31,8 @@ class AuthController():
         return create_response(SUCCESS_STATUS,"New access token generated successfully",data = {"access_token" : token})
     except Exception as e:
         return create_error_response(ERROR_STATUS,"Failed to generate the access token",error = e)
+
+    async def blacklistToken(self,request : Request):
+        await self.auth_service.blacklistToken()
+        return create_response(SUCCESS_STATUS,"token blacklisted successfully")
     

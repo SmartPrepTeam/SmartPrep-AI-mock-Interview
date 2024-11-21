@@ -1,4 +1,4 @@
-from fastapi import APIRouter,status,Request
+from fastapi import APIRouter,status,Request,Depends
 from schemas import User
 from controllers.auth_controller import AuthController
 from fastapi.responses import Response
@@ -22,3 +22,7 @@ async def login(response : Response,user_data : User,auth_controller : AuthContr
 @router.post('/refresh')
 async def generate_new_access_token(response : Response , request : Request,auth_controller : AuthController = Depends(get_auth_controller)):
     return await auth_controller.generate_new_access_token(response , request)
+
+@router.post('/logout')
+async def logout(request : Request , auth_controller : AuthController = Depends(get_auth_controller)):
+    return await auth_controller.blacklistToken(request)

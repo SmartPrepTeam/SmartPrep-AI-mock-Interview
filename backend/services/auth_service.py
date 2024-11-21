@@ -3,6 +3,7 @@ from models.user import User
 from fastapi import status,HTTPException,Request
 from utils.helpers import hash_password,verify_password,create_access_token,create_refresh_token,verify_refresh_token
 from fastapi.responses import Response
+from models.blacklist import BlackList
 
 class AuthService():
 
@@ -69,6 +70,13 @@ class AuthService():
                 status_code = status.HTTP_401_UNAUTHORIZED,
                 detail = "Refresh token not present"
             )
+        """Check if its black listed """
+        blacklisted = await BlackList.find_one({"token" : refresh_token})
+        if blacklisted :
+             raise HTTPException(
+                status_code = status.HTTP_401_UNAUTHORIZED,
+                detail = "Blacklisted Refresh token"
+            )
 
         """verify its correct and still has not expired and get user id from it"""
         user_id = verify_refresh_token(refresh_token)
@@ -76,7 +84,7 @@ class AuthService():
         if not user_id:
             raise HTTPException(
                 status_code = status.HTTP_401_UNAUTHORIZED,
-                email = "Invaild or Expired Refresh token"
+                detail = "Invaild or Expired Refresh token"
             )
         
         """Generate new tokens for more security"""
@@ -86,6 +94,23 @@ class AuthService():
         self.set_refresh_token(response,new_refresh_token)
 
         return access_token
+
+
+    async def blacklistToken(request : Request):
+
+        refresh_token = request.cookies.get("refresh_token")
+
+        if not refresh_token:
+            raise HTTPException(
+                status_code = status.HTTP_400_BAD_REQUEST,
+                detail = "Refresh token not present"
+            )
+
+        new_token = BlackList(
+            token = refresh_token
+        )
+        
+        await new_token.insert()
 
 
         
