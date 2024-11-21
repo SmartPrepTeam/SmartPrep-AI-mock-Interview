@@ -17,6 +17,7 @@ async def register_new_user(user_data : User, auth_controller : AuthController =
 
 @router.post('/login')
 async def login(response : Response,user_data : User,auth_controller : AuthController = Depends(get_auth_controller)):
+    print("call 1")
     return await auth_controller.login(response,user_data)
 
 @router.post('/refresh')

@@ -16,7 +16,7 @@ class AuthService():
             samesite = 'strict',
             secure = True
         )
-    async def register_new_user(user_data:UserSchema):
+    async def register_new_user(self,user_data:UserSchema):
 
         '''check the uniqueness of the email'''
         res = await User.find_one({"email" : user_data.email})
@@ -36,14 +36,15 @@ class AuthService():
         )
         await new_user.insert()
 
-    async def login(response : Response,user_data : UserSchema):
+    async def login(self,response : Response,user_data : UserSchema):
+        print("call 3")
         '''check for a user with given email '''
         existing_user = await User.find_one({"email": user_data.email})
 
         ''' verfiy password and missing user '''
         if not existing_user or not verify_password(user_data.password,existing_user.password):
             raise HTTPException(
-                status_code = status.HTTP_403_FORBIDDEN_REQUEST,
+                status_code = status.HTTP_400_BAD_REQUEST,
                 detail = "Invalid Credentials"
             )
         
@@ -56,11 +57,11 @@ class AuthService():
 
         '''Send the access token back to the client'''
         return {
-            "access_token"  = access_token,
-            "user_id" = existing_user.id
+            "access_token" : access_token,
+            "user_id" : str(existing_user.id)
         }
         
-    async def generate_new_access_token(response : Response,request: Request):
+    async def generate_new_access_token(self,response : Response,request: Request):
 
         """get the refresh token"""
         refresh_token = request.cookies.get("refresh_token")
@@ -96,7 +97,7 @@ class AuthService():
         return access_token
 
 
-    async def blacklistToken(request : Request):
+    async def blacklistToken(self , request : Request):
 
         refresh_token = request.cookies.get("refresh_token")
 
@@ -109,7 +110,7 @@ class AuthService():
         new_token = BlackList(
             token = refresh_token
         )
-        
+
         await new_token.insert()
 
 

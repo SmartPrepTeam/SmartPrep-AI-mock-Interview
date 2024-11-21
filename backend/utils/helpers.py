@@ -34,11 +34,11 @@ def create_token(data: dict, exp : timedelta) -> str:
 
 def create_access_token(data : dict) -> str:
     expires_delta = timedelta(minutes = settings.access_token_expire_minutes)
-    return self.create_token(data,expires_delta)
+    return create_token(data,expires_delta)
 
 def create_refresh_token(data : dict) -> str :
     expires_delta = timedelta(minutes = settings.refresh_token_expire_minutes)
-    return self.create_token(data,expires_delta)
+    return create_token(data,expires_delta)
 
 def verify_refresh_token(token : str)->Optional[str]:
     try:
