@@ -1,6 +1,7 @@
 from fastapi import FastAPI,APIRouter
-from routes import textual_interview
+from routes import textual_interview,auth
 from config.db import db_lifespan
+from fastapi.middleware.cors import CORSMiddleware
 
 version = 'v1'
 app = FastAPI(
@@ -9,9 +10,20 @@ app = FastAPI(
     version = version,
     lifespan = db_lifespan)
 
+origins = [
+    '*',
+]
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins= origins , 
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],  
+)
 
 api_router = APIRouter(prefix="/api")
 
 api_router.include_router(textual_interview.router)
-
+api_router.include_router(auth.router)
 app.include_router(api_router)
