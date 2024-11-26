@@ -3,6 +3,8 @@
 from pydantic import BaseModel
 from typing import List
 from enum import Enum 
+from beanie import PydanticObjectId
+from datetime import datetime
 
 class Difficulty(str,Enum):
     easy = "easy"
@@ -29,3 +31,18 @@ class User(BaseModel):
     email:str
     password:str
 
+class QuestionShortView(BaseModel):
+    job_description: str
+    job_title: str
+    difficulty_level: Difficulty
+    user_id : PydanticObjectId
+    createdAt : datetime =  datetime.now() 
+
+class QuestionsList(BaseModel):
+    questions : List[dict]
+
+class AnswersList(BaseModel):
+    answers : List[str]
+
+class ScoresView(BaseModel):
+    scores : dict
