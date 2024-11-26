@@ -7,6 +7,7 @@ class TextualAnswer(Document):
     answers : List[str]
     score : dict
     question_id : PydanticObjectId
+    user_id : PydanticObjectId
     createdAt : datetime = datetime.now()
 
     class Settings:
