@@ -65,12 +65,14 @@ class TextualInterviewService():
         await new_question.insert()
         return {"data" : json_data,"id" : str(new_question.id)}
 
-    async def get_score(self,data : Answer,question_id : str):
+    async def get_score(self,data : Answer,question_id : str,user_id : str):
         '''Fetch questions from the DB'''
         await self.validate_object_id(question_id)
+        await self.validate_object_id(user_id)
 
         question_object_id =await self.convert_to_pydantic_object_id(question_id)
-        print(f"Searching for question with ID: {question_object_id}")
+        user_object_id = await self.convert_to_pydantic_object_id(user_id)
+
         question = await TextualQuestion.find_one({"_id": question_object_id})
     
         if question is None:
@@ -93,6 +95,7 @@ class TextualInterviewService():
         new_scores = TextualAnswer(
             answers = data.answers,
             score = json_data,
+            user_id = user_object_id,
            question_id = question_object_id
         )
         await new_scores.insert()
@@ -111,6 +114,7 @@ class TextualInterviewService():
 
         # Convert user_id from ObjectId to string for all documents in the list
         for question in questions_list:
+            print(question)
             question.user_id = str(question.user_id)
             question.id = str(question.id)
 
@@ -137,7 +141,7 @@ class TextualInterviewService():
         user_object_id = await self.convert_to_pydantic_object_id(user_id)
 
         """ Get questions """
-        res_questions = await TextualQuestion.find({"_id" : question_object_id}).project(QuestionsList)
+        res_questions = await TextualQuestion.find_one({"_id" : question_object_id}).project(QuestionsList)
 
         if not res_questions:
             raise HTTPException(
@@ -146,7 +150,7 @@ class TextualInterviewService():
             )
 
         """ Get answers """
-        res_answers = await TextualAnswer.find({"question_id" : question_object_id,"user_id": user_object_id}).project(AnswersList)
+        res_answers = await TextualAnswer.find_one({"question_id" : question_object_id,"user_id": user_object_id}).project(AnswersList)
 
         if not res_answers:
             raise HTTPException(
@@ -154,25 +158,25 @@ class TextualInterviewService():
                 detail = "Answers not found"
             )
         return {
-            "questions" : res_questions,
-            "answers" : res_answers
+            "questions_object" : res_questions,
+            "answers_object" : res_answers
         }
 
-        async def get_scores(self,question_id : str, user_id : str):
-            await self.validate_object_id(question_id)
-            await self.validate_object_id(user_id)
+    async def get_scores(self,question_id : str, user_id : str):
+        await self.validate_object_id(question_id)
+        await self.validate_object_id(user_id)
 
-            question_object_id =await self.convert_to_pydantic_object_id(question_id)
-            user_object_id = await self.convert_to_pydantic_object_id(user_id)
+        question_object_id =await self.convert_to_pydantic_object_id(question_id)
+        user_object_id = await self.convert_to_pydantic_object_id(user_id)
 
-            """ Get answers """
-            scores = await TextualAnswer.find({"question_id" : question_object_id,"user_id": user_object_id}).project(ScoresView)
+        """ Get answers """
+        scores = await TextualAnswer.find_one({"question_id" : question_object_id,"user_id": user_object_id}).project(ScoresView)
 
-            if not scores:
-                raise HTTPException(
-                    status_code = HTTP_404_NOT_FOUND,
-                    detail = "Scores not found"
-                )
-            return scores
+        if not scores:
+            raise HTTPException(
+                status_code = HTTP_404_NOT_FOUND,
+                detail = "Scores not found"
+            )
+        return scores
 
 

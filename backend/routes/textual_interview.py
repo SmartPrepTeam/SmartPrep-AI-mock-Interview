@@ -21,9 +21,10 @@ async def get_questions(
 async def get_score(
     data : Answer,
     question_id : str,
+    user_id : str,
     textual_interview_controller: TextualInterviewController =  Depends(get_textual_interview_controller)
 ):
-    return await textual_interview_controller.get_score(data,question_id)
+    return await textual_interview_controller.get_score(data,question_id,user_id)
 
 @router.delete("/questions/{question_id}",name="Delete interview")
 async def remove_textual_interview(

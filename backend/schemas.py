@@ -1,6 +1,6 @@
 # Request and response schemas for Textual Interviews API endpoints
 
-from pydantic import BaseModel
+from pydantic import BaseModel,Field
 from typing import List
 from enum import Enum 
 from beanie import PydanticObjectId
@@ -36,6 +36,7 @@ class QuestionShortView(BaseModel):
     job_title: str
     difficulty_level: Difficulty
     user_id : PydanticObjectId
+    id : PydanticObjectId = Field(..., alias="_id")
     createdAt : datetime =  datetime.now() 
 
 class QuestionsList(BaseModel):
@@ -45,4 +46,4 @@ class AnswersList(BaseModel):
     answers : List[str]
 
 class ScoresView(BaseModel):
-    scores : dict
+    score : dict

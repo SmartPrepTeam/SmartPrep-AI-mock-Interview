@@ -12,8 +12,8 @@ class TextualInterviewController():
         data = await self.textual_interview_service.get_questions(selection)
         return create_response(SUCCESS_STATUS,"questions fetched successfully",data = data)
     
-    async def get_score(self,data : Answer,question_id : str):
-        scores = await self.textual_interview_service.get_score(data,question_id)
+    async def get_score(self,data : Answer,question_id : str,user_id : str):
+        scores = await self.textual_interview_service.get_score(data,question_id,user_id)
         return create_response(SUCCESS_STATUS,"scores fetched successfully",data = scores)
 
     async def remove_textual_interview(self,question_id : str,user_id : str):
