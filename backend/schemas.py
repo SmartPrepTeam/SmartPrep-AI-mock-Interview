@@ -23,6 +23,7 @@ class InterviewFormSelection(BaseModel):
     difficulty_level : Difficulty
     job_title : str
     job_description : str
+    no_of_questions : int
 
 class Answer(BaseModel):
     answers : List[str]
@@ -35,6 +36,7 @@ class QuestionShortView(BaseModel):
     job_description: str
     job_title: str
     difficulty_level: Difficulty
+    no_of_questions : int
     user_id : PydanticObjectId
     id : PydanticObjectId = Field(..., alias="_id")
     createdAt : datetime =  datetime.now() 

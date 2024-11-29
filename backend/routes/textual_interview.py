@@ -10,6 +10,8 @@ router = APIRouter(
 def get_textual_interview_controller() -> TextualInterviewController:
     return TextualInterviewController()
 
+"""ENDPOINTS FOR INTERVIEWS RELATED TO QUESTION GENERATION AND SCORING"""
+
 @router.post("/questions",status_code=status.HTTP_201_CREATED,name="Generate Questions based on given selections")
 async def get_questions(
     selection : InterviewFormSelection,
@@ -34,6 +36,8 @@ async def remove_textual_interview(
 ):
     return await textual_interview_controller.remove_textual_interview(question_id,user_id)
 
+"""  ENDPOINTS RELATED TO PREVIOUS INTERVIEWS """
+
 @router.get("/{user_id}",name="Get list of all the previous interviews")
 async def get_all_interviews(
     user_id : str,
@@ -56,3 +60,11 @@ async def get_scores(
     textual_interview_controller : TextualInterviewController = Depends(get_textual_interview_controller)
     ):
     return await textual_interview_controller.get_scores(question_id,user_id)
+
+@router.post("/feedback",name="Get feedback from AI on an answer")
+async def get_feedback(
+    question : str,
+    answer : str,
+    textual_interview_controller : TextualInterviewController = Depends(get_textual_interview_controller)
+):
+    return await textual_interview_controller.get_feedback(question,answer)

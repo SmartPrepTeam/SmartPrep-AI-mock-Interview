@@ -9,6 +9,7 @@ class TextualQuestion(Document):
     job_title: str
     difficulty_level: Difficulty
     questions : List[dict]
+    no_of_questions : int
     user_id : PydanticObjectId
     createdAt : datetime =  datetime.now() 
 

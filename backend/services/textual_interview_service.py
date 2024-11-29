@@ -1,5 +1,5 @@
 from schemas import Answer,InterviewFormSelection
-from utils.prompts import generate_mock_interview_prompt,score_the_answers
+from utils.prompts import generate_mock_interview_prompt,score_the_answers_prompt,generate_feedback_prompt
 from config.mistral_ai import client
 import json
 from schemas import Answer,InterviewFormSelection,QuestionShortView,QuestionsList,AnswersList,ScoresView
@@ -39,7 +39,7 @@ class TextualInterviewService():
 
     async def get_questions(self,selection : InterviewFormSelection):
         '''   Generates questions   '''
-        prompt = generate_mock_interview_prompt(selection.job_title,selection.job_description,selection.difficulty_level)
+        prompt = generate_mock_interview_prompt(selection.job_title,selection.job_description,selection.difficulty_level,selection.no_of_questions)
         chat_response = client.chat.complete(
             model = "mistral-large-latest",
             messages = prompt
@@ -59,6 +59,7 @@ class TextualInterviewService():
             job_description = selection.job_description,
             job_title = selection.job_title,
             difficulty_level = selection.difficulty_level,
+            no_of_questions = selection.no_of_questions,
             questions = json_data,
             user_id = user_object_id
         ) 
@@ -81,7 +82,7 @@ class TextualInterviewService():
 
 
         ''' scores the answers '''
-        prompt = score_the_answers(question.questions,data.answers)
+        prompt = score_the_answers_prompt(question.questions,data.answers)
         chat_response = client.chat.complete(
             model = "mistral-large-latest",
             messages = prompt
@@ -179,4 +180,16 @@ class TextualInterviewService():
             )
         return scores
 
+    async def get_feedback(self,question : str,answer : str):
+
+        prompt = generate_feedback_prompt(question,answer)
+
+        chat_response = client.chat.complete(
+            model = "mistral-large-latest",
+            messages = prompt
+        )
+        raw_response = chat_response.choices[0].message.content
+        '''  Cleans the response '''
+        json_data = await self.clean_llm_response(raw_response)
+        return json_data
 

@@ -1,10 +1,10 @@
 # Question Generation
-def generate_mock_interview_prompt(job_title, job_description, difficulty_level):
+def generate_mock_interview_prompt(job_title, job_description, difficulty_level,no_of_questions):
     conversation = [
         {
             "role": "user",
             "content": f"""
-        You are an interview question generation bot. Your task is to create a set of 10 interview questions in JSON format based on the following parameters:
+        You are an interview question generation bot. Your task is to create a set of {no_of_questions} interview questions in JSON format based on the following parameters:
 
         - Job Title: {job_title}
         - Job Description: {job_description}
@@ -17,7 +17,7 @@ def generate_mock_interview_prompt(job_title, job_description, difficulty_level)
     return conversation
 
     # Scoring the answers
-def score_the_answers(questions,answers):
+def score_the_answers_prompt(questions,answers):
     conversation = [
         {
             "role":"user",
@@ -49,3 +49,28 @@ def score_the_answers(questions,answers):
         }
     ]
     return conversation 
+
+def generate_feedback_prompt(question,user_answer):
+    conversation = [
+        {
+        "role": "user",
+        "content": f""" 
+        You are an interview answer evaluator bot. For each question, generate an ideal answer in 5 lines and compare it with the user’s answer. Provide improvements related to Tone, Clarity, Accuracy, and Grammar within a single property called "Improvements." Return the output strictly in JSON format as shown below.
+
+        - Question: {question}
+        - Ideal Answer: [Your Generated Answer]
+        - User Answer: {user_answer}
+
+        Evaluate the user’s answer based on these criteria: Tone, Clarity, Accuracy, and Grammar. Provide detailed textual improvements addressing all these criteria.
+
+        Provide the output strictly in the following JSON format:
+        {{
+        "Improvements": "[Combined suggestions for improving tone, clarity, accuracy, and grammar in the user’s answer]"
+        }}
+
+        Do not include any other text in your response.
+        """
+            }
+    ]
+    return conversation
+
