@@ -32,4 +32,7 @@ class TextualInterviewController():
         res = await self.textual_interview_service.get_scores(question_id,user_id)
         return create_response(SUCCESS_STATUS,f"Scores for interview with id {question_id} fetched successfully",data = res)
 
+    async def get_feedback(self,question : str,answer : str):
+        res = await self.textual_interview_service.get_feedback(question,answer)
+        return create_response(SUCCESS_STATUS,f"Feedback fetched successfully",data = res)
             
