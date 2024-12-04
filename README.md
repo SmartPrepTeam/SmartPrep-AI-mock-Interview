@@ -4,7 +4,6 @@
   Mock Interview Simulator with AI-Powered Feedback
 </p>
 
-
 <p align="center">
   <a href="#introduction"><strong>Introduction</strong></a> ·
   <a href="#tech-stack--features"><strong>Tech Stack + Features</strong></a> ·
@@ -36,12 +35,41 @@ SmartPrep is an interview preparation tool that provides AI feedback on your tex
 ### Miscellaneous
 
 - [React Webcam](https://github.com/mozmorris/react-webcam) - Webcam component for React
-  
-## How it all works
 
-SmartPrep uses MistralAI to generate questions tailored to selections made by the user.
+## How to get started
 
-We then send the answers directly to the model and then stream feedback.
+## Running the Application Locally
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/SmartPrepTeam/SmartPrep-AI-mock-Interview.git
+   cd SmartPrep-AI-mock-Interview
+   ```
+2. Run the script or Run the commands manually :
+   For Linux/MacOs:
+
+```bash
+./run.sh
+```
+
+For Windows:
+
+```bash
+run.bat
+```
+
+Manual Setup :
+Start MongoDB:
+
+```bash
+docker-compose up -d
+```
+
+Start FastAPI:
+
+```bash
+uvicorn main:app --reload
+```
 
 ## Team
 
