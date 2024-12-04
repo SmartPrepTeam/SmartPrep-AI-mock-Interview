@@ -8,7 +8,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: smartprep
       MONGO_INITDB_ROOT_PASSWORD: smartprep
     ports:
-      - 27017:27017
+      - 27018:27017
     volumes:
       - mongodbdata:/data/db
 volumes:
