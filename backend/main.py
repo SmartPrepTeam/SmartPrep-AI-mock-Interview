@@ -1,5 +1,5 @@
 from fastapi import FastAPI,APIRouter
-from routes import textual_interview,auth
+from routes import textual_interview,auth,resume_parser
 from config.db import db_lifespan
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -26,4 +26,5 @@ api_router = APIRouter(prefix="/api")
 
 api_router.include_router(textual_interview.router)
 api_router.include_router(auth.router)
+api_router.include_router(resume_parser.router)
 app.include_router(api_router)

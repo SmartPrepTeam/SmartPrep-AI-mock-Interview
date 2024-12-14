@@ -74,3 +74,21 @@ def generate_feedback_prompt(question,user_answer):
     ]
     return conversation
 
+def extract_user_details_prompt(resume):
+    conversation = [
+        {
+            "role": "user",
+            "content": f"""You are an AI bot specialized in resume parsing. Your task is to extract specific details from the provided {resume}. You should extract the following information:
+            - Full name
+            - Email address
+            - LinkedIn profile URL
+            - GitHub profile URL
+            - Employment history (extract details for the most recent two jobs, including job title, company name, dates of employment, location, and job type (remote, full-time, part-time))
+            - Current position (job title and company name if available)
+            - Technical skills
+            - Soft skills
+            - Current location of the user
+            Return the extracted information in JSON format only. Ensure the data is structured clearly, with appropriate fields for each piece of information. If any information is not available or not found, leave the corresponding field empty or null."""
+        }
+    ]
+    return conversation
