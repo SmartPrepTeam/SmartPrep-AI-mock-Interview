@@ -55,7 +55,7 @@ const AuthContainer = ({
               {...register('email')}
               id="email"
               placeholder="Email"
-              className="border-2 border-secondary p-2 mb-1 w-full rounded-lg"
+              className="border-2 border-secondaryPurple p-2 mb-1 w-full rounded-lg"
             />
             {errors.email && (
               <div className="text-red-600">{errors.email?.message}</div>
@@ -68,14 +68,14 @@ const AuthContainer = ({
               id="password"
               placeholder="Password"
               type="password"
-              className="border-2 border-secondary p-2 mt-2 w-full rounded-lg"
+              className="border-2 border-secondaryPurple p-2 mt-2 w-full rounded-lg"
             />
             {errors.password && (
               <div className="text-red-600">{errors.password?.message}</div>
             )}
             <button
               disabled={isSubmitting}
-              className="w-full p-2 rounded-xl text-center text-white mt-8 bg-primary"
+              className="w-full p-2 rounded-xl text-center text-white mt-8 bg-primaryPurple"
             >
               {isSubmitting ? loadingState : buttonText}
             </button>

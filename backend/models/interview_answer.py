@@ -3,7 +3,7 @@ from pydantic import Json
 from typing import List
 from datetime import datetime
 
-class TextualAnswer(Document):
+class InterviewAnswer(Document):
     answers : List[str]
     score : dict
     question_id : PydanticObjectId
@@ -11,4 +11,4 @@ class TextualAnswer(Document):
     createdAt : datetime = datetime.now()
 
     class Settings:
-        Collection = "text-interview-answers"
+        Collection = "interview-answers"

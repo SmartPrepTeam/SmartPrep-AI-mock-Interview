@@ -6,6 +6,10 @@ from enum import Enum
 from beanie import PydanticObjectId
 from datetime import datetime
 
+class InterviewType(str,Enum):
+    text = "text"
+    video = "video"
+    
 class Difficulty(str,Enum):
     easy = "easy"
     medium = "medium"
@@ -21,6 +25,7 @@ class Score(BaseModel):
 class InterviewFormSelection(BaseModel):
     userID : str
     difficulty_level : Difficulty
+    question_type : InterviewType
     job_title : str
     job_description : str
     no_of_questions : int
@@ -49,3 +54,5 @@ class AnswersList(BaseModel):
 
 class ScoresView(BaseModel):
     score : dict
+
+

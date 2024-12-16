@@ -1,17 +1,18 @@
 from beanie import Document,PydanticObjectId
-from schemas import Difficulty
+from schemas import Difficulty,InterviewType
 from typing import List
 from datetime import datetime
 # PydanticObjectId ensures smooth working with mongodb ObjectIds
 
-class TextualQuestion(Document):
+class InterviewQuestion(Document):
     job_description: str
     job_title: str
     difficulty_level: Difficulty
     questions : List[dict]
     no_of_questions : int
     user_id : PydanticObjectId
+    question_type : InterviewType
     createdAt : datetime =  datetime.now() 
 
     class Settings:
-        Collection = "text-interview-questions"
+        Collection = "interview-questions"

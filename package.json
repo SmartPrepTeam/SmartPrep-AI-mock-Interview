@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "mini-svg-data-uri": "^1.4.4",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2"
+  }
+}
