@@ -36,7 +36,7 @@ const AuthCard = ({
       <div className="text-center my-4 text-sm text-card-description">
         {message}{' '}
         <Link to={linkHref}>
-          <span className="text-primary font-semibold">{linkText}</span>
+          <span className="text-primaryPurple font-semibold">{linkText}</span>
         </Link>
       </div>
       {additionalMessage && (
