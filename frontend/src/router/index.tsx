@@ -4,6 +4,7 @@ import SignupForm from '@/components/forms/SignupForm';
 import Home from '@/components/Home';
 import LandingPage from '@/components/LandingPage';
 import LoginForm from '@/components/forms/LoginForm';
+import ResumeUpload from '@/components/ResumeUpload';
 const Router = () => {
   return (
     <>
@@ -11,6 +12,7 @@ const Router = () => {
         <Route path="/login" element={<LoginForm />}></Route>
         <Route path="/signup" element={<SignupForm />}></Route>
         <Route path="/home" element={<Home />}></Route>
+        <Route path="/resume" element={<ResumeUpload />}></Route>
         <Route path="/" element={<LandingPage />}></Route>
       </Routes>
     </>
