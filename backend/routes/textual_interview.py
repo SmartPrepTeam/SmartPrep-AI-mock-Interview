@@ -17,6 +17,7 @@ async def get_questions(
     selection : InterviewFormSelection,
     textual_interview_controller: TextualInterviewController =  Depends(get_textual_interview_controller)
 ):
+    print("Comes here 1")
     return await textual_interview_controller.get_questions(selection)
 
 @router.post("/questions/{question_id}",status_code=status.HTTP_201_CREATED,name="Get scores for the given answers")

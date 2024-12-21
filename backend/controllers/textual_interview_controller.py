@@ -9,6 +9,7 @@ class TextualInterviewController():
         self.textual_interview_service = TextualInterviewService()
     
     async def get_questions(self,selection: InterviewFormSelection):
+        print("Comes here 2")
         data = await self.textual_interview_service.get_questions(selection)
         return create_response(SUCCESS_STATUS,"questions fetched successfully",data = data)
     

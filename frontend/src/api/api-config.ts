@@ -7,4 +7,9 @@ export const ENDPOINTS = {
     refresh: `${API_BASE_URL}/auth/refresh`,
     logout: `${API_BASE_URL}/auth/logout`,
   },
+  textual_interview: {
+    question_generation: `${API_BASE_URL}/textual_interviews/questions`,
+    score_generation: `${API_BASE_URL}/textual_interviews/questions`,
+    feedback: `${API_BASE_URL}/textual_interviews/feedback`,
+  },
 };
