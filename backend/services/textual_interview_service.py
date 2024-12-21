@@ -2,10 +2,10 @@ from schemas import Answer,InterviewFormSelection
 from utils.prompts import generate_mock_interview_prompt,score_the_answers_prompt,generate_feedback_prompt
 from config.mistral_ai import client
 import json
-from schemas import Answer,InterviewFormSelection,QuestionShortView,QuestionsList,AnswersList,ScoresView
+from schemas import Answer,InterviewFormSelection,QuestionShortView,QuestionsList,AnswersList,ScoresView,InterviewType
 from typing import List
-from models.textual_question import TextualQuestion
-from models.textual_answer import TextualAnswer
+from models.interview_question import InterviewQuestion
+from models.interview_answer import InterviewAnswer
 from fastapi import HTTPException,status
 from beanie import PydanticObjectId
 from bson import ObjectId
@@ -55,11 +55,12 @@ class TextualInterviewService():
         user_object_id =await self.convert_to_pydantic_object_id(selection.userID)
 
         '''  makes a new entry in the db  '''
-        new_question = TextualQuestion(
+        new_question = InterviewQuestion(
             job_description = selection.job_description,
             job_title = selection.job_title,
             difficulty_level = selection.difficulty_level,
             no_of_questions = selection.no_of_questions,
+            question_type = selection.question_type,
             questions = json_data,
             user_id = user_object_id
         ) 
@@ -74,7 +75,7 @@ class TextualInterviewService():
         question_object_id =await self.convert_to_pydantic_object_id(question_id)
         user_object_id = await self.convert_to_pydantic_object_id(user_id)
 
-        question = await TextualQuestion.find_one({"_id": question_object_id})
+        question = await InterviewQuestion.find_one({"_id": question_object_id})
     
         if question is None:
             # Handle no document found
@@ -93,7 +94,7 @@ class TextualInterviewService():
         json_data = await self.clean_llm_response(raw_response)
 
         '''  makes a new entry in the db  '''
-        new_scores = TextualAnswer(
+        new_scores = InterviewAnswer(
             answers = data.answers,
             score = json_data,
             user_id = user_object_id,
@@ -101,84 +102,6 @@ class TextualInterviewService():
         )
         await new_scores.insert()
         return json_data
-
-
-    async def get_all_interviews(self,user_id : str):
-
-        await self.validate_object_id(user_id)
-        user_object_id =await self.convert_to_pydantic_object_id(user_id)
-
-        """Exclude the questions list using projection""" 
-        questions_list = await TextualQuestion.find(
-            {"user_id": user_object_id}
-            ).project(QuestionShortView).to_list()
-
-        # Convert user_id from ObjectId to string for all documents in the list
-        for question in questions_list:
-            print(question)
-            question.user_id = str(question.user_id)
-            question.id = str(question.id)
-
-        return questions_list
-
-    async def remove_textual_interview(self,question_id : str,user_id : str):
-
-        await self.validate_object_id(question_id)
-        await self.validate_object_id(user_id)
-
-        question_object_id =await self.convert_to_pydantic_object_id(question_id)
-        user_object_id = await self.convert_to_pydantic_object_id(user_id)
-
-        """Deleting questions """
-        await TextualQuestion.find({"_id" : question_object_id}).delete()
-        """ Deleting answers and scores"""
-        await TextualAnswer.find({"question_id" : question_object_id,"user_id": user_object_id}).delete()
-
-    async def get_questions_with_answers(self , question_id : str,user_id : str):
-        await self.validate_object_id(question_id)
-        await self.validate_object_id(user_id)
-
-        question_object_id =await self.convert_to_pydantic_object_id(question_id)
-        user_object_id = await self.convert_to_pydantic_object_id(user_id)
-
-        """ Get questions """
-        res_questions = await TextualQuestion.find_one({"_id" : question_object_id}).project(QuestionsList)
-
-        if not res_questions:
-            raise HTTPException(
-                status_code = HTTP_404_NOT_FOUND,
-                detail = "Questions not found"
-            )
-
-        """ Get answers """
-        res_answers = await TextualAnswer.find_one({"question_id" : question_object_id,"user_id": user_object_id}).project(AnswersList)
-
-        if not res_answers:
-            raise HTTPException(
-                status_code = HTTP_404_NOT_FOUND,
-                detail = "Answers not found"
-            )
-        return {
-            "questions_object" : res_questions,
-            "answers_object" : res_answers
-        }
-
-    async def get_scores(self,question_id : str, user_id : str):
-        await self.validate_object_id(question_id)
-        await self.validate_object_id(user_id)
-
-        question_object_id =await self.convert_to_pydantic_object_id(question_id)
-        user_object_id = await self.convert_to_pydantic_object_id(user_id)
-
-        """ Get answers """
-        scores = await TextualAnswer.find_one({"question_id" : question_object_id,"user_id": user_object_id}).project(ScoresView)
-
-        if not scores:
-            raise HTTPException(
-                status_code = HTTP_404_NOT_FOUND,
-                detail = "Scores not found"
-            )
-        return scores
 
     async def get_feedback(self,question : str,answer : str):
 
