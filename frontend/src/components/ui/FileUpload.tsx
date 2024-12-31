@@ -3,7 +3,8 @@ import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { IconUpload } from '@tabler/icons-react';
 import { useDropzone } from 'react-dropzone';
-
+import toast from 'react-hot-toast';
+import { FileText } from 'lucide-react';
 const mainVariant = {
   initial: {
     x: 0,
@@ -34,7 +35,7 @@ export const FileUpload = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (newFiles: File[]) => {
-    setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+    setFiles(newFiles);
     onChange && onChange(newFiles);
   };
 
@@ -45,15 +46,16 @@ export const FileUpload = ({
   const { getRootProps, isDragActive } = useDropzone({
     multiple: false,
     maxFiles: 1,
+    accept: { 'application/pdf': [] },
     noClick: true,
     onDrop: handleFileChange,
     onDropRejected: (error) => {
-      console.log(error);
+      toast.error('Resume must be in pdf format');
     },
   });
 
   return (
-    <div className="w-full" {...getRootProps()}>
+    <div className="w-full border border-white/[0.1]" {...getRootProps()}>
       <motion.div
         onClick={handleClick}
         whileHover="animate"
@@ -62,19 +64,30 @@ export const FileUpload = ({
         <input
           ref={fileInputRef}
           id="file-upload-handle"
+          accept="application/pdf"
           type="file"
           onChange={(e) => handleFileChange(Array.from(e.target.files || []))}
           className="hidden"
         />
-        <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,white,transparent)]">
+        {/* <div className="absolute inset-0">
           <GridPattern />
+        </div> */}
+        <div className={'flex justify-center h-full '}>
+          <div className="w-full h-full absolute">
+            <img
+              src="/grid.svg"
+              alt="logo"
+              className="w-full h-full object-cover object-center "
+            />
+          </div>
         </div>
         <div className="flex flex-col items-center justify-center">
-          <p className="relative z-20 font-sans font-bold text-neutral-700 dark:text-neutral-300 text-base">
-            Upload file
+          <FileText />
+          <p className="relative z-20 font-sans font-bold text-white text-base">
+            Get started
           </p>
-          <p className="relative z-20 font-sans font-normal text-neutral-400 dark:text-neutral-400 text-base mt-2">
-            Drag or drop your files here or click to upload
+          <p className="relative z-20 font-sans font-normal text-white text-base mt-2">
+            Drag and drop your resume here or click to upload
           </p>
           <div className="relative w-full mt-10 max-w-xl mx-auto">
             {files.length > 0 &&

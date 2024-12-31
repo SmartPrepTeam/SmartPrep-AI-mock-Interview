@@ -15,6 +15,7 @@ async def parse_resume(
     user_id: str = Form(...),
     resume_parser_controller : ResumeParserController = Depends(get_resume_parser_controller)
     ):
+    print("comes here ....")
     return await resume_parser_controller.parse_resume(resume,user_id)
     
 

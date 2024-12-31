@@ -65,8 +65,10 @@ class ResumeParserService():
             ) 
         # parse the resume
         text = await self.get_text_from_resume(resume)
+        print(text)
         # send the text to LLM
         user_details = await self.extract_user_info(text)
+        print("comes here..2")
         # save the reponse to db
         await self.save_to_db(user_details)
         return user_details

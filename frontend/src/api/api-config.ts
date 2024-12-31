@@ -1,3 +1,5 @@
+import { profile } from 'console';
+
 export const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const ENDPOINTS = {
@@ -6,5 +8,11 @@ export const ENDPOINTS = {
     signup: `${API_BASE_URL}/auth/signup`,
     refresh: `${API_BASE_URL}/auth/refresh`,
     logout: `${API_BASE_URL}/auth/logout`,
+  },
+  resume: {
+    upload: `${API_BASE_URL}/resume/upload`,
+  },
+  user: {
+    profile: `${API_BASE_URL}/user/profile`,
   },
 };
