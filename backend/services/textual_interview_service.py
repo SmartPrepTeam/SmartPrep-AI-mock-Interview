@@ -38,6 +38,7 @@ class TextualInterviewService():
         return json_data
 
     async def get_questions(self,selection : InterviewFormSelection):
+        print("Comes here 3")
         '''   Generates questions   '''
         prompt = generate_mock_interview_prompt(selection.job_title,selection.job_description,selection.difficulty_level,selection.no_of_questions)
         chat_response = client.chat.complete(
@@ -92,7 +93,8 @@ class TextualInterviewService():
 
         '''  Cleans the response   ''' 
         json_data = await self.clean_llm_response(raw_response)
-
+        if isinstance(json_data, list) and len(json_data) == 1:
+            json_data = json_data[0]  # Extract the dictionary from the list
         '''  makes a new entry in the db  '''
         new_scores = InterviewAnswer(
             answers = data.answers,

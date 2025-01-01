@@ -1,5 +1,8 @@
 import { IconPlayerPlay } from '@tabler/icons-react';
+import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { activePage } from '@/features/activePageSlice';
 interface InterviewDetails {
   title: string;
   description: string;
@@ -48,6 +51,7 @@ const InterviewCard = ({ interview }: { interview: InterviewDetails }) => {
         <div
           className="w-16 group-hover:w-[72px] duration-200  aspect-square flex items-center justify-center bg-white border rounded-full overflow-hidden ring-2 ring-white shadow-md ease-in-out absolute -top-7 right-4"
           onClick={handleStartInterview}
+          style={{ cursor: 'pointer' }}
         >
           <IconPlayerPlay className="text-neutral-800 h-6 w-6 flex-shrink-0 z-10" />
         </div>
