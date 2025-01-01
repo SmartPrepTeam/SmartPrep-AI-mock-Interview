@@ -1,5 +1,7 @@
+import { useNavigate } from 'react-router-dom';
 import MagicButton from './ui/MagicButton';
 const Footer = () => {
+  const navigate = useNavigate();
   return (
     <footer className="w-full pt-20 pb-10" id="contact">
       <div className="w-full absolute left-0 -bottom-72 min-h-96">
@@ -22,7 +24,13 @@ const Footer = () => {
           interview
         </p>
         <a>
-          <MagicButton title="Get Started" position="right" />
+          <MagicButton
+            title="Get Started"
+            position="right"
+            handleClick={() => {
+              navigate('/signup');
+            }}
+          />
         </a>
       </div>
 

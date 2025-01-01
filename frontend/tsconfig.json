@@ -9,11 +9,11 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "module": "CommonJS", // Supports CommonJS modules (for `require`)
+    "module": "ESNext", // Supports CommonJS modules (for `require`)
     "moduleResolution": "node", // Resolves modules like Node.js
     "esModuleInterop": true, // Enables compatibility for `import` with CommonJS
     "allowSyntheticDefaultImports": true, // Allows default imports from CommonJS
-    "target": "ES6", // Targets modern JavaScript
+    "target": "ESNext", // Targets modern JavaScript
     "strict": true, // Enables all strict type-checking options
     "skipLibCheck": true, // Skips checking of declaration files (optional)
     "forceConsistentCasingInFileNames": true

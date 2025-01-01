@@ -198,14 +198,14 @@ export const interviews = [
     title: 'Text interview',
     img: './grid.svg',
     description: 'Get well prepared with',
-    linkHref: '/interview-setup',
+    linkHref: '/textual-interview/setup',
   },
   {
     id: 2,
     title: 'Video interview',
     img: './grid.svg',
     description: "SmartPrep's exclusive platform for",
-    linkHref: '/interview-setup',
+    linkHref: '/textual-interview/setup',
   },
 ];
 // For FAQ of landing page
@@ -267,4 +267,74 @@ export const navItems: NavItem[] = [
   { name: 'Approach', link: '#approach' },
   { name: 'FAQ', link: '#FAQ' },
   { name: 'Contact', link: '#contact' },
+];
+// for interview Setup form
+export const Jobs = [
+  {
+    JobRole: 'Software Engineer',
+    JobDescription:
+      "We're looking for a talented and enthusiastic Software Engineer to join our dynamic team at [Your Company Name]. This role offers an exciting opportunity to work on innovative projects and develop cutting-edge software solutions that make a real impact. The successful candidate will be a problem-solver, a creative thinker, and a team player who is passionate about technology and software development.",
+  },
+
+  {
+    JobRole: 'Product Manager',
+    JobDescription:
+      'We are seeking a skilled and innovative Product Manager to join our team at [Your Company Name]. The ideal candidate will drive the development and launch of new products, manage the product lifecycle, and collaborate with cross-functional teams to ensure successful product delivery. Responsibilities include defining product vision and strategy, gathering and prioritizing product requirements, conducting market research, and overseeing product development. A Bachelor’s degree in Business, Engineering, or a related field, and proven experience in product management are required. Strong analytical, communication, and leadership skills are essential.',
+  },
+
+  {
+    JobRole: 'Financial Analyst',
+    JobDescription:
+      'We are looking for a detail-oriented Financial Analyst to join our finance team at [Your Company Name]. The successful candidate will analyze financial data, create financial models, and provide insights to support decision-making. Key responsibilities include preparing financial reports, conducting variance analysis, forecasting, and assisting with budgeting processes. The ideal candidate should have a Bachelor’s degree in Finance, Accounting, or a related field, and experience in financial analysis. Proficiency in financial software, strong analytical skills, and attention to detail are essential.',
+  },
+  {
+    JobRole: 'Product Designer',
+    JobDescription:
+      'We are seeking a creative and passionate Product Designer to join our design team at [Your Company Name]. The ideal candidate will design and improve user experiences for our products, collaborate with product managers and engineers, and create prototypes and wireframes. Responsibilities include conducting user research, developing design concepts, and refining designs based on feedback. A Bachelor’s degree in Design, UX/UI, or a related field, and proven experience in product design are required. Strong design portfolio, proficiency in design tools, and excellent communication skills are essential.',
+  },
+
+  {
+    JobRole: 'Technical Program Manager',
+    JobDescription:
+      'We are looking for an organized and driven Technical Program Manager to join our team at [Your Company Name]. The successful candidate will manage complex technical projects, coordinate with cross-functional teams, and ensure timely delivery of project milestones. Responsibilities include defining project scope, developing project plans, managing risks, and communicating progress to stakeholders. A Bachelor’s degree in Engineering, Computer Science, or a related field, and experience in technical program management are required. Strong project management skills, technical knowledge, and leadership abilities are essential.',
+  },
+
+  {
+    JobRole: 'Business Analyst',
+    JobDescription:
+      'We are seeking a highly analytical Business Analyst to join our team at [Your Company Name]. The ideal candidate will analyze business processes, identify opportunities for improvement, and support decision-making through data analysis. Responsibilities include gathering and documenting business requirements, conducting market research, and developing process improvement strategies. A Bachelor’s degree in Business, Economics, or a related field, and proven experience in business analysis are required. Strong analytical, problem-solving, and communication skills are essential.',
+  },
+
+  {
+    JobRole: 'Sales Representative',
+    JobDescription:
+      'We are looking for a dynamic Sales Representative to join our sales team at [Your Company Name]. The successful candidate will identify and pursue new sales opportunities, build relationships with clients, and achieve sales targets. Responsibilities include conducting sales presentations, negotiating contracts, and providing excellent customer service. A Bachelor’s degree in Business, Marketing, or a related field, and proven experience in sales are required. Strong communication, negotiation, and interpersonal skills are essential.',
+  },
+
+  {
+    JobRole: 'Marketing Analyst',
+    JobDescription:
+      'We are seeking a data-driven Marketing Analyst to join our marketing team at [Your Company Name]. The ideal candidate will analyze marketing data, provide insights to optimize marketing strategies, and measure campaign effectiveness. Responsibilities include conducting market research, analyzing customer data, and creating reports on marketing performance. A Bachelor’s degree in Marketing, Business, or a related field, and experience in marketing analysis are required. Proficiency in analytics tools, strong analytical skills, and attention to detail are essential.',
+  },
+];
+// For interview setup form
+export const difficultyLevels = [
+  {
+    title: 'easy',
+    icon: '/low-speed.png',
+  },
+  {
+    title: 'medium',
+    icon: '/difficulties.png',
+  },
+  {
+    title: 'hard',
+    icon: '/difficulty-breathing.png',
+  },
+];
+// For interview Lengths
+export const interviewLengths = [
+  { label: 'Short', description: '5 Questions' },
+  { label: 'Medium', description: '10 Questions' },
+  { label: 'Long', description: '15 Questions' },
 ];

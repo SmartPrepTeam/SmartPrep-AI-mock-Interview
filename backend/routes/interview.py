@@ -7,8 +7,8 @@ router = APIRouter(
 )
 
 def get_interview_controller() -> InterviewController:
-    return InterviewController()
     """  ENDPOINTS RELATED TO PREVIOUS INTERVIEWS """
+    return InterviewController()
 
 @router.get("/{user_id}",name="Get list of all the previous interviews")
 async def get_all_interviews(

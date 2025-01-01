@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { SlideDown } from 'react-slidedown';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import 'react-slidedown/lib/slidedown.css';
 
 interface FaqItemProps {
   item: {
@@ -25,6 +23,7 @@ const FAQItem: React.FC<FaqItemProps> = ({ item, index }) => {
       style={{ cursor: 'pointer' }}
       onClick={toggleAnswer}
     >
+      {/* Question Row */}
       <div className="group relative flex items-center justify-between gap-[2.5rem] px-[1.75rem]">
         <div className="flex-1">
           <div className="text-purple mb-[0.375rem] max-lg:hidden">
@@ -32,12 +31,15 @@ const FAQItem: React.FC<FaqItemProps> = ({ item, index }) => {
             {index}
           </div>
           <div
-            className={`h6 text-white transition-colors duration-[500ms] max-md:flex max-md:min-h-[5rem] max-md:items-center ${isOpen && 'text-[#CBACF9]'}`}
+            className={`h6 text-white transition-colors duration-[500ms] max-md:flex max-md:min-h-[5rem] max-md:items-center ${
+              isOpen && 'text-[#CBACF9]'
+            }`}
           >
             {item.question}
           </div>
         </div>
 
+        {/* Chevron Icon */}
         <div className="cursor-pointer transition-transform duration-[300ms]">
           {isOpen ? (
             <FaChevronUp size={24} color="#C4CBF5" />
@@ -47,13 +49,16 @@ const FAQItem: React.FC<FaqItemProps> = ({ item, index }) => {
         </div>
       </div>
 
-      <SlideDown>
-        {isOpen && (
-          <div className="text-lg px-[1.75rem] py-[0.875rem] text-white">
-            {item.answer}
-          </div>
-        )}
-      </SlideDown>
+      {/* Slide-Down Content */}
+      <div
+        className={`overflow-hidden transition-all duration-[500ms] ${
+          isOpen ? 'max-h-[200px] opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="text-lg px-[1.75rem] py-[0.875rem] text-white">
+          {item.answer}
+        </div>
+      </div>
     </div>
   );
 };
