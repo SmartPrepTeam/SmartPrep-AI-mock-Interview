@@ -10,8 +10,6 @@ router = APIRouter(
 def get_textual_interview_controller() -> TextualInterviewController:
     return TextualInterviewController()
 
-"""ENDPOINTS FOR INTERVIEWS RELATED TO QUESTION GENERATION AND SCORING"""
-
 @router.post("/questions",status_code=status.HTTP_201_CREATED,name="Generate Questions based on given selections")
 async def get_questions(
     selection : InterviewFormSelection,

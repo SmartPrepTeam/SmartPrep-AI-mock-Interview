@@ -4,8 +4,13 @@ import { Dashboard } from './Dashboard';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { links } from '@/data';
+import UserProfile from './UserProfile';
 export function SidebarDemo() {
   const [open, setOpen] = useState(false);
+  const [activeContent, setActiveContent] = useState('Interviews');
+  const handleLinkClick = (label: string) => {
+    setActiveContent(label);
+  };
   return (
     <div
       className={
@@ -18,7 +23,11 @@ export function SidebarDemo() {
             {open ? <Logo /> : <LogoIcon />}
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
-                <SidebarLink key={idx} link={link} />
+                <SidebarLink
+                  key={idx}
+                  link={link}
+                  onClick={() => handleLinkClick(link.label)}
+                />
               ))}
             </div>
           </div>
@@ -41,7 +50,8 @@ export function SidebarDemo() {
           </div>
         </SidebarBody>
       </Sidebar>
-      <Dashboard />
+      {activeContent === 'Profile' && <UserProfile />}
+      {activeContent === 'Interviews' && <Dashboard />}
     </div>
   );
 }
