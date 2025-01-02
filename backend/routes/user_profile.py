@@ -4,6 +4,9 @@ from schemas import UserProfile
 from typing import Optional,List
 from pydantic import HttpUrl,EmailStr
 import json,os
+from schemas import TokenData
+from auth.token_manager import TokenManager
+
 router = APIRouter(
     prefix = "/user/profile",
     tags = ["User Profile"]
@@ -11,6 +14,9 @@ router = APIRouter(
 
 def get_user_profile_controller() -> UserProfileController:
     return UserProfileController()
+
+def get_token_manager() -> TokenManager : 
+    return TokenManager()
 
 @router.post("/{user_id}")
 async def save_user_profile(
@@ -26,6 +32,7 @@ async def save_user_profile(
     github_profile_url : HttpUrl = Form(...),
     email_address : EmailStr = Form(...),
     current_location : Optional[str] = Form(None),
+    token : TokenData = Depends(get_token_manager().get_current_user),
     user_profile_controller : UserProfileController = Depends(get_user_profile_controller)
     ):
     upload_dir = "../uploads"
@@ -53,6 +60,7 @@ async def save_user_profile(
 @router.get("/{user_id}")
 async def get_user_profile(
     user_id: str,
+    token : TokenData = Depends(get_token_manager().get_current_user),
     user_profile_controller : UserProfileController = Depends(get_user_profile_controller)
 ):
     return await user_profile_controller.get_user_profile(user_id)
@@ -61,5 +69,6 @@ async def get_user_profile(
 async def update_user_profile(
     user_details: UserProfile,
     user_id: str,
+    token : TokenData = Depends(get_token_manager().get_current_user),
     user_profile_controller : UserProfileController = Depends(get_user_profile_controller)):
     return await user_profile_controller.update_user_profile(user_details,user_id)

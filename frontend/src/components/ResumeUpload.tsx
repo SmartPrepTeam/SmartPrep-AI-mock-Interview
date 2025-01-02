@@ -12,6 +12,7 @@ import AuthContext from '@/context/auth_context';
 const ResumeUpload = () => {
   const navigate = useNavigate();
   const auth = useContext(AuthContext);
+  console.log(auth?.token);
   const user_id = auth?.userId;
   const [resume, setResume] = useState<File | null>();
   const handleFileUpload = (files: File[]) => {

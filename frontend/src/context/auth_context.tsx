@@ -1,6 +1,11 @@
-import { ReactNode, createContext, useLayoutEffect, useState } from 'react';
-import axios from 'axios';
-import { api } from '@/api/index';
+import {
+  ReactNode,
+  createContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'react';
+import { api } from '@/api';
 import { ENDPOINTS } from '@/api/api-config';
 
 type AuthContextType = {
@@ -21,19 +26,27 @@ interface TokenResponse {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [userId, setUserId] = useState<string | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-
+  const access_token = sessionStorage.getItem('access_token');
+  const user_id = sessionStorage.getItem('user_id');
+  const [userId, setUserId] = useState<string | null>(user_id);
+  const [token, setToken] = useState<string | null>(access_token);
+  useEffect(() => {
+    if (token) sessionStorage.setItem('access_token', token);
+    else sessionStorage.removeItem('access_token');
+  }, [token]);
+  useEffect(() => {
+    if (userId) sessionStorage.setItem('user_id', userId);
+    else sessionStorage.removeItem('user_id');
+  }, [userId]);
   useLayoutEffect(() => {
-    const requestInterceptor = axios.interceptors.request.use(
+    const requestInterceptor = api.interceptors.request.use(
       (config) => {
         if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+          config.headers['Authorization'] = `Bearer ${token}`;
         }
         return config;
       },
       (error) => {
-        // Handle request error
         return Promise.reject(error);
       }
     );
@@ -43,38 +56,33 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [token]);
 
   useLayoutEffect(() => {
-    const responseInterceptor = axios.interceptors.response.use(
-      (response) => {
-        return response;
-      },
+    const responseInterceptor = api.interceptors.response.use(
+      (response) => response,
       async (error) => {
         const originalRequest = error.config;
-
-        // Check if the error is due to an unauthorized request
-        if (error.response.status === 401 && !originalRequest._retry) {
+        if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
+
           try {
-            const response = await axios.post<TokenResponse>(
-              ENDPOINTS.auth.refresh
-            );
-            const newAccessToken = response.data.access_token;
-            setToken(newAccessToken);
+            const res = await api.post(ENDPOINTS.auth.refresh);
+            const newToken = res.data.access_token;
 
-            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            setToken(newToken);
 
-            return axios(originalRequest);
-          } catch (tokenRefreshError) {
+            originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+
+            return api(originalRequest);
+          } catch (refreshError) {
+            console.error('Refresh token failed:', refreshError);
             setToken(null);
             setUserId(null);
-            console.error('Token refresh failed', tokenRefreshError);
-            return Promise.reject(tokenRefreshError);
+            return Promise.reject(refreshError);
           }
         }
-
-        // Handle other errors
         return Promise.reject(error);
       }
     );
+
     return () => {
       api.interceptors.response.eject(responseInterceptor);
     };

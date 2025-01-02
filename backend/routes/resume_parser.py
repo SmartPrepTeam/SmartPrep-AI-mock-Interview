@@ -18,7 +18,7 @@ def get_token_manager() -> TokenManager :
 async def parse_resume(
     resume : UploadFile = File(...),
     user_id: str = Form(...),
-    token : TokenData = Depends(get_token_manager.get_current_user()),
+    token : TokenData = Depends(get_token_manager().get_current_user),
     resume_parser_controller : ResumeParserController = Depends(get_resume_parser_controller)
     ):
     return await resume_parser_controller.parse_resume(resume,user_id)

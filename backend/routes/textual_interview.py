@@ -18,7 +18,7 @@ def get_token_manager() -> TokenManager :
 @router.post("/questions",status_code=status.HTTP_201_CREATED,name="Generate Questions based on given selections")
 async def get_questions(
     selection : InterviewFormSelection,
-    token : TokenData = Depends(get_token_manager.get_current_user()),
+    token : TokenData = Depends(get_token_manager().get_current_user),
     textual_interview_controller: TextualInterviewController =  Depends(get_textual_interview_controller)
 ):
     return await textual_interview_controller.get_questions(selection)
@@ -28,7 +28,7 @@ async def get_score(
     data : Answer,
     question_id : str,
     user_id : str,
-    token : TokenData = Depends(get_token_manager.get_current_user()),
+    token : TokenData = Depends(get_token_manager().get_current_user),
     textual_interview_controller: TextualInterviewController =  Depends(get_textual_interview_controller)
 ):
     return await textual_interview_controller.get_score(data,question_id,user_id)
@@ -36,7 +36,7 @@ async def get_score(
 @router.post("/feedback")
 async def get_feedback(
     data : FeedbackData,
-    token : TokenData = Depends(get_token_manager.get_current_user()),
+    token : TokenData = Depends(get_token_manager().get_current_user),
     textual_interview_controller : TextualInterviewController = Depends(get_textual_interview_controller)
 ):
     return await textual_interview_controller.get_feedback(data.question,data.answer)

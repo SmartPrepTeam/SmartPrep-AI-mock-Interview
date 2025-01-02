@@ -10,16 +10,21 @@ import { useLoginMutation } from '@/features/apiSlice';
 const LoginForm = () => {
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
-  const [login, { isLoading, isError, error }] = useLoginMutation();
+  const [login] = useLoginMutation();
   const handleLogin: SubmitHandler<FormFields> = async (data) => {
     try {
       const res = await login(data).unwrap();
-      auth?.setToken(res.data.data.access_token);
-      auth?.setUserId(res.data.data.user_id);
+      console.log(res);
+      auth?.setToken(res.data.access_token);
+      auth?.setUserId(res.data.user_id);
       toast.success('Logged in Successfully');
-      navigate('/home');
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
+      navigate('/resume');
+    } catch (e: any) {
+      if (e.status === 400) {
+        toast.error('Error : Invalid credentials');
+      } else if (e.data?.message) {
+        toast.error(`Error : ${e.data?.message}`);
+      } else if (axios.isAxiosError(e)) {
         if (e.response?.status === 400) {
           toast.error('Error : Invalid credentials');
         } else {
@@ -32,9 +37,6 @@ const LoginForm = () => {
       }
     }
   };
-  if (isLoading) return <div>Loading ....</div>;
-  if (isError)
-    return <div>Error : {error.data?.message || 'Unknown Error'}</div>;
   return (
     <>
       <AuthContainer
