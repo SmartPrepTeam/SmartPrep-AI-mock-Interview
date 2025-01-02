@@ -2,7 +2,9 @@ import { Spotlight } from '@/components/ui/Spotlight';
 import { TextGenerateEffect } from '@/components/ui/TextGenerateEffect';
 import { FaLocationArrow } from 'react-icons/fa';
 import MagicButton from './ui/MagicButton';
+import { useNavigate } from 'react-router-dom';
 const HeroSection = () => {
+  const navigate = useNavigate();
   return (
     <div className="pb-20 pt-36" id="about">
       <div>
@@ -41,6 +43,9 @@ const HeroSection = () => {
               title="Start Preparing Today"
               icon={<FaLocationArrow />}
               position="right"
+              handleClick={() => {
+                navigate('signup');
+              }}
             />
           </a>
         </div>
