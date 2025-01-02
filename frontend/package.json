@@ -48,10 +48,8 @@
     "three-globe": "^2.35.11",
     "three-mesh-bvh": "^0.8.0",
     "zod": "^3.24.1",
-    "zod-form-data": "^2.0.4"
-
-    "yup": "^1.6.0",
-
+    "zod-form-data": "^2.0.4",
+    "yup": "^1.6.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
