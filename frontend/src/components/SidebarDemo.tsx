@@ -7,7 +7,7 @@ import { links } from '@/data';
 import UserProfile from './UserProfile';
 export function SidebarDemo() {
   const [open, setOpen] = useState(false);
-  const [activeContent, setActiveContent] = useState('Interviews');
+  const [activeContent, setActiveContent] = useState('Profile');
   const handleLinkClick = (label: string) => {
     setActiveContent(label);
   };

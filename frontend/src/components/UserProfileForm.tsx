@@ -94,7 +94,7 @@ const formSchema = zfd.formData({
 });
 
 export default function MyForm() {
-  const user_id = '64c0f45b99e6cba0fc123456';
+  const user_id = '64c0f45b99e6cba0fc123459';
   const location = useLocation();
   const navigate = useNavigate();
   useEffect(() => {
@@ -170,7 +170,7 @@ export default function MyForm() {
         formData.append('profile_image', values.profileImage);
       try {
         await axios.post(`${ENDPOINTS.user.profile}/${user_id}`, formData);
-        navigate('/home/user-profile');
+        navigate('/home');
       } catch (err) {
         if (axios.isAxiosError(err)) {
           if (err.response?.status === 500) {

@@ -38,7 +38,7 @@ class UserProfileService():
         profile = await UserProfileModel.find_one({"user_id": user_object_id})
         print("comes here 3")
         if profile :
-            raise HTTPException(status_code=status.HTTP_400_NOT_FOUND, detail="User Profile already registered")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User Profile already registered")
         '''  makes a new entry in the db  '''
         new_profile = UserProfileModel(
             user_id = user_id,

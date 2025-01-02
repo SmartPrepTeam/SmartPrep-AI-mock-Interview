@@ -14,10 +14,10 @@ export const ENDPOINTS = {
   },
   user: {
     profile: `${API_BASE_URL}/user/profile`,
-    textual_interview: {
-      question_generation: `${API_BASE_URL}/textual_interviews/questions`,
-      score_generation: `${API_BASE_URL}/textual_interviews/questions`,
-      feedback: `${API_BASE_URL}/textual_interviews/feedback`,
-    },
+  },
+  textual_interview: {
+    question_generation: `${API_BASE_URL}/textual_interviews/questions`,
+    score_generation: `${API_BASE_URL}/textual_interviews/questions`,
+    feedback: `${API_BASE_URL}/textual_interviews/feedback`,
   },
 };
