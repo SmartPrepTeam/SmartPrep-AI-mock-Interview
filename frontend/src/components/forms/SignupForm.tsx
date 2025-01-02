@@ -5,13 +5,14 @@ import { ENDPOINTS } from '@/api/api-config';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { useSignupMutation } from '@/features/apiSlice';
 
 const SignupForm = () => {
   const navigate = useNavigate();
+  const [signup, { isLoading, isError, error }] = useSignupMutation();
   const handleSignup: SubmitHandler<FormFields> = async (data) => {
     try {
-      console.log(ENDPOINTS.auth.signup);
-      const res = await axios.post(ENDPOINTS.auth.signup, data);
+      await signup(data).unwrap();
       toast.success('Signed up successfully');
       navigate('/login');
     } catch (err) {
@@ -24,6 +25,12 @@ const SignupForm = () => {
       }
     }
   };
+  if (isLoading) {
+    return <div>Loading ....</div>;
+  }
+  if (isError) {
+    return <div>Error : {error.data?.message || 'unknown error'}</div>;
+  }
   return (
     <>
       <AuthContainer

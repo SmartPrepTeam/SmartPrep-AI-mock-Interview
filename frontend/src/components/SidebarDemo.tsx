@@ -1,15 +1,35 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { Sidebar, SidebarBody, SidebarLink } from './ui/Sidebar';
 import { Dashboard } from './Dashboard';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { links } from '@/data';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { useLogoutMutation } from '@/features/apiSlice';
+import AuthContext from '@/context/auth_context';
 import UserProfile from './UserProfile';
 export function SidebarDemo() {
   const [open, setOpen] = useState(false);
-  const [activeContent, setActiveContent] = useState('Interviews');
+  const [activeContent, setActiveContent] = useState('Profile');
+  const handleLogout = async () => {
+    const auth = useContext(AuthContext);
+    const [logout] = useLogoutMutation();
+    try {
+      await logout({}).unwrap();
+      auth?.setUserId(null);
+      auth?.setToken(null);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        toast.error(err?.message);
+      } else toast.error('Unexpected error occured');
+    }
+  };
   const handleLinkClick = (label: string) => {
     setActiveContent(label);
+    if (label === 'Logout') {
+      handleLogout();
+    }
   };
   return (
     <div
@@ -26,6 +46,7 @@ export function SidebarDemo() {
                 <SidebarLink
                   key={idx}
                   link={link}
+                  activeContent={activeContent}
                   onClick={() => handleLinkClick(link.label)}
                 />
               ))}

@@ -15,11 +15,7 @@ export default function TextQuestionContainer() {
   return (
     <div className="text-white md:px-16 bg-black-100 min-h-screen w-full">
       <InterviewProgressNav />
-      <TextInterviewQuestion
-        questions={questions}
-        user_id="64c0f45b99e6cba0fc123456"
-        question_id={interviewId}
-      />
+      <TextInterviewQuestion questions={questions} question_id={interviewId} />
     </div>
   );
 }

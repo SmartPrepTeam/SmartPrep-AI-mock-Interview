@@ -1,22 +1,21 @@
-import { profile } from 'console';
-
 export const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const ENDPOINTS = {
   auth: {
-    login: `${API_BASE_URL}/auth/login`,
-    signup: `${API_BASE_URL}/auth/signup`,
+    login: `/auth/login`,
+    signup: `/auth/signup`,
     refresh: `${API_BASE_URL}/auth/refresh`,
-    logout: `${API_BASE_URL}/auth/logout`,
+    logout: `/auth/logout`,
   },
   resume: {
-    upload: `${API_BASE_URL}/resume/upload`,
+    upload: `/resume/upload`,
   },
   user: {
-    profile: `${API_BASE_URL}/user/profile`,
+    profile: `/user/profile`,
+  },
   textual_interview: {
-    question_generation: `${API_BASE_URL}/textual_interviews/questions`,
-    score_generation: `${API_BASE_URL}/textual_interviews/questions`,
-    feedback: `${API_BASE_URL}/textual_interviews/feedback`,
+    question_generation: `/textual_interviews/questions`,
+    score_generation: `/textual_interviews/questions`,
+    feedback: `/textual_interviews/feedback`,
   },
 };

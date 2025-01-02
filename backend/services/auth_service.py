@@ -1,7 +1,7 @@
 from schemas import User as UserSchema
 from models.user import User
 from fastapi import status,HTTPException,Request
-from utils.helpers import hash_password,verify_password,create_access_token,create_refresh_token,verify_refresh_token
+from utils.helpers import hash_password,verify_password,create_access_token,create_refresh_token,verify_token
 from fastapi.responses import Response
 from models.blacklist import BlackList
 
@@ -63,7 +63,7 @@ class AuthService():
         
     async def generate_new_access_token(self,response : Response,request: Request):
 
-        """get the refresh token"""
+        # get the refresh token
         refresh_token = request.cookies.get("refresh_token")
 
         if not refresh_token:
@@ -71,24 +71,25 @@ class AuthService():
                 status_code = status.HTTP_401_UNAUTHORIZED,
                 detail = "Refresh token not present"
             )
-        """Check if its black listed """
-        blacklisted = await BlackList.find_one({"token" : refresh_token})
-        if blacklisted :
-             raise HTTPException(
-                status_code = status.HTTP_401_UNAUTHORIZED,
-                detail = "Blacklisted Refresh token"
-            )
 
-        """verify its correct and still has not expired and get user id from it"""
-        user_id = verify_refresh_token(refresh_token)
+        # verify its correct and still has not expired and get user id from it
+        user_id = verify_token(refresh_token)
 
         if not user_id:
             raise HTTPException(
                 status_code = status.HTTP_401_UNAUTHORIZED,
                 detail = "Invaild or Expired Refresh token"
             )
+
+        # Check if its black listed 
+        blacklisted = await BlackList.find_one({"token" : user_id})
+        if blacklisted :
+             raise HTTPException(
+                status_code = status.HTTP_401_UNAUTHORIZED,
+                detail = "Blacklisted Refresh token"
+            )
         
-        """Generate new tokens for more security"""
+        # Generate new tokens for more security
         access_token = create_access_token({"user_id" : user_id})
         new_refresh_token  = create_refresh_token({"user_id" :  user_id})
 
@@ -97,18 +98,16 @@ class AuthService():
         return access_token
 
 
-    async def blacklistToken(self , request : Request):
+    async def blacklistToken(self , user_id : str):
 
-        refresh_token = request.cookies.get("refresh_token")
-
-        if not refresh_token:
+        if not user_id:
             raise HTTPException(
                 status_code = status.HTTP_400_BAD_REQUEST,
-                detail = "Refresh token not present"
+                detail = "Token missing"
             )
 
         new_token = BlackList(
-            token = refresh_token
+            token = user_id
         )
 
         await new_token.insert()

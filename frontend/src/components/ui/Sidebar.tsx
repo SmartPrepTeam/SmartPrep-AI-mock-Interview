@@ -157,10 +157,12 @@ export const MobileSidebar = ({
 
 export const SidebarLink = ({
   link,
+  activeContent,
   className,
   onClick,
 }: {
   link: Links;
+  activeContent?: string;
   className?: string;
   onClick?: () => void;
 }) => {
@@ -189,7 +191,7 @@ export const SidebarLink = ({
 
       {/* Apply custom styles on hover or active state */}
       <div
-        className="absolute inset-0 border border-white/[0.1] group-hover/sidebar:block hidden"
+        className={`absolute inset-0 border border-white/[0.1] ${activeContent === link.label ? 'block' : 'group-hover/sidebar:block hidden'}`}
         style={{
           background: 'rgb(4,7,29)',
           backgroundColor:

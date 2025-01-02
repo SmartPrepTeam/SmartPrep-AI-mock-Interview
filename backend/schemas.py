@@ -71,3 +71,10 @@ class UserProfile(BaseModel):
     email_address : EmailStr
     current_location : Optional[list]
     profileImage : str 
+
+class FeedbackData(BaseModel):
+    question : str
+    answer : str
+
+class TokenData(BaseModel):
+    user_id : str

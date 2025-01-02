@@ -47,6 +47,7 @@ async def save_user_profile(
         email_address = email_address,
         current_location = json.loads(current_location) if current_location else None,
     )
+    print("works fine ..")
     return await user_profile_controller.save_user_profile(user_details,user_id)
 
 @router.get("/{user_id}")

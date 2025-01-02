@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { useContext, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -32,7 +32,8 @@ import {
   softSkills,
 } from '@/data';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ENDPOINTS } from '@/api/api-config';
+import { useCreateUserProfileMutation } from '@/features/apiSlice';
+import AuthContext from '@/context/auth_context';
 const formSchema = zfd.formData({
   profileImage: zfd
     .file()
@@ -94,7 +95,8 @@ const formSchema = zfd.formData({
 });
 
 export default function MyForm() {
-  const user_id = '64c0f45b99e6cba0fc123456';
+  const auth = useContext(AuthContext);
+  const user_id = auth?.userId;
   const location = useLocation();
   const navigate = useNavigate();
   useEffect(() => {
@@ -128,70 +130,68 @@ export default function MyForm() {
       ],
     },
   });
-
+  const [createUserProfile, { isLoading, isError, error }] =
+    useCreateUserProfileMutation();
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      const formData = new FormData();
-      if (values.programming_languages) {
-        values.programming_languages.forEach((lang) =>
-          formData.append('programming_languages', lang)
-        );
-      }
-
-      if (values.frameworks_libraries) {
-        values.frameworks_libraries.forEach((framework) =>
-          formData.append('frameworks_libraries', framework)
-        );
-      }
-
-      if (values.databases) {
-        values.databases.forEach((db) => formData.append('databases', db));
-      }
-
-      if (values.soft_skills) {
-        values.soft_skills.forEach((skill) =>
-          formData.append('soft_skills', skill)
-        );
-      }
-      values.email_address &&
-        formData.append('email_address', values.email_address);
-      values.job_title && formData.append('job_title', values.job_title);
-      values.full_name && formData.append('full_name', values.full_name);
-      values.github_profile_url &&
-        formData.append('github_profile_url', values.github_profile_url);
-      values.linkedin_profile_url &&
-        formData.append('linkedin_profile_url', values.linkedin_profile_url);
-      values.current_location &&
-        formData.append(
-          'current_location',
-          JSON.stringify(values.current_location)
-        );
-      values.profileImage &&
-        formData.append('profile_image', values.profileImage);
-      try {
-        await axios.post(`${ENDPOINTS.user.profile}/${user_id}`, formData);
-        navigate('/home/user-profile');
-      } catch (err) {
-        if (axios.isAxiosError(err)) {
-          if (err.response?.status === 500) {
-            toast.error('Unable to parse the file');
-          }
-        } else {
-          toast.error('Unexpected error occurred');
-        }
-      }
-
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
+    const formData = new FormData();
+    if (values.programming_languages) {
+      values.programming_languages.forEach((lang) =>
+        formData.append('programming_languages', lang)
       );
-    } catch (error) {
-      console.error('Form submission error', error);
-      toast.error('Failed to submit the form. Please try again.');
     }
-  }
 
+    if (values.frameworks_libraries) {
+      values.frameworks_libraries.forEach((framework) =>
+        formData.append('frameworks_libraries', framework)
+      );
+    }
+
+    if (values.databases) {
+      values.databases.forEach((db) => formData.append('databases', db));
+    }
+
+    if (values.soft_skills) {
+      values.soft_skills.forEach((skill) =>
+        formData.append('soft_skills', skill)
+      );
+    }
+    values.email_address &&
+      formData.append('email_address', values.email_address);
+    values.job_title && formData.append('job_title', values.job_title);
+    values.full_name && formData.append('full_name', values.full_name);
+    values.github_profile_url &&
+      formData.append('github_profile_url', values.github_profile_url);
+    values.linkedin_profile_url &&
+      formData.append('linkedin_profile_url', values.linkedin_profile_url);
+    values.current_location &&
+      formData.append(
+        'current_location',
+        JSON.stringify(values.current_location)
+      );
+    values.profileImage &&
+      formData.append('profile_image', values.profileImage);
+    try {
+      await createUserProfile({ user_id: user_id, data: formData }).unwrap();
+      navigate('/home');
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 404) {
+          toast.error('User not logged in');
+          // log him out
+        } else if (err.response?.status === 400) {
+          toast.error('Profile already exists');
+        }
+      } else {
+        toast.error('Unexpected error occurred');
+      }
+    }
+
+    // toast(
+    //   <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+    //     <code className="text-white">{JSON.stringify(values, null, 2)}</code>
+    //   </pre>
+    // );
+  }
   return (
     <div className="text-white md:px-16 bg-black-100 min-w-full">
       <h2 className="max-w-3xl mx-auto pt-10 text-3xl text-center">
@@ -527,7 +527,12 @@ export default function MyForm() {
           />
 
           <button type="submit">
-            <MagicButton title="Submit" position="left" />
+            <MagicButton
+              title="Submit"
+              position="left"
+              isLoading={isLoading}
+              isLoadingText="Submitting...."
+            />
           </button>
         </form>
       </Form>

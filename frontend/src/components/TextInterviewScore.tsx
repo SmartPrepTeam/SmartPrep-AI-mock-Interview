@@ -2,19 +2,9 @@ import CustomProgressBar from './CustomProgressBar';
 import AnimatedCircularProgressBar from '@/components/ui/AnimatedCircularProgressBar';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
-import { useEffect, useContext } from 'react';
-import {
-  NavigationBundle,
-  NavigationContext,
-} from '@/context/navigation_context';
 
 const TextInterviewScore = () => {
   const scoreData = useSelector((state: RootState) => state.score.data);
-  // useEffect(() => {
-  //   const { from, to } = useContext<NavigationBundle>(NavigationContext);
-  //   console.log(from);
-  //   console.log(to);
-  // }, []);
   if (!scoreData) {
     return <div>No quiz data available. Please go back and set up a quiz.</div>;
   }

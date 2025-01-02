@@ -23,7 +23,7 @@ class AuthController():
         token = await self.auth_service.generate_new_access_token(response,request)
         return create_response(SUCCESS_STATUS,"New access token generated successfully",data = {"access_token" : token})
 
-    async def blacklistToken(self,request : Request):
-        await self.auth_service.blacklistToken()
+    async def blacklistToken(self,user_id : str):
+        await self.auth_service.blacklistToken(user_id)
         return create_response(SUCCESS_STATUS,"token blacklisted successfully")
     

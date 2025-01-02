@@ -428,7 +428,7 @@ export const softSkills = [
   'Empathy',
   'Negotiation',
   'Attention to Detail',
-
+];
 // for interview Setup form
 export const Jobs = [
   {
@@ -498,5 +498,4 @@ export const interviewLengths = [
   { label: 'Short', description: '5 Questions' },
   { label: 'Medium', description: '10 Questions' },
   { label: 'Long', description: '15 Questions' },
-
 ];

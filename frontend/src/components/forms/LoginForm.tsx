@@ -1,19 +1,19 @@
 import AuthContainer from '@/components/ui/AuthContainer';
 import { SubmitHandler } from 'react-hook-form';
 import { FormFields } from '@/components/ui/AuthContainer';
-import { ENDPOINTS } from '@/api/api-config';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import AuthContext from '@/context/auth_context';
-
+import { useLoginMutation } from '@/features/apiSlice';
 const LoginForm = () => {
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
+  const [login, { isLoading, isError, error }] = useLoginMutation();
   const handleLogin: SubmitHandler<FormFields> = async (data) => {
     try {
-      const res = await axios.post(ENDPOINTS.auth.login, data);
+      const res = await login(data).unwrap();
       auth?.setToken(res.data.data.access_token);
       auth?.setUserId(res.data.data.user_id);
       toast.success('Logged in Successfully');
@@ -21,14 +21,20 @@ const LoginForm = () => {
     } catch (e) {
       if (axios.isAxiosError(e)) {
         if (e.response?.status === 400) {
-          toast.error('Invalid Credentials');
-        } else toast.error(e.response?.data?.message);
+          toast.error('Error : Invalid credentials');
+        } else {
+          const errorMessage =
+            e.response?.data?.message || 'Unexpected Error occured';
+          toast.error(`Error : ${errorMessage}`);
+        }
       } else {
-        toast.error('An unexpected error occured');
+        toast.error('An unexpected Error occured');
       }
     }
   };
-
+  if (isLoading) return <div>Loading ....</div>;
+  if (isError)
+    return <div>Error : {error.data?.message || 'Unknown Error'}</div>;
   return (
     <>
       <AuthContainer
@@ -44,5 +50,4 @@ const LoginForm = () => {
     </>
   );
 };
-
 export default LoginForm;
