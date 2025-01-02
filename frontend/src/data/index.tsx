@@ -90,9 +90,11 @@ export const content = [
       </ul>
     ),
     content: (
-      <div className="h-full w-full bg-[linear-gradient(to_bottom_right,var(--cyan-500),var(--emerald-500))] flex items-center justify-center text-white">
-        Personalization Tools
-      </div>
+      <img
+        src="/819shots_so.png"
+        className="object-cover object-center w-full h-full"
+        alt="interview process"
+      />
     ),
   },
   {
@@ -114,7 +116,7 @@ export const content = [
     ),
     content: (
       <img
-        src="/step1.png"
+        src="/phase2.png"
         className="object-cover object-center w-full h-full"
         alt="interview process"
       />
@@ -140,9 +142,11 @@ export const content = [
       </ul>
     ),
     content: (
-      <div className="h-full w-full bg-[linear-gradient(to_bottom_right,var(--orange-500),var(--yellow-500))] flex items-center justify-center text-white">
-        Performance Metrics
-      </div>
+      <img
+        src="/phase3.png"
+        className="object-cover w-full h-full"
+        alt="interview process"
+      />
     ),
   },
 ];
