@@ -2,10 +2,8 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { Jobs } from '@/data';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { useContext, useEffect } from 'react';
-import AuthContext from '@/context/auth_context';
-import { ENDPOINTS } from '@/api/api-config';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
 import toast from 'react-hot-toast';
 import { activePage } from '../features/activePageSlice';
 import { setTextInterviewData } from '@/features/textInterviewSlice';
@@ -23,7 +21,7 @@ export default function InterviewSetupForm() {
   //   console.log(from);
   //   console.log(to);
   // }, []);
-  const auth = useContext(AuthContext);
+  const userId = useSelector((state: RootState) => state.auth.userId);
   const [generateQuestions, { isLoading, isError, error }] =
     useGenerateQuestionsMutation();
   const formik = useFormik({
@@ -48,7 +46,7 @@ export default function InterviewSetupForm() {
       console.log('Form submitted:', interviewLength);
 
       const postData = {
-        userID: '64c0f45b99e6cba0fc123456',
+        userID: userId,
         difficulty_level: values.difficultyLevel,
         job_title: values.jobPosition,
         job_description: values.jobDescription,

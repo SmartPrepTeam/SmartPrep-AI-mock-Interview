@@ -1,8 +1,53 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { ENDPOINTS } from '@/api/api-config';
+import {
+  BaseQueryFn,
+  FetchArgs,
+  FetchBaseQueryError,
+} from '@reduxjs/toolkit/query';
+import { logout, setToken } from './authSlice';
+const baseQuery = fetchBaseQuery({
+  baseUrl: import.meta.env.VITE_BASE_URL,
+  prepareHeaders: (headers, { getState }) => {
+    // Retrieve token from sessionStorage or state
+    const token = (getState as any).auth.token;
+
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    return headers;
+  },
+});
+const baseQueryWithReauth: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, store, extraOptions) => {
+  let result = await baseQuery(args, store, extraOptions);
+
+  if (result.error && result.error.status === 401) {
+    // Handle token refresh logic
+    const refreshResult = await baseQuery(
+      { url: ENDPOINTS.auth.refresh, method: 'POST' },
+      store,
+      extraOptions
+    );
+
+    if (refreshResult.data) {
+      const newToken = (refreshResult.data as any).access_token;
+      store.dispatch(setToken(newToken));
+      result = await baseQuery(args, store, extraOptions);
+    } else {
+      store.dispatch(logout());
+    }
+  }
+
+  return result;
+};
 export const apiSlice = createApi({
   reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_BASE_URL }),
+  baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
     // Auth Endpoints
     login: builder.mutation({

@@ -33,7 +33,8 @@ import {
 } from '@/data';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCreateUserProfileMutation } from '@/features/apiSlice';
-import AuthContext from '@/context/auth_context';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
 const formSchema = zfd.formData({
   profileImage: zfd
     .file()
@@ -95,8 +96,7 @@ const formSchema = zfd.formData({
 });
 
 export default function MyForm() {
-  const auth = useContext(AuthContext);
-  const user_id = auth?.userId;
+  const user_id = useSelector((state: RootState) => state.auth.userId);
   const location = useLocation();
   const navigate = useNavigate();
   useEffect(() => {

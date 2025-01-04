@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { Sidebar, SidebarBody, SidebarLink } from './ui/Sidebar';
 import { Dashboard } from './Dashboard';
 import { Link } from 'react-router-dom';
@@ -7,18 +7,19 @@ import { links } from '@/data';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useLogoutMutation } from '@/features/apiSlice';
-import AuthContext from '@/context/auth_context';
+import { useDispatch } from 'react-redux';
+import { setToken, setUserId } from '@/features/authSlice';
 import UserProfile from './UserProfile';
 export function SidebarDemo() {
   const [open, setOpen] = useState(false);
   const [activeContent, setActiveContent] = useState('Profile');
   const handleLogout = async () => {
-    const auth = useContext(AuthContext);
+    const dispatch = useDispatch();
     const [logout] = useLogoutMutation();
     try {
       await logout({}).unwrap();
-      auth?.setUserId(null);
-      auth?.setToken(null);
+      dispatch(setUserId(null));
+      dispatch(setToken(null));
     } catch (err) {
       if (axios.isAxiosError(err)) {
         toast.error(err?.message);

@@ -4,19 +4,19 @@ import { FormFields } from '@/components/ui/AuthContainer';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { useContext } from 'react';
-import AuthContext from '@/context/auth_context';
 import { useLoginMutation } from '@/features/apiSlice';
+import { useDispatch } from 'react-redux';
+import { setToken, setUserId } from '@/features/authSlice';
 const LoginForm = () => {
-  const auth = useContext(AuthContext);
   const navigate = useNavigate();
   const [login] = useLoginMutation();
   const handleLogin: SubmitHandler<FormFields> = async (data) => {
     try {
       const res = await login(data).unwrap();
       console.log(res);
-      auth?.setToken(res.data.access_token);
-      auth?.setUserId(res.data.user_id);
+      const dispatch = useDispatch();
+      dispatch(setToken(res.data.access_token));
+      dispatch(setUserId(res.data.user_id));
       toast.success('Logged in Successfully');
       navigate('/resume');
     } catch (e: any) {

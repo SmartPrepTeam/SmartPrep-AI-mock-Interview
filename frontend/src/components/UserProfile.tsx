@@ -2,7 +2,8 @@ import { useEffect, useState, useContext } from 'react';
 import { Badge } from './ui/badge';
 import { cn } from '@/lib/utils';
 import { useGetUserProfileQuery } from '@/features/apiSlice';
-import AuthContext from '@/context/auth_context';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
 interface Userdetails {
   full_name: string;
   email_address: string;
@@ -17,8 +18,7 @@ interface Userdetails {
 }
 const UserProfile = () => {
   const [userDetails, setUserDetails] = useState<Userdetails | null>(null);
-  const auth = useContext(AuthContext);
-  const user_id = auth?.userId;
+  const user_id = useSelector((state: RootState) => state.auth.userId);
   const { data, isLoading, isError, error } = useGetUserProfileQuery(user_id);
   useEffect(() => {
     if (data) {

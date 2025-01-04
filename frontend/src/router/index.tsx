@@ -11,18 +11,19 @@ import NotFoundPage from '@/components/NotFoundPage';
 import TextQuestionContainer from '@/components/TextQuestionContainer';
 import TextScoreContainer from '@/components/TextScoreContainer';
 import InterviewSetupContainer from '@/components/InterviewSetupContainer';
-import { ReactElement, useContext } from 'react';
-import AuthContext from '@/context/auth_context';
+import { ReactElement } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
 const PrivateRoute = () => {
-  const auth = useContext(AuthContext);
-  if (!auth?.token) {
+  const token = useSelector((state: RootState) => state.auth.token);
+  if (!token) {
     <Navigate to="/login" replace />;
   }
   return <Outlet />;
 };
 const PublicRoute = ({ children }: { children: ReactElement }) => {
-  const auth = useContext(AuthContext);
-  if (auth?.token) {
+  const token = useSelector((state: RootState) => state.auth.token);
+  if (token) {
     <Navigate to="home" replace />;
   }
   return children;

@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { activePage } from '@/features/activePageSlice';
@@ -11,13 +11,13 @@ import {
   useGenerateScoresMutation,
   useGetFeedbackMutation,
 } from '@/features/apiSlice';
-import AuthContext from '@/context/auth_context';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
 export default function TextInterviewQuestion({
   questions,
   question_id,
 }: QuestionPageContentProps) {
-  const auth = useContext(AuthContext);
-  const user_id = auth?.userId;
+  const user_id = useSelector((state: RootState) => state.auth.userId);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [currentIndex, setCurrentIndex] = useState(0);

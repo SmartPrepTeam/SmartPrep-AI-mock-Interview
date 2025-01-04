@@ -1,5 +1,5 @@
 import { FileUpload } from './ui/FileUpload';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import MagicButton from './ui/MagicButton';
 import { TypewriterEffect } from './ui/TypewriterEffect';
 import { words } from '@/data';
@@ -8,12 +8,12 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { useUploadResumeMutation } from '@/features/apiSlice';
-import AuthContext from '@/context/auth_context';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/redux/store';
+import { setToken } from '@/features/authSlice';
 const ResumeUpload = () => {
   const navigate = useNavigate();
-  const auth = useContext(AuthContext);
-  console.log(auth?.token);
-  const user_id = auth?.userId;
+  const user_id = useSelector((state: RootState) => state.auth.userId);
   const [resume, setResume] = useState<File | null>();
   const handleFileUpload = (files: File[]) => {
     const file = files[0];
@@ -29,8 +29,8 @@ const ResumeUpload = () => {
     }
     setResume(file);
   };
-  const [uploadResume, { isLoading, isError, error }] =
-    useUploadResumeMutation();
+  const [uploadResume, { isLoading }] = useUploadResumeMutation();
+  const dispatch = useDispatch();
   const handleSubmit = async () => {
     if (!resume) {
       toast.error('Please provide the resume');
@@ -38,7 +38,7 @@ const ResumeUpload = () => {
     }
     if (!user_id) {
       toast.error('You are not logged in');
-      auth?.setToken(null);
+      dispatch(setToken(null));
       return;
     }
     const formData = new FormData();

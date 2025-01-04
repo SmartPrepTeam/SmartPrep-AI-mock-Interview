@@ -4,7 +4,7 @@ export const ENDPOINTS = {
   auth: {
     login: `/auth/login`,
     signup: `/auth/signup`,
-    refresh: `${API_BASE_URL}/auth/refresh`,
+    refresh: `/auth/refresh`,
     logout: `/auth/logout`,
   },
   resume: {
