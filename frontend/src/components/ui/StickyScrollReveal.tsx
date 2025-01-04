@@ -41,7 +41,7 @@ export const StickyScroll = ({
 
   return (
     <motion.div
-      className="h-[30rem] overflow-y-auto flex justify-center relative space-x-10 rounded-md p-10"
+      className="h-[30rem] overflow-y-auto flex justify-center relative space-x-10 rounded-md"
       ref={ref}
     >
       <div className="div relative flex items-start px-4">
@@ -77,7 +77,7 @@ export const StickyScroll = ({
       </div>
       <div
         className={cn(
-          'hidden lg:block h-80 w-[500px] rounded-md bg-transparent sticky top-10 overflow-hidden',
+          'hidden lg:block h-80 w-full rounded-md bg-transparent sticky top-12',
           contentClassName
         )}
       >
