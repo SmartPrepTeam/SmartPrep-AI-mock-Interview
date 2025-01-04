@@ -16,6 +16,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 const PrivateRoute = () => {
   const token = useSelector((state: RootState) => state.auth.token);
+  if (token === undefined) return null;
   if (!token) {
     return <Navigate to="/login" replace />;
   }
@@ -23,6 +24,7 @@ const PrivateRoute = () => {
 };
 const PublicRoute = ({ children }: { children: ReactElement }) => {
   const token = useSelector((state: RootState) => state.auth.token);
+  if (token === undefined) return null;
   if (token) {
     return <Navigate to="/home" replace />;
   }

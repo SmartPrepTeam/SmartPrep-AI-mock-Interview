@@ -60,8 +60,8 @@ export default function InterviewSetupForm() {
         console.log(response);
         dispatch(
           setTextInterviewData({
-            questions: response.data.data.data,
-            interviewId: response.data.data.id,
+            questions: response.data.data,
+            interviewId: response.data.id,
           })
         );
         dispatch(activePage('quiz'));

@@ -67,7 +67,8 @@ export default function TextInterviewQuestion({
         user_id,
         answers,
       }).unwrap();
-      dispatch(setTextScoreData(response.data.data));
+      console.log(response);
+      dispatch(setTextScoreData(response.data));
       dispatch(activePage('insights'));
       navigate('/textual-interview/results');
     } catch (err) {
@@ -90,7 +91,8 @@ export default function TextInterviewQuestion({
         question: currentQuestion.question,
         answer: currentAnswer,
       }).unwrap();
-      setFeedback(response.data.data.Improvements);
+      console.log(response);
+      setFeedback(response.data.Improvements);
     } catch (err) {
       if (axios.isAxiosError(err)) {
         if (err.response?.status === 500) {

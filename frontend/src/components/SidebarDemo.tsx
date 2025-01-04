@@ -11,11 +11,11 @@ import { useDispatch } from 'react-redux';
 import { setToken, setUserId } from '@/features/authSlice';
 import UserProfile from './UserProfile';
 export function SidebarDemo() {
+  const dispatch = useDispatch();
+  const [logout] = useLogoutMutation();
   const [open, setOpen] = useState(false);
   const [activeContent, setActiveContent] = useState('Profile');
   const handleLogout = async () => {
-    const dispatch = useDispatch();
-    const [logout] = useLogoutMutation();
     try {
       await logout({}).unwrap();
       dispatch(setUserId(null));
