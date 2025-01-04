@@ -9,12 +9,12 @@ import { useDispatch } from 'react-redux';
 import { setToken, setUserId } from '@/features/authSlice';
 const LoginForm = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [login] = useLoginMutation();
   const handleLogin: SubmitHandler<FormFields> = async (data) => {
     try {
       const res = await login(data).unwrap();
       console.log(res);
-      const dispatch = useDispatch();
       dispatch(setToken(res.data.access_token));
       dispatch(setUserId(res.data.user_id));
       toast.success('Logged in Successfully');

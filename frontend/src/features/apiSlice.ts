@@ -6,11 +6,12 @@ import {
   FetchBaseQueryError,
 } from '@reduxjs/toolkit/query';
 import { logout, setToken } from './authSlice';
+import { RootState } from '@/redux/store';
 const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_BASE_URL,
   prepareHeaders: (headers, { getState }) => {
     // Retrieve token from sessionStorage or state
-    const token = (getState as any).auth.token;
+    const token = (getState() as RootState).auth.token;
 
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);

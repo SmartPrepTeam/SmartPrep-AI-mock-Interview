@@ -1,5 +1,6 @@
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { useEffect } from 'react';
 import { Jobs } from '@/data';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -56,6 +57,7 @@ export default function InterviewSetupForm() {
 
       try {
         const response = await generateQuestions(postData).unwrap();
+        console.log(response);
         dispatch(
           setTextInterviewData({
             questions: response.data.data.data,

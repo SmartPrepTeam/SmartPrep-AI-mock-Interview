@@ -9,7 +9,7 @@ export default function NotFoundPage() {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center text-center h-screen bg-black">
+    <div className="flex flex-col justify-center items-center text-center h-screen bg-black-100">
       <h1 className="text-8xl font-bold text-white transform transition duration-300 hover:scale-110">
         404
       </h1>

@@ -17,14 +17,14 @@ import { RootState } from '@/redux/store';
 const PrivateRoute = () => {
   const token = useSelector((state: RootState) => state.auth.token);
   if (!token) {
-    <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace />;
   }
   return <Outlet />;
 };
 const PublicRoute = ({ children }: { children: ReactElement }) => {
   const token = useSelector((state: RootState) => state.auth.token);
   if (token) {
-    <Navigate to="home" replace />;
+    return <Navigate to="/home" replace />;
   }
   return children;
 };

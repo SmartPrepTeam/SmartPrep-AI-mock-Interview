@@ -5,9 +5,6 @@ import { RootState } from '../redux/store';
 
 const TextInterviewScore = () => {
   const scoreData = useSelector((state: RootState) => state.score.data);
-  if (!scoreData) {
-    return <div>No quiz data available. Please go back and set up a quiz.</div>;
-  }
   let score =
     (scoreData?.Tone +
       scoreData.Accuracy +
