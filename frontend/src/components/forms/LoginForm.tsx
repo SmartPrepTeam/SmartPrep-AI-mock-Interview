@@ -1,34 +1,42 @@
 import AuthContainer from '@/components/ui/AuthContainer';
 import { SubmitHandler } from 'react-hook-form';
 import { FormFields } from '@/components/ui/AuthContainer';
-import { ENDPOINTS } from '@/api/api-config';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { useContext } from 'react';
-import AuthContext from '@/context/auth_context';
-
+import { useLoginMutation } from '@/features/apiSlice';
+import { useDispatch } from 'react-redux';
+import { setToken, setUserId } from '@/features/authSlice';
 const LoginForm = () => {
-  const auth = useContext(AuthContext);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [login] = useLoginMutation();
   const handleLogin: SubmitHandler<FormFields> = async (data) => {
     try {
-      const res = await axios.post(ENDPOINTS.auth.login, data);
-      auth?.setToken(res.data.data.access_token);
-      auth?.setUserId(res.data.data.user_id);
+      const res = await login(data).unwrap();
+      console.log(res);
+      dispatch(setToken(res.data.access_token));
+      dispatch(setUserId(res.data.user_id));
       toast.success('Logged in Successfully');
-      navigate('/home');
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
+      navigate('/resume');
+    } catch (e: any) {
+      if (e.status === 400) {
+        toast.error('Error : Invalid credentials');
+      } else if (e.data?.message) {
+        toast.error(`Error : ${e.data?.message}`);
+      } else if (axios.isAxiosError(e)) {
         if (e.response?.status === 400) {
-          toast.error('Invalid Credentials');
-        } else toast.error(e.response?.data?.message);
+          toast.error('Error : Invalid credentials');
+        } else {
+          const errorMessage =
+            e.response?.data?.message || 'Unexpected Error occured';
+          toast.error(`Error : ${errorMessage}`);
+        }
       } else {
-        toast.error('An unexpected error occured');
+        toast.error('An unexpected Error occured');
       }
     }
   };
-
   return (
     <>
       <AuthContainer
@@ -44,5 +52,4 @@ const LoginForm = () => {
     </>
   );
 };
-
 export default LoginForm;

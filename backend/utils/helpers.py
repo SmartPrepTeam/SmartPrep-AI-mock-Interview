@@ -40,7 +40,7 @@ def create_refresh_token(data : dict) -> str :
     expires_delta = timedelta(minutes = settings.refresh_token_expire_minutes)
     return create_token(data,expires_delta)
 
-def verify_refresh_token(token : str)->Optional[str]:
+def verify_token(token : str)->Optional[str]:
     try:
         payload = jwt.decode(token,settings.secret_key,algorithms= [settings.algorithm])
 

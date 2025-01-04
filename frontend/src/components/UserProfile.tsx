@@ -1,9 +1,9 @@
-import { ENDPOINTS } from '@/api/api-config';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import toast from 'react-hot-toast';
+import { useEffect, useState, useContext } from 'react';
 import { Badge } from './ui/badge';
 import { cn } from '@/lib/utils';
+import { useGetUserProfileQuery } from '@/features/apiSlice';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
 interface Userdetails {
   full_name: string;
   email_address: string;
@@ -17,47 +17,31 @@ interface Userdetails {
   frameworks_libraries: string[];
 }
 const UserProfile = () => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
   const [userDetails, setUserDetails] = useState<Userdetails | null>(null);
-  const user_id = '64c0f45b99e6cba0fc123456';
+  const user_id = useSelector((state: RootState) => state.auth.userId);
+  const { data, isLoading, isError, error } = useGetUserProfileQuery(user_id);
   useEffect(() => {
-    const getUserInfo = async () => {
-      setLoading(true);
-      setError(false);
-      try {
-        const response = await axios.get(
-          `${ENDPOINTS.user.profile}/${user_id}`
-        );
-        setUserDetails(response.data.data);
-      } catch (err) {
-        setError(true);
-        if (axios.isAxiosError(err)) {
-          if (err.response?.status === 500) {
-            toast.error('Unable to parse the file');
-          }
-        } else {
-          toast.error('Unexpected error occurred');
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    getUserInfo();
-  }, [user_id]);
-  if (loading) {
+    if (data) {
+      console.log(data);
+      setUserDetails(data.data);
+    }
+  }, [data]);
+  if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-full text-white">
-        Fetching user details
+      <div className="flex w-full justify-center items-center h-full text-white">
+        Loading....
       </div>
     );
   }
-  if (error || !userDetails) {
+  if (isError) {
     return (
       <div className="flex justify-center items-center h-full text-white">
-        Error Fetching user details
+        Error {error?.data?.message || 'Unknown error occurred'}
       </div>
     );
+  }
+  if (!userDetails) {
+    return <div>Profile not made yet</div>;
   }
   return (
     <div className="flex flex-1 w-full md:h-full">

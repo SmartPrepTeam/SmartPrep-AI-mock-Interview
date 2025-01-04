@@ -1,26 +1,23 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { activePage } from '@/features/activePageSlice';
 import { setTextScoreData } from '@/features/textScoreSlice';
-import { ENDPOINTS } from '@/api/api-config';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 import { QuestionPageContentProps } from '@/types/questionTypes';
 import MagicButton from './ui/MagicButton';
 import {
-  NavigationBundle,
-  NavigationContext,
-} from '@/context/navigation_context';
+  useGenerateScoresMutation,
+  useGetFeedbackMutation,
+} from '@/features/apiSlice';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
 export default function TextInterviewQuestion({
   questions,
-  user_id,
   question_id,
 }: QuestionPageContentProps) {
-  // useEffect(() => {
-  //   const { from, to } = useContext<NavigationBundle>(NavigationContext);
-  //   console.log(from);
-  //   console.log(to);
-  // }, []);
+  const user_id = useSelector((state: RootState) => state.auth.userId);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -51,25 +48,37 @@ export default function TextInterviewQuestion({
       setFeedback('');
     }
   };
-
+  const [
+    generateScores,
+    { isLoading: isLoadingScores, isError: isErrorScores, error: errorScores },
+  ] = useGenerateScoresMutation();
+  const [
+    getFeedback,
+    {
+      isLoading: isLoadingFeedback,
+      isError: isErrorFeedback,
+      error: errorFeedback,
+    },
+  ] = useGetFeedbackMutation();
   const handleSubmit = async () => {
-    console.log(answers);
     try {
-      const response = await axios.post(
-        `${ENDPOINTS.textual_interview.score_generation}/${question_id}?user_id=${user_id}`,
-        {
-          answers: answers,
-        }
-      );
-
-      console.log('Response from backend on submission:', response.data);
-      dispatch(setTextScoreData(response.data.data));
+      const response = await generateScores({
+        question_id,
+        user_id,
+        answers,
+      }).unwrap();
+      console.log(response);
+      dispatch(setTextScoreData(response.data));
       dispatch(activePage('insights'));
-      history.pushState({ phase: 'quiz' }, 'Phase: quiz', '/textual-interview');
       navigate('/textual-interview/results');
-    } catch (error) {
-      console.error('Error submitting answers:', error);
-      alert('An error occurred while submitting answers. Please try again.');
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 500) {
+          toast.error('Unable to generate scores');
+        }
+      } else {
+        toast.error('Unexpected error occurred');
+      }
     }
   };
 
@@ -78,27 +87,28 @@ export default function TextInterviewQuestion({
     const currentAnswer = answers[currentIndex];
 
     try {
-      const response = await axios.post(
-        ENDPOINTS.textual_interview.feedback,
-        null,
-        {
-          params: {
-            question: currentQuestion.question,
-            answer: currentAnswer,
-          },
+      const response = await getFeedback({
+        question: currentQuestion.question,
+        answer: currentAnswer,
+      }).unwrap();
+      console.log(response);
+      setFeedback(response.data.Improvements);
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 500) {
+          toast.error('Unable to get feedback');
         }
-      );
-      setFeedback(response.data.data.Improvements);
-    } catch (error) {
-      console.error('Error:', error);
-      setFeedback('Unable to generate feedback, try again.');
+      } else {
+        toast.error('Unexpected error occurred');
+      }
     }
   };
 
   const currentQuestion = questions[currentIndex];
   const isLastQuestion = currentIndex === questions.length - 1;
   const isFirstQuestion = currentIndex === 0;
-
+  if (isErrorFeedback)
+    toast.error(errorFeedback.data?.message || 'Unknown Error');
   return (
     <div className="p-6 min-h-screen flex justify-center items-center mt-[50px] lg:mt-[-50px]">
       <div className="max-w-6xl bg-[#10132E] p-6 rounded-lg shadow-md w-full border border-white/[0.1] flex flex-col lg:flex-row  ">
@@ -130,7 +140,12 @@ export default function TextInterviewQuestion({
               className="flex items-center"
               onClick={handleGenerateFeedback}
             >
-              <MagicButton title="Generate Feedback" position="right" />
+              <MagicButton
+                title="Generate Feedback"
+                position="right"
+                isLoading={isLoadingFeedback}
+                isLoadingText="Generating....."
+              />
             </button>
             <div className="flex flex-col md:flex-row mt-2 md:mt-0 gap-2">
               {!isFirstQuestion && (
@@ -149,7 +164,7 @@ export default function TextInterviewQuestion({
                   onClick={handleSubmit}
                 >
                   <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-lg bg-green-600 text-sm font-medium text-white px-7 py-3">
-                    Submit
+                    {isLoadingScores ? 'Submiting....' : 'Submit'}
                   </span>
                 </button>
               ) : (

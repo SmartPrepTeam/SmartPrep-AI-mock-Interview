@@ -1,8 +1,5 @@
 import { IconPlayerPlay } from '@tabler/icons-react';
-import { useDispatch } from 'react-redux';
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { activePage } from '@/features/activePageSlice';
 interface InterviewDetails {
   title: string;
   description: string;

@@ -1,11 +1,15 @@
 const MagicButton = ({
   title,
+  isLoading,
+  isLoadingText,
   icon,
   handleClick,
   position,
   otherClasses,
 }: {
   title: string;
+  isLoading?: boolean;
+  isLoadingText?: string;
   icon?: React.ReactNode;
   position?: string;
   handleClick?: () => void;
@@ -23,9 +27,15 @@ const MagicButton = ({
         className={`inline-flex h-full w-full cursor-pointer items-center justify-center rounded-lg
              bg-slate-950 px-7 text-sm font-medium text-white backdrop-blur-3xl gap-2 ${otherClasses}`}
       >
-        {position === 'left' && icon}
-        {title}
-        {position === 'right' && icon}
+        {isLoading ? (
+          isLoadingText
+        ) : (
+          <>
+            {position === 'left' && icon}
+            {title}
+            {position === 'right' && icon}
+          </>
+        )}
       </span>
     </button>
   );

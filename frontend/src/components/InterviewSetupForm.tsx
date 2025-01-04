@@ -1,11 +1,11 @@
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { useEffect } from 'react';
 import { Jobs } from '@/data';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { useContext, useEffect } from 'react';
-import AuthContext from '@/context/auth_context';
-import { ENDPOINTS } from '@/api/api-config';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
+import toast from 'react-hot-toast';
 import { activePage } from '../features/activePageSlice';
 import { setTextInterviewData } from '@/features/textInterviewSlice';
 import { difficultyLevels, interviewLengths } from '@/data';
@@ -13,10 +13,7 @@ import InterviewLengthButton from './ui/InterviewLengthButton';
 import axios from 'axios';
 import MagicButton from './ui/MagicButton';
 import { Signal, SignalHigh, SignalMedium } from 'lucide-react';
-import {
-  NavigationBundle,
-  NavigationContext,
-} from '@/context/navigation_context';
+import { useGenerateQuestionsMutation } from '@/features/apiSlice';
 export default function InterviewSetupForm() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -25,7 +22,9 @@ export default function InterviewSetupForm() {
   //   console.log(from);
   //   console.log(to);
   // }, []);
-  const auth = useContext(AuthContext);
+  const userId = useSelector((state: RootState) => state.auth.userId);
+  const [generateQuestions, { isLoading, isError, error }] =
+    useGenerateQuestionsMutation();
   const formik = useFormik({
     initialValues: {
       jobPosition: '',
@@ -48,7 +47,7 @@ export default function InterviewSetupForm() {
       console.log('Form submitted:', interviewLength);
 
       const postData = {
-        userID: '64c0f45b99e6cba0fc123456',
+        userID: userId,
         difficulty_level: values.difficultyLevel,
         job_title: values.jobPosition,
         job_description: values.jobDescription,
@@ -57,22 +56,24 @@ export default function InterviewSetupForm() {
       };
 
       try {
-        const response = await axios.post(
-          ENDPOINTS.textual_interview.question_generation,
-          postData
-        );
+        const response = await generateQuestions(postData).unwrap();
+        console.log(response);
         dispatch(
           setTextInterviewData({
-            questions: response.data.data.data,
-            interviewId: response.data.data.id,
+            questions: response.data.data,
+            interviewId: response.data.id,
           })
         );
-
-        console.log('Response from Backend:', response.data);
         dispatch(activePage('quiz'));
         navigate('/textual-interview');
-      } catch (error) {
-        console.log('Errors:', error);
+      } catch (err) {
+        if (axios.isAxiosError(err)) {
+          if (err.response?.status === 500) {
+            toast.error('Unable to parse the file');
+          }
+        } else {
+          toast.error('Unexpected error occurred');
+        }
       }
     },
   });
@@ -97,7 +98,8 @@ export default function InterviewSetupForm() {
     formik.setFieldValue('interviewLength', length);
     formik.setFieldTouched('interviewLength', false);
   };
-
+  if (isError)
+    return toast.error(error.data?.message || 'Unknown Error occured');
   return (
     <div className="flex min-h-[70vh]">
       <form
@@ -239,7 +241,12 @@ export default function InterviewSetupForm() {
 
             <div className="flex justify-center mt-6">
               <button type="submit">
-                <MagicButton title="Continue" position="right" />
+                <MagicButton
+                  title="Continue"
+                  position="right"
+                  isLoading={isLoading}
+                  isLoadingText="Generating Questions....."
+                />
               </button>
             </div>
           </div>

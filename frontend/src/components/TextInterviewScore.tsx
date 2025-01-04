@@ -2,24 +2,14 @@ import CustomProgressBar from './CustomProgressBar';
 import AnimatedCircularProgressBar from '@/components/ui/AnimatedCircularProgressBar';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
-import { useEffect, useContext } from 'react';
-import {
-  NavigationBundle,
-  NavigationContext,
-} from '@/context/navigation_context';
 
 const TextInterviewScore = () => {
   const scoreData = useSelector((state: RootState) => state.score.data);
-  // useEffect(() => {
-  //   const { from, to } = useContext<NavigationBundle>(NavigationContext);
-  //   console.log(from);
-  //   console.log(to);
-  // }, []);
   if (!scoreData) {
-    return <div>No quiz data available. Please go back and set up a quiz.</div>;
+    return <></>;
   }
   let score =
-    (scoreData?.Tone +
+    (scoreData.Tone +
       scoreData.Accuracy +
       scoreData.Clarity +
       scoreData.Grammar) /
@@ -63,7 +53,9 @@ const TextInterviewScore = () => {
         </div>
         <div className="col-span-3 md:col-span-1 lg:col-span-2 xl:col-span-1 rounded-lg bg-[#10132E] border border-white/[0.1] flex flex-col items-center text-center">
           <h3 className="text-lg font-semibold mt-8 mb-4">Feedback</h3>
-          <p className="text-sm mb-2 p-2">{scoreData.Feedback}</p>
+          <p className="text-sm mb-2 p-2 overflow-y-auto">
+            {scoreData.Feedback}
+          </p>
         </div>
         {/* Accuracy BOX c2r2   */}
         <div className="col-span-3 md:col-span-1 lg:col-span-1 rounded-lg">
