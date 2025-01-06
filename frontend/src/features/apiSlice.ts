@@ -130,6 +130,11 @@ export const apiSlice = createApi({
         },
       }),
     }),
+    getRecentInterviews: builder.query({
+      query: ({ user_id, page }) => ({
+        url: `/interviews/${user_id}?page=${page}`,
+      }),
+    }),
   }),
 });
 
@@ -145,4 +150,5 @@ export const {
   useGenerateQuestionsMutation,
   useGenerateScoresMutation,
   useGetFeedbackMutation,
+  useGetRecentInterviewsQuery,
 } = apiSlice;

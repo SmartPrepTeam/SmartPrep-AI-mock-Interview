@@ -53,119 +53,131 @@ const UserProfile = () => {
             'linear-gradient(90deg, rgba(4,7,29,1) 0%, rgba(23, 25, 48,1) 100%)',
         }}
       >
-        <div className="flex border-b border-b-white/[0.1] py-6 max-w-full">
-          <img src="/mockup.png" alt="" width={120} />
-          <div className="ml-4 items-center">
-            <h2 className="font-sans text-lg lg:text-3xl font-bold">
-              {userDetails.full_name}
-            </h2>
-            <p className="text-base lg:text-xl">{userDetails.job_title}</p>
+        <div className="flex flex-col md:flex-row gap-4">
+          <img
+            src="/mockup.png"
+            alt=""
+            className="object-cover rounded-lg h-60"
+          />
+          <div className="border border-white/[0.1] p-3 rounded-lg h-auto w-full">
+            <div className="mb-5 mt-2">
+              <p className="text-white-100 mb-1">Name</p>
+              <h2 className="font-sans text-lg font-bold">
+                {userDetails.full_name}
+              </h2>
+            </div>
+            <div className="mb-5">
+              <p className="text-white-100 mb-1">Current Position</p>
+              <p className="text-base lg:text-xl">{userDetails.job_title}</p>
+            </div>
+            <div>
+              <p className="text-white-100 mb-1">Location</p>
+              <p className="text-base">
+                {userDetails.current_location[1]}{' '}
+                {userDetails.current_location[0] && (
+                  <span>, {userDetails.current_location[0]}</span>
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
 
-            <p className="text-base">
-              {userDetails.current_location[1]}{' '}
-              {userDetails.current_location[0] && (
-                <span>, {userDetails.current_location[0]}</span>
-              )}
-            </p>
+        <div className="grid md:grid-cols-2 gap-2">
+          <div className="border border-white/[0.1] p-3 rounded-lg col-span-1">
+            <h2 className="uppercase font-bold mb-5">CONtact details</h2>
+            <p className="text-white-100 mb-1">Email</p>
             <p className="text-base whitespace-nowrap overflow-hidden text-ellipsis w-full">
               {userDetails.email_address}
             </p>
           </div>
-        </div>
-        <div className="grid md:grid-cols-2 gap-12 lg:gap-14 py-7">
-          <div className="row-span-1">
-            <h2 className="font-sans text-lg lg:text-3xl font-bold">
-              LinkedIn Profile
-            </h2>
-            <p>{userDetails.linkedin_profile_url}</p>
+          <div className="border border-white/[0.1] p-3 rounded-lg col-span-1">
+            <h2 className="uppercase font-bold mb-5">SOCIALS</h2>
+            <p className="text-white-100 mb-1"> LinkedIn Profile</p>
+            <p className="text-base whitespace-nowrap overflow-hidden text-ellipsis w-full">
+              {userDetails.linkedin_profile_url}
+            </p>
+            <p className="text-white-100 mb-1 mt-5"> Github Profile</p>
+            <p className="text-base whitespace-nowrap overflow-hidden text-ellipsis w-full">
+              {userDetails.github_profile_url}
+            </p>
           </div>
-          <div className="row-span-1">
-            <h2 className="font-sans text-lg lg:text-3xl font-bold">
-              Github Profile
-            </h2>
+          <div className="flex flex-col border border-white/[0.1] py-6 p-3 rounded-lg col-span-1">
+            <h2 className="uppercase font-bold mb-5">Technical Skills</h2>
+            <div>
+              <h2 className="font-sans text-white-100">
+                Programming Languages
+              </h2>
+              {userDetails.programming_languages &&
+              userDetails.programming_languages.length > 0 ? (
+                <div className="flex flex-wrap gap-4 mt-2">
+                  {userDetails.programming_languages.map((lang, index) => {
+                    return (
+                      <Badge
+                        key={index}
+                        className={cn(
+                          "relative px-4 py-2 text-lg rounded flex items-center gap-1 data-[active='true']:ring-2 data-[active='true']:ring-muted-foreground truncate aria-disabled:opacity-50 aria-disabled:cursor-not-allowed"
+                        )}
+                        variant={'secondary'}
+                      >
+                        <span className="text-xs">{lang}</span>
+                      </Badge>
+                    );
+                  })}{' '}
+                </div>
+              ) : (
+                <div>No programming languages provided</div>
+              )}
+            </div>
+            <div className="mt-5">
+              <h2 className="font-sans text-white-100">Databases</h2>
 
-            <p>{userDetails.github_profile_url}</p>
-          </div>
-          <div className="row-span-1">
-            <h2 className="font-sans text-lg lg:text-3xl font-bold">
-              Programming Languages
-            </h2>
-            {userDetails.programming_languages &&
-            userDetails.programming_languages.length > 0 ? (
-              <div className="flex flex-wrap gap-4 mt-5">
-                {userDetails.programming_languages.map((lang, index) => {
-                  return (
-                    <Badge
-                      key={index}
-                      className={cn(
-                        "relative px-4 py-2 text-lg rounded flex items-center gap-1 data-[active='true']:ring-2 data-[active='true']:ring-muted-foreground truncate aria-disabled:opacity-50 aria-disabled:cursor-not-allowed"
-                      )}
-                      variant={'secondary'}
-                    >
-                      <span className="text-xs">{lang}</span>
-                    </Badge>
-                  );
-                })}{' '}
-              </div>
-            ) : (
-              <div>No programming languages provided</div>
-            )}
-          </div>
-          <div className="row-span-1">
-            <h2 className="font-sans text-lg lg:text-3xl font-bold">
-              Databases
-            </h2>
+              {userDetails.databases && userDetails.databases.length > 0 ? (
+                <div className="flex flex-wrap gap-4 mt-2">
+                  {userDetails.databases.map((db, index) => {
+                    return (
+                      <Badge
+                        key={index}
+                        className={cn(
+                          "relative px-4 py-2 text-lg rounded flex items-center gap-1 data-[active='true']:ring-2 data-[active='true']:ring-muted-foreground truncate aria-disabled:opacity-50 aria-disabled:cursor-not-allowed"
+                        )}
+                        variant={'secondary'}
+                      >
+                        <span className="text-xs">{db}</span>
+                      </Badge>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div>No Databases provided</div>
+              )}
+            </div>
+            <div className="mt-5">
+              <h2 className="font-sans text-white-100">Frameworks</h2>
 
-            {userDetails.databases && userDetails.databases.length > 0 ? (
-              <div className="flex flex-wrap gap-4 mt-5">
-                {userDetails.databases.map((db, index) => {
-                  return (
-                    <Badge
-                      key={index}
-                      className={cn(
-                        "relative px-4 py-2 text-lg rounded flex items-center gap-1 data-[active='true']:ring-2 data-[active='true']:ring-muted-foreground truncate aria-disabled:opacity-50 aria-disabled:cursor-not-allowed"
-                      )}
-                      variant={'secondary'}
-                    >
-                      <span className="text-xs">{db}</span>
-                    </Badge>
-                  );
-                })}
-              </div>
-            ) : (
-              <div>No Databases provided</div>
-            )}
+              {userDetails.frameworks_libraries &&
+              userDetails.frameworks_libraries.length > 0 ? (
+                <div className="flex flex-wrap gap-4 mt-2">
+                  {userDetails.frameworks_libraries.map((lib, index) => {
+                    return (
+                      <Badge
+                        key={index}
+                        className={cn(
+                          "relative px-4 py-2 text-lg rounded flex items-center gap-1 data-[active='true']:ring-2 data-[active='true']:ring-muted-foreground truncate aria-disabled:opacity-50 aria-disabled:cursor-not-allowed"
+                        )}
+                        variant={'secondary'}
+                      >
+                        <span className="text-xs">{lib}</span>
+                      </Badge>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div>No Frameworks / Libraries provided</div>
+              )}
+            </div>
           </div>
-          <div className="row-span-1">
-            <h2 className="font-sans text-lg lg:text-3xl font-bold">
-              Frameworks
-            </h2>
-
-            {userDetails.frameworks_libraries &&
-            userDetails.frameworks_libraries.length > 0 ? (
-              <div className="flex flex-wrap gap-4 mt-5">
-                {userDetails.frameworks_libraries.map((lib, index) => {
-                  return (
-                    <Badge
-                      key={index}
-                      className={cn(
-                        "relative px-4 py-2 text-lg rounded flex items-center gap-1 data-[active='true']:ring-2 data-[active='true']:ring-muted-foreground truncate aria-disabled:opacity-50 aria-disabled:cursor-not-allowed"
-                      )}
-                      variant={'secondary'}
-                    >
-                      <span className="text-xs">{lib}</span>
-                    </Badge>
-                  );
-                })}
-              </div>
-            ) : (
-              <div>No Frameworks / Libraries provided</div>
-            )}
-          </div>
-          <div className="row-span-1">
-            <h2 className="font-sans text-lg lg:text-3xl font-bold">
-              Soft Skills
-            </h2>
+          <div className="p-3 rounded-lg border border-white/[0.1] col-span-1">
+            <h2 className="font-sans uppercase font-bold ">Soft Skills</h2>
 
             {userDetails.soft_skills && userDetails.soft_skills.length > 0 ? (
               <div className="flex flex-wrap gap-4 mt-5">

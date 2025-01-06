@@ -35,7 +35,7 @@ export function SidebarDemo() {
   return (
     <div
       className={
-        'rounded-md flex flex-col md:flex-row bg-black-100 w-full h-screen flex-1 mx-auto border border-neutral-200 overflow-hidden'
+        'rounded-md flex flex-col md:flex-row bg-black-100 w-full h-screen flex-1 mx-auto border border-neutral-200'
       }
     >
       <Sidebar open={open} setOpen={setOpen}>
