@@ -1,12 +1,15 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useLayoutEffect } from 'react';
 import { Badge } from './ui/badge';
 import { cn } from '@/lib/utils';
 import { useGetUserProfileQuery } from '@/features/apiSlice';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
+import { setProfileImg, setProfileUserName } from '@/features/profileSlice';
+import { useNavigate } from 'react-router-dom';
 interface Userdetails {
   full_name: string;
   email_address: string;
+  profileImage: string;
   job_title: string;
   current_location: string[];
   linkedin_profile_url: string;
@@ -17,15 +20,41 @@ interface Userdetails {
   frameworks_libraries: string[];
 }
 const UserProfile = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [userDetails, setUserDetails] = useState<Userdetails | null>(null);
   const user_id = useSelector((state: RootState) => state.auth.userId);
   const { data, isLoading, isError, error } = useGetUserProfileQuery(user_id);
   useEffect(() => {
     if (data) {
       console.log(data);
+      // dispatch(setProfileImg(data.data.profileImage));
+      dispatch(setProfileUserName(data.data.full_name));
       setUserDetails(data.data);
+    } else if (!isLoading && !data) {
+      navigate('/resume');
     }
   }, [data]);
+  useLayoutEffect(() => {
+    if (isError && !data) {
+      navigate('/resume');
+    }
+  }, [data]);
+  // useEffect(() => {
+  //   if (userDetails?.profileImage) {
+  //     let img = userDetails.profileImage;
+
+  //     // Handle the `b''` or `b""` prefix issue
+  //     if (img.startsWith("b'") || img.startsWith('b"')) {
+  //       img = img.slice(2, -1);
+  //     }
+
+  //     img = img.trim();
+
+  //     dispatch(setProfileImg(img));
+  //   }
+  // }, [userDetails?.profileImage]);
+
   if (isLoading) {
     return (
       <div className="flex w-full justify-center items-center h-full text-white">
@@ -34,9 +63,12 @@ const UserProfile = () => {
     );
   }
   if (isError) {
+    if (!data) {
+      navigate('/resume');
+    }
     return (
-      <div className="flex justify-center items-center h-full text-white">
-        Error {error?.data?.message || 'Unknown error occurred'}
+      <div className="flex w-full justify-center items-center h-full text-white">
+        {error?.data?.message || 'Unknown error occurred'}
       </div>
     );
   }
@@ -55,7 +87,7 @@ const UserProfile = () => {
       >
         <div className="flex flex-col md:flex-row gap-4">
           <img
-            src="/mockup.png"
+            src={'./mockup.png'}
             alt=""
             className="object-cover rounded-lg h-60"
           />

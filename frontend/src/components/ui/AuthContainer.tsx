@@ -3,12 +3,12 @@ import AuthCard from '@/components/ui/AuthCard';
 import { z } from 'zod';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import img from '@/assets/Illustration.svg';
+import img from '/Login.svg';
 import { useEffect } from 'react';
 
 const schema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z.string().trim().min(8, 'Password must be at least 8 characters'),
 });
 export type FormFields = z.infer<typeof schema>;
 interface AuthContainerProps {
@@ -44,11 +44,14 @@ const AuthContainer = ({
     setFocus('email');
   }, [setFocus]);
   return (
-    <div className="flex w-full h-screen justify-center items-center font-Manrope">
-      <div className="w-1/2 flex justify-center items-center">
+    <div className="flex min-h-screen justify-center items-center font-Manrope bg-black-100 p-2">
+      <div className="w-full lg:w-1/2 ">
         <AuthCard {...props}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <label htmlFor="email" className="block mb-2 font-semibold">
+            <label
+              htmlFor="email"
+              className="block mb-2 font-semibold text-white"
+            >
               Email Address
             </label>
             <input
@@ -60,7 +63,10 @@ const AuthContainer = ({
             {errors.email && (
               <div className="text-red-600">{errors.email?.message}</div>
             )}
-            <label htmlFor="password" className="block mt-5 2 font-semibold">
+            <label
+              htmlFor="password"
+              className="block mt-5 2 font-semibold text-white"
+            >
               Password
             </label>
             <input
@@ -75,7 +81,7 @@ const AuthContainer = ({
             )}
             <button
               disabled={isSubmitting}
-              className="w-full p-2 rounded-xl text-center text-white mt-8 bg-primaryPurple"
+              className="w-full p-2 rounded-xl text-center text-white mt-8 bg-[#759edf]"
             >
               {isSubmitting ? loadingState : buttonText}
             </button>
@@ -85,13 +91,15 @@ const AuthContainer = ({
           </form>
         </AuthCard>
       </div>
-      <div className="w-1/2 h-full flex justify-center items-center bg-gradient-to-br from-[#6f42f5] to-[#a78bfa]">
-        <img
-          src={img}
-          loading="lazy"
-          alt="Illustration"
-          className="w-[300px] h-[400px] object-contain md:w-[200px] md:h-[550px] lg:w-[550px] lg:h-[800px]"
-        ></img>
+      <div
+        className="hidden lg:flex lg:w-1/2 rounded-xl border border-white/[0.1] shadow h-[95vh] justify-center items-center"
+        style={{
+          background: 'rgb(4,7,29)',
+          backgroundColor:
+            'linear-gradient(90deg, rgba(4,7,29,1) 0%, rgba(12,14,35,1) 100%)',
+        }}
+      >
+        <img src={img} alt="" className="lg:w-9/12" />
       </div>
     </div>
   );

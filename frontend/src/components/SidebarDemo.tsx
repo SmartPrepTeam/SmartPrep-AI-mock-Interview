@@ -7,9 +7,10 @@ import { links } from '@/data';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useLogoutMutation } from '@/features/apiSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setToken, setUserId } from '@/features/authSlice';
 import UserProfile from './UserProfile';
+import { RootState } from '@/redux/store';
 export function SidebarDemo() {
   const dispatch = useDispatch();
   const [logout] = useLogoutMutation();
@@ -32,6 +33,8 @@ export function SidebarDemo() {
       handleLogout();
     }
   };
+  const userName = useSelector((state: RootState) => state.profile.name);
+  const userImg = useSelector((state: RootState) => state.profile.img);
   return (
     <div
       className={
@@ -56,11 +59,11 @@ export function SidebarDemo() {
           <div>
             <SidebarLink
               link={{
-                label: 'Manu Arora',
+                label: userName,
                 href: '#',
                 icon: (
                   <img
-                    src="https://assets.aceternity.com/manu.png"
+                    src={userImg}
                     className="h-7 w-7 flex-shrink-0 rounded-full z-10"
                     width={50}
                     height={50}

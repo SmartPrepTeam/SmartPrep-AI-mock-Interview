@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface QueryResponse {
-  results: any[];
-  hasNextPage: boolean;
+  data: {
+    results: any[];
+    hasNextPage: boolean;
+  };
 }
 interface QueryArgs {
   user_id: string | null;
@@ -47,9 +49,9 @@ const useInfiniteScroll = (
   const [hasNextPage, setHasNextPage] = useState(true);
   console.log(data);
   useEffect(() => {
-    if (data && data.results) {
-      setRecentInterviews((prevItems) => [...prevItems, ...data.results]);
-      setHasNextPage(data.hasNextPage);
+    if (data && data.data.results) {
+      setRecentInterviews((prevItems) => [...prevItems, ...data.data.results]);
+      setHasNextPage(data.data.hasNextPage);
     }
   }, [data]);
   const lastItemRef = useCallback(
@@ -57,7 +59,7 @@ const useInfiniteScroll = (
       if (isFetching || !hasNextPage) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
+        if (entries[0].isIntersecting && hasNextPage) {
           setPage((prevPage) => prevPage + 1);
         }
       });
