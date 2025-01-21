@@ -84,7 +84,7 @@ const Row: React.FC<HistoryRowProps> = ({ interview, index }) => {
     
   }
   return (
-    <tr className={`${getColor(index)}   text-sm  text-white lg:leading-tight md:leading-tight }`} onClick={()=>clickHandler(interview.objectId)} cursor-pointer >
+    <tr className={`${getColor(index)}  cursor-pointer  hover:bg-black-200 text-sm  text-white lg:leading-tight md:leading-tight }`} onClick={()=>clickHandler(interview.objectId)} cursor-pointer >
 
 
       <td className="px-4 py-2 text-left rounded-tl-2xl rounded-bl-2xl">{index + 1}</td>
@@ -92,9 +92,9 @@ const Row: React.FC<HistoryRowProps> = ({ interview, index }) => {
       <td className="px-4 py-2 lg:text-sm">{interview.jobTitle}</td>
       <td className="px-4 py-2 text-left">
         <div className="lg:text-xs md:text-[12px]">{date}</div>
-        <div className="lg:text-[10px] md:text-[8px] hidden  sm:table-cell">{time}</div>
+        <div className="lg:text-[10px] md:text-[8px] hidden md:table-cell">{time}</div>
       </td>
-      <td className={`px-4 py-2 hidden  sm:table-cell ${getDifficultyColor(interview.difficultyLevel)}`}>
+      <td className={`px-4 py-2 hidden md:table-cell ${getDifficultyColor(interview.difficultyLevel)}`}>
         {interview.difficultyLevel}
       </td>
       {/* <td className="px-4 py-2 text-center">{getStatusIcon(interview.status)}</td> */}
