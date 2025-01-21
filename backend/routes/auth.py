@@ -3,8 +3,6 @@ from schemas import User,TokenData, ChangeEmailSchema, ChangePasswordSchema
 from controllers.auth_controller import AuthController
 from fastapi.responses import Response
 from auth.token_manager import TokenManager
-
- 
 router = APIRouter(
     prefix="/auth",
     tags=['Authentication']
