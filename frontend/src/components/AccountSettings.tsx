@@ -30,13 +30,13 @@ const AccountSettings   = () => {
 
   return (
     <>
-    <h2 className="font-sans text-lg text-white lg:text-3xl font-bold p-6">
+ <h2 className="font-sans text-lg sm:text-xl md:text-2xl lg:text-3xl text-white font-bold p-4 sm:p-5 md:p-6">
   Account Settings
 </h2>
 
-<div className="flex flex-col items-center bg:none  md:bg-[#10132E] border border-gray-400 p-6 lg:p-12 shadow-lg max-w-3xl mx-auto mt-6 ">
+<div className="flex flex-col items-center bg:none  md:bg-[#10132E] border border-gray-400   p-6 lg:p-12 shadow-lg max-w-3xl mx-auto mt-9 mb-6 pr-6  md:overflow-y-auto sm:overflow-y-auto ">
    <div className="mb-8 w-full">
-    <p className="font-medium text-white mb-2 font-sans">Email Address</p>
+    <p className="font-medium text-white mb-2 font-sans text-2xl">Email Address</p>
     <p className="text-gray-300">{currentEmail}</p>
     {!isEditingEmail ? (
       <button
