@@ -58,7 +58,7 @@ const AuthContainer = ({
               {...register('email')}
               id="email"
               placeholder="Email"
-              className="border-2 border-secondaryPurple p-2 mb-1 w-full rounded-lg"
+              className="border-2 border-secondaryPurple p-2 mb-1 w-full rounded-lg bg-white text-black"
             />
             {errors.email && (
               <div className="text-red-600">{errors.email?.message}</div>
@@ -74,7 +74,7 @@ const AuthContainer = ({
               id="password"
               placeholder="Password"
               type="password"
-              className="border-2 border-secondaryPurple p-2 mt-2 w-full rounded-lg"
+              className="border-2 border-secondaryPurple p-2 mt-2 w-full rounded-lg bg-white text-black"
             />
             {errors.password && (
               <div className="text-red-600">{errors.password?.message}</div>
