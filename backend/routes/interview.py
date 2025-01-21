@@ -13,14 +13,23 @@ def get_interview_controller() -> InterviewController:
 def get_token_manager() -> TokenManager : 
     return TokenManager()
 
-@router.get("/{user_id}",name="Get list of all the previous interviews")
-async def get_all_interviews(
+# @router.get("/{user_id}",name="Get list of all the previous interviews")
+# async def get_all_interviews(
+#     user_id : str,
+#     token : TokenData = Depends(get_token_manager().get_current_user),
+#     interview_controller : InterviewController = Depends(get_interview_controller)
+# ):
+#     return await interview_controller.get_all_interviews(user_id)
+
+@router.get("/{user_id}")
+async def get_recent_interviews(
     user_id : str,
+    page : int,
+    page_size : int = 10,
     token : TokenData = Depends(get_token_manager().get_current_user),
     interview_controller : InterviewController = Depends(get_interview_controller)
 ):
-    return await interview_controller.get_all_interviews(user_id)
-
+    return await interview_controller.get_recent_interviews(user_id,page,page_size)
 
 @router.get("/questions/{question_id}",name="Get all questions and answers for a specific interview")
 async def get_questions_with_answers(
