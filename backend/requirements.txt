@@ -59,7 +59,15 @@ typer==0.13.0
 typing-inspect==0.9.0
 typing_extensions==4.12.2
 uvicorn==0.32.0
+<<<<<<< HEAD
+<<<<<<< HEAD
+uvloop==0.21.0; sys_platform != 'win32'
+=======
 uvloop==0.21.0; platform_system != "Windows"
 
+>>>>>>> 73e4caec873884d9cdf3a010259522cfd753d90f
+=======
+uvloop==0.21.0; sys_platform != 'win32'
+>>>>>>> 5dfe719611acd4b6f7f483844a1c66e206a082ec
 watchfiles==0.24.0
 websockets==13.1
