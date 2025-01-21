@@ -4,7 +4,7 @@ import SignupForm from '@/components/forms/SignupForm';
 import Home from '@/components/Home';
 import LandingPage from '@/components/LandingPage';
 import LoginForm from '@/components/forms/LoginForm';
-
+import HistoryInsights from '@/components/History/HistoryInsights'
 import ResumeUpload from '@/components/ResumeUpload';
 import UserProfileForm from '@/components/UserProfileForm';
 import NotFoundPage from '@/components/NotFoundPage';
@@ -74,8 +74,10 @@ const Router = () => {
             path="textual-interview/results"
             element={<TextScoreContainer />}
           ></Route>
+          <Route path="history-insights" element={<HistoryInsights />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
+        
       </Routes>
     </>
   );
