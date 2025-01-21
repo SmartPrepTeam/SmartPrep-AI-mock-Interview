@@ -209,7 +209,7 @@ export const interviews = [
     title: 'Video interview',
     img: './grid.svg',
     description: "SmartPrep's exclusive platform for",
-    linkHref: '/textual-interview/setup',
+    linkHref: '/video-interview/setup',
   },
 ];
 // For FAQ of landing page

@@ -14,6 +14,12 @@ import InterviewSetupContainer from '@/components/InterviewSetupContainer';
 import { ReactElement } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
+import AccountSettings from '@/components/AccountSettings';
+import VideoInterviewPage from '@/components/Video-Interview-UI/VideoInterviewPage';
+import VideoInterviewContainer from '@/components/Video-Interview-UI/VideoInterviewContainer';
+import VideoInterviewScore from '@/components/Video-Interview-UI/VideoInterviewScore';
+import VideoScoreContainer from '@/components/Video-Interview-UI/VideoScoreContainer';
+ 
 const PrivateRoute = () => {
   const token = useSelector((state: RootState) => state.auth.token);
   if (token === undefined) return null;
@@ -74,6 +80,23 @@ const Router = () => {
             path="textual-interview/results"
             element={<TextScoreContainer />}
           ></Route>
+          <Route
+            path="account-settings"
+            element={<AccountSettings></AccountSettings>}
+          ></Route>
+           <Route
+            path="video-interview/setup"
+            element={<VideoInterviewPage></VideoInterviewPage>}
+          ></Route>
+           <Route
+            path="video-interview"
+            element={<VideoInterviewContainer></VideoInterviewContainer>}
+          ></Route>
+           <Route
+            path="video-interview/result"
+            element={<VideoScoreContainer></VideoScoreContainer>}
+          ></Route>
+           
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

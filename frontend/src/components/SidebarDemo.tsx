@@ -10,6 +10,9 @@ import { useLogoutMutation } from '@/features/apiSlice';
 import { useDispatch } from 'react-redux';
 import { setToken, setUserId } from '@/features/authSlice';
 import UserProfile from './UserProfile';
+import AccountSettings from './AccountSettings';
+ 
+ 
 export function SidebarDemo() {
   const dispatch = useDispatch();
   const [logout] = useLogoutMutation();
@@ -74,6 +77,9 @@ export function SidebarDemo() {
       </Sidebar>
       {activeContent === 'Profile' && <UserProfile />}
       {activeContent === 'Interviews' && <Dashboard />}
+      {activeContent === 'Settings' && <AccountSettings></AccountSettings>}
+      
+      
     </div>
   );
 }
