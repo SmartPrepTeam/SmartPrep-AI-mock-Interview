@@ -3,7 +3,6 @@ from schemas import User,TokenData
 from controllers.auth_controller import AuthController
 from fastapi.responses import Response
 from auth.token_manager import TokenManager
- 
 router = APIRouter(
     prefix="/auth",
     tags=['Authentication']
@@ -30,4 +29,3 @@ async def generate_new_access_token(response : Response , request : Request,auth
 async def logout(request : Request , auth_controller : AuthController = Depends(get_auth_controller),token : TokenData = Depends(get_token_manager().get_current_user)):
     user_id = token.user_id
     return await auth_controller.blacklistToken(user_id)
- 

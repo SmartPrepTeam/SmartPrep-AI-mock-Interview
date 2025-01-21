@@ -11,7 +11,7 @@ app = FastAPI(
     lifespan = db_lifespan)
 
 origins = [
-      "*",
+    '*',
 ]
 # Add CORS middleware
 app.add_middleware(
