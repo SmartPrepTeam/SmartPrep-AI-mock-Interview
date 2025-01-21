@@ -21,6 +21,9 @@ const authSlice = createSlice({
       state.token = action.payload;
       if (state.token) {
         sessionStorage.setItem('access_token', state.token);
+        console.log("access token : ",state.token
+          
+        )
       } else {
         sessionStorage.removeItem('access_token');
       }

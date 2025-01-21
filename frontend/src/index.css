@@ -108,6 +108,22 @@
   }
 
   /* For Firefox */
-  scrollbar-width: none;
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
   /* Hide scrollbar for Firefox  */
 }
+.select{
+  @apply bg-[#10132E] text-white opacity-60 h-8 w-20 lg:w-44 px-2 rounded md:text-[15px] md:mb-2 sm:w-24 sm:px-0 sm:text-xs 
+}
+.table-heading{
+   @apply text-[#f2edff] border-b-2  border-[#6e6f8a] px-4 py-4 text-sm lg:text-base text-left pt-6 
+}
+.feedback-card{
+  @apply bg-black-100 m-4 rounded lg:h-32 lg:w-32 justify-center items-center text-center pt-2 lg:opacity-90 hover:bg-[#726e7f]
+}
+.feedback-heading{
+  @apply lg:text-[#e4e4e4] lg:text-xl lg:mt-4
+}
+
+
