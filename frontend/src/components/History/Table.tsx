@@ -61,7 +61,7 @@ const Table: React.FC = () => {
             <th className='table-heading'>Type</th>
             <th className='table-heading'>Job Title</th>
             <th className='table-heading'>Date</th>
-            <th className='table-heading hidden  sm:table-cell '>Difficulty</th>
+            <th className='table-heading hidden md:table-cell'>Difficulty</th>
             {/* <th className='table-heading'>Status</th> */}
             <th className='table-heading'>Actions</th>
           </tr>
