@@ -96,10 +96,15 @@ const Router = () => {
             path="video-interview/result"
             element={<VideoScoreContainer></VideoScoreContainer>}
           ></Route>
+<<<<<<< HEAD
              <Route
             path="history-insights"
             element={<HistoryInsights/>}
           ></Route>
+=======
+           
+          <Route path="history-insights" element={<HistoryInsights />} />
+>>>>>>> 5dfe719611acd4b6f7f483844a1c66e206a082ec
         </Route>
         <Route path="*" element={<NotFoundPage />} />
         

@@ -81,6 +81,7 @@ export function SidebarDemo() {
       {activeContent === 'Profile' && <UserProfile />}
       {activeContent === 'Interviews' && <Dashboard />}
 <<<<<<< HEAD
+<<<<<<< HEAD
       {activeContent === 'Settings' && <AccountSettings></AccountSettings>}
       
       
@@ -89,6 +90,11 @@ export function SidebarDemo() {
       {activeContent === 'HistoryInsights' && <HistoryInsights />}
 
 >>>>>>> 73e4caec873884d9cdf3a010259522cfd753d90f
+=======
+      {activeContent === 'Settings' && <AccountSettings></AccountSettings>}
+      {activeContent === 'History' && <HistoryList />}
+      {activeContent === 'HistoryInsights' && <HistoryInsights />}
+>>>>>>> 5dfe719611acd4b6f7f483844a1c66e206a082ec
     </div>
   );
 }
