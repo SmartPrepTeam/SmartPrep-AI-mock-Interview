@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Sidebar, SidebarBody, SidebarLink } from './ui/Sidebar';
+import HistoryList from './History/HistoryList'
 import { Dashboard } from './Dashboard';
 import { Link } from 'react-router-dom';
+import HistoryInsights from './History/HistoryInsights';
 import { motion } from 'framer-motion';
 import { links } from '@/data';
 import axios from 'axios';
@@ -29,6 +31,7 @@ export function SidebarDemo() {
   };
   const handleLinkClick = (label: string) => {
     setActiveContent(label);
+    console.log(label)
     if (label === 'Logout') {
       handleLogout();
     }
@@ -77,6 +80,9 @@ export function SidebarDemo() {
       </Sidebar>
       {activeContent === 'Profile' && <UserProfile />}
       {activeContent === 'Interviews' && <Dashboard />}
+      {activeContent === 'History' && <HistoryList />}
+      {activeContent === 'HistoryInsights' && <HistoryInsights />}
+
     </div>
   );
 }
