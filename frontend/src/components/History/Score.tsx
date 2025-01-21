@@ -1,8 +1,9 @@
 import CustomProgressBar from '../CustomProgressBar';
-import AnimatedCircularProgressBar from '@/components/ui/AnimatedCircularProgressBar';
+import AnimatedCircularProgressBar from '../ui/AnimatedCircularProgressBar';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import {Feedback } from '../../features/InsightsSlice'
+import React from 'react';
 type stateType = {
   historyInsights: {
       feedback: Feedback;
