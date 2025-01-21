@@ -1,5 +1,5 @@
 // import React from 'react'
-import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
+import { Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom';
 import SignupForm from '@/components/forms/SignupForm';
 import Home from '@/components/Home';
 import LandingPage from '@/components/LandingPage';
@@ -22,7 +22,6 @@ import VideoScoreContainer from '@/components/Video-Interview-UI/VideoScoreConta
  
 const PrivateRoute = () => {
   const token = useSelector((state: RootState) => state.auth.token);
-  if (token === undefined) return null;
   if (!token) {
     return <Navigate to="/login" replace />;
   }
@@ -30,8 +29,8 @@ const PrivateRoute = () => {
 };
 const PublicRoute = ({ children }: { children: ReactElement }) => {
   const token = useSelector((state: RootState) => state.auth.token);
-  if (token === undefined) return null;
   if (token) {
+    console.log('navigating to home ');
     return <Navigate to="/home" replace />;
   }
   return children;
@@ -65,19 +64,19 @@ const Router = () => {
           }
         ></Route>
         <Route element={<PrivateRoute />}>
-          <Route path="home" element={<Home />}></Route>
-          <Route path="resume" element={<ResumeUpload />}></Route>
-          <Route path="add-profile" element={<UserProfileForm />}></Route>
+          <Route path="/home" element={<Home />}></Route>
+          <Route path="/resume" element={<ResumeUpload />}></Route>
+          <Route path="/add-profile" element={<UserProfileForm />}></Route>
           <Route
-            path="textual-interview"
+            path="/textual-interview"
             element={<TextQuestionContainer />}
           ></Route>
           <Route
-            path="textual-interview/setup"
+            path="/textual-interview/setup"
             element={<InterviewSetupContainer />}
           ></Route>
           <Route
-            path="textual-interview/results"
+            path="/textual-interview/results"
             element={<TextScoreContainer />}
           ></Route>
           <Route

@@ -42,7 +42,7 @@ class ResumeParserService():
             messages = prompt
             )
             raw_response = chat_response.choices[0].message.content
-            # print(raw_response)
+            print(raw_response)
             cleaned_response = self.clean_llm_response(raw_response)
 
             return cleaned_response
@@ -53,6 +53,10 @@ class ResumeParserService():
             )
     async def save_to_db(self,user_details):
         print(user_details)
+
+    def is_valid_resume(self,text):
+        keywords = ["email", "experience", "education", "skills"]
+        return any(keyword in text.lower() for keyword in keywords)
 
     async def parse_resume(self,resume : UploadFile = File(...),user_id : str = Form(...)):
         # check resume format
@@ -66,6 +70,11 @@ class ResumeParserService():
         # parse the resume
         text = await self.get_text_from_resume(resume)
         print(text)
+        if not self.is_valid_resume(text):
+            raise HTTPException(
+                status_code = status.HTTP_400_BAD_REQUEST,
+                detail = "Document is not a valid resume"
+            ) 
         # send the text to LLM
         user_details = await self.extract_user_info(text)
         print("comes here..2")

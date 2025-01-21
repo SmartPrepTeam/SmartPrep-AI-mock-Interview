@@ -2,6 +2,7 @@ from fastapi import UploadFile,File,Form,HTTPException,status
 from schemas import UserProfile
 from beanie import PydanticObjectId
 from bson import ObjectId
+import os
 from models.user_profile import UserProfileModel
 class UserProfileService():
 
@@ -28,6 +29,9 @@ class UserProfileService():
         if profile is None:
             # Handle no document found
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User Profile not found")
+        if profile and profile.profileImage:
+            file_name = os.path.basename(profile.profileImage)
+            profile.profileImage = f"/uploads/{file_name}"
         return profile
 
     async def save_user_profile(self,user_details : UserProfile ,user_id : str):

@@ -23,3 +23,6 @@ class InterviewController():
         res = await self.interview_service.get_scores(question_id,user_id)
         return create_response(SUCCESS_STATUS,f"Scores for interview with id {question_id} fetched successfully",data = res)
             
+    async def get_recent_interviews(self,user_id:str,page:int,page_size:int):
+        res = await self.interview_service.get_recent_interviews(user_id,page,page_size)
+        return create_response(SUCCESS_STATUS,f"Recent interviews for page {page} fetched successfully",data = res)
