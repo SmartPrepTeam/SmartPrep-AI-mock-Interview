@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ApexCharts from 'react-apexcharts';
 import { format } from 'date-fns';
 import { useDispatch } from 'react-redux';
@@ -6,7 +6,7 @@ import { setInterviews } from '../../features/ListSlice';
 import { Interviews as InterviewList } from '../../helper/InterviewList';
 
 type Interview = {
-  createdAt: string; 
+  createdAt: string;
   score: number;
   type: 'video' | 'textual';
 };
@@ -18,7 +18,8 @@ type GroupedInterviewData = {
 
 type ProgressGraphProps = {};
 
-const formatDateToMonthYear = (date: string): string => format(new Date(date), 'MMM-yyyy');
+const formatDateToMonthYear = (date: string): string =>
+  format(new Date(date), 'MMM-yyyy');
 
 const groupByMonth = (interviews: Interview[]): GroupedInterviewData[] => {
   const grouped: Record<string, number[]> = {};
@@ -34,7 +35,9 @@ const groupByMonth = (interviews: Interview[]): GroupedInterviewData[] => {
   // Calculate average score per month
   const result: GroupedInterviewData[] = [];
   Object.keys(grouped).forEach((month) => {
-    const averageScore = grouped[month].reduce((sum, score) => sum + score, 0) / grouped[month].length;
+    const averageScore =
+      grouped[month].reduce((sum, score) => sum + score, 0) /
+      grouped[month].length;
     result.push({ month, score: averageScore });
   });
 
@@ -54,8 +57,12 @@ const ProgressGraph: React.FC<ProgressGraphProps> = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  const videoInterviews = InterviewList.filter((interview) => interview.type === 'video');
-  const textualInterviews = InterviewList.filter((interview) => interview.type === 'textual');
+  const videoInterviews = InterviewList.filter(
+    (interview) => interview.type === 'video'
+  );
+  const textualInterviews = InterviewList.filter(
+    (interview) => interview.type === 'textual'
+  );
 
   const videoData = groupByMonth(videoInterviews);
   const textualData = groupByMonth(textualInterviews);
@@ -87,15 +94,16 @@ const ProgressGraph: React.FC<ProgressGraphProps> = () => {
   });
 
   const calculatePercentageProgress = (scores: (number | null)[]): number[] => {
-    const progress = scores.map((score) => (score !== null ? (score / 10) * 100 : 0));
+    const progress = scores.map((score) =>
+      score !== null ? (score / 10) * 100 : 0
+    );
     return progress;
   };
 
   const videoProgress = calculatePercentageProgress(videoScores);
   const textualProgress = calculatePercentageProgress(textualScores);
 
-
-  const options: ApexCharts.ApexOptions ={
+  const options: ApexCharts.ApexOptions = {
     chart: {
       id: 'progress-graph',
       type: 'line',
@@ -109,12 +117,12 @@ const ProgressGraph: React.FC<ProgressGraphProps> = () => {
       categories: labels || [],
       labels: {
         style: {
-          fontSize: screenWidth <= 768 ? '8px' : screenWidth <= 1024 ? '12px' : '13px',
+          fontSize:
+            screenWidth <= 768 ? '8px' : screenWidth <= 1024 ? '12px' : '13px',
           colors: '#ffffff',
         },
         offsetY: -2,
         offsetX: 4,
-        
       },
       axisBorder: {
         show: false,
@@ -144,7 +152,8 @@ const ProgressGraph: React.FC<ProgressGraphProps> = () => {
     },
     legend: {
       position: 'top',
-      fontSize: screenWidth <= 768 ? '8px' : screenWidth <= 1024 ? '12px' : '13px',
+      fontSize:
+        screenWidth <= 768 ? '8px' : screenWidth <= 1024 ? '12px' : '13px',
       onItemHover: {
         highlightDataSeries: true,
       },
@@ -174,31 +183,42 @@ const ProgressGraph: React.FC<ProgressGraphProps> = () => {
 
   const totalInterviews = InterviewList.length;
   const completedInterviews = videoInterviews.length + textualInterviews.length;
-  const progressRate = ((completedInterviews / totalInterviews) * 100).toFixed(2);
+  const progressRate = ((completedInterviews / totalInterviews) * 100).toFixed(
+    2
+  );
 
   return (
-    <div className="w-full flex flex-col justify-center items-center bg-[#10132E] rounded-xl ">
-      <h2 className="text-white lg:text-xl md:text-lg m-0">Interview Progress</h2>
+    <div className="w-full flex flex-col justify-center items-center bg-[#10132E] rounded-xl p-4 ">
+      <h2 className="text-white lg:text-xl md:text-lg m-0">
+        Interview Progress
+      </h2>
 
       <div className="flex flex-row w-full py-2 px-3 m-0">
         <div className="text-white flex-column mr-3">
           <div className="lg:text-[10px] md:text-[7px]">Progress Rate</div>
-          <div className="lg:text-md md:text-[9px] font-semibold text-center">{progressRate}%</div>
+          <div className="lg:text-md md:text-[9px] font-semibold text-center">
+            {progressRate}%
+          </div>
         </div>
-
 
         <div className="text-white flex-column">
           <div className="lg:text-[10px] md:text-[7px]">Total Interviews</div>
-          <div className="lg:text-md md:text-[9px]  font-semibold text-center">{totalInterviews}</div>
+          <div className="lg:text-md md:text-[9px]  font-semibold text-center">
+            {totalInterviews}
+          </div>
         </div>
       </div>
 
       <div className="w-full h-[135px] pl-4 pr-4 pb-3 m-0">
-        <ApexCharts options={options} series={series} type="line" height={120} />
+        <ApexCharts
+          options={options}
+          series={series}
+          type="line"
+          height={120}
+        />
       </div>
     </div>
   );
 };
 
 export default ProgressGraph;
-

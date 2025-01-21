@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RiFilterOffFill } from "react-icons/ri";
+import { RiFilterOffFill } from 'react-icons/ri';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   filtreByType,
@@ -12,19 +12,34 @@ import {
 import { Interview } from '../../helper/InterviewList';
 
 const FiltreRow: React.FC = () => {
-  const list: ("video" | "textual" )[] = ["video", "textual"];
-  const status: ("complete" | "incomplete")[] = ["complete", "incomplete"];
-  const difficultyLevel: ("easy" | "medium" | "hard" )[] = ["easy", "medium", "hard"];
-  const duration: ("short" | "medium" | "long" )[] = ["short", "medium", "long"];
+  const list: ('video' | 'textual')[] = ['video', 'textual'];
+  const status: ('complete' | 'incomplete')[] = ['complete', 'incomplete'];
+  const difficultyLevel: ('easy' | 'medium' | 'hard')[] = [
+    'easy',
+    'medium',
+    'hard',
+  ];
+  const duration: ('short' | 'medium' | 'long')[] = ['short', 'medium', 'long'];
 
   const dispatch = useDispatch();
-  const interviews = useSelector((state: { interviews: { filtredInterviews: Interview[] } }) => state.interviews.filtredInterviews);
+  const interviews = useSelector(
+    (state: { interviews: { filtredInterviews: Interview[] } }) =>
+      state.interviews.filtredInterviews
+  );
 
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedType, setSelectedType] = useState<"video" | "textual" |"List" >('List');
-  const [selectedStatus, setSelectedStatus] = useState<"complete" | "incomplete" | "Status">('Status');
-  const [selectedDifficulty, setSelectedDifficulty] = useState<"easy" | "medium" | "hard" | "DifficultyLevel">('DifficultyLevel');
-  const [selectedDuration, setSelectedDuration] = useState<"short" | "medium" | "long"  | "Duration">('Duration');
+  const [selectedType, setSelectedType] = useState<
+    'video' | 'textual' | 'List'
+  >('List');
+  const [selectedStatus, setSelectedStatus] = useState<
+    'complete' | 'incomplete' | 'Status'
+  >('Status');
+  const [selectedDifficulty, setSelectedDifficulty] = useState<
+    'easy' | 'medium' | 'hard' | 'DifficultyLevel'
+  >('DifficultyLevel');
+  const [selectedDuration, setSelectedDuration] = useState<
+    'short' | 'medium' | 'long' | 'Duration'
+  >('Duration');
 
   useEffect(() => {
     if (searchQuery) {
@@ -48,20 +63,21 @@ const FiltreRow: React.FC = () => {
 
   return (
     <div className="lg:mt-14 md:mt-10 sm:mt-10 sm:mb-2  w-full h-12 flex items-center justify-center space-x-4 sm:space-x-6">
-      
       {/* Select for Type */}
       <select
-        className="select"
+        className="select rounded-md pl-2"
         value={selectedType}
         onChange={(e) => {
-          const value = e.target.value as "video" | "textual"  ;
+          const value = e.target.value as 'video' | 'textual';
           setSelectedType(value);
           dispatch(filtreByType(value));
         }}
       >
-        <option value='' >List </option>
+        <option value="">List </option>
         {list.map((item, index) => (
-          <option key={index} value={item}>{item}</option>
+          <option key={index} value={item}>
+            {item}
+          </option>
         ))}
       </select>
 
@@ -83,33 +99,45 @@ const FiltreRow: React.FC = () => {
 
       {/* Select for Difficulty */}
       <select
-        className="select"
+        className="select rounded-md pl-2"
         value={selectedDifficulty}
         onChange={(e) => {
-          const value = e.target.value as "easy" | "medium" | "hard" | "DifficultyLevel"
+          const value = e.target.value as
+            | 'easy'
+            | 'medium'
+            | 'hard'
+            | 'DifficultyLevel';
           setSelectedDifficulty(value);
           dispatch(filtreByDifficulty(value));
         }}
       >
-        <option value='' >DifficultyLevel</option>
+        <option value="">Difficulty Level</option>
         {difficultyLevel.map((item, index) => (
-          <option key={index} value={item}>{item}</option>
+          <option key={index} value={item}>
+            {item}
+          </option>
         ))}
       </select>
 
       {/* Select for Duration */}
       <select
-        className="select"
+        className="select rounded-md pl-2"
         value={selectedDuration}
         onChange={(e) => {
-          const value = e.target.value as "short" | "medium" | "long"  | "Duration";
+          const value = e.target.value as
+            | 'short'
+            | 'medium'
+            | 'long'
+            | 'Duration';
           setSelectedDuration(value);
           dispatch(filtreByDuration(value));
         }}
       >
-        <option value='' >Duration</option>
+        <option value="">Duration</option>
         {duration.map((item, index) => (
-          <option key={index} value={item}>{item}</option>
+          <option key={index} value={item}>
+            {item}
+          </option>
         ))}
       </select>
 
@@ -122,7 +150,7 @@ const FiltreRow: React.FC = () => {
 
       {/* Search Input */}
       <input
-        className="bg-[#f2edff] text-black h-8 px-3  lg:w-48 md:w-36  sm:w-24 sm:text-xs text-left lg:text-sm"
+        className="bg-[#f2edff] text-black h-8 px-3  lg:w-48 md:w-36  sm:w-24 sm:text-xs text-left lg:text-sm rounded-sm p-2"
         type="text"
         placeholder="Search by job title"
         value={searchQuery}
