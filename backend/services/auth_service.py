@@ -1,10 +1,12 @@
-from schemas import User as UserSchema
+from schemas import User as UserSchema, ChangeEmailSchema, ChangePasswordSchema
 from models.user import User
 from fastapi import status,HTTPException,Request
 from utils.helpers import hash_password,verify_password,create_access_token,create_refresh_token,verify_token
 from fastapi.responses import Response
 from models.blacklist import BlackList
-
+from beanie import PydanticObjectId
+from models.user import User as UserModel   
+ 
 class AuthService():
 
     @staticmethod
@@ -111,6 +113,56 @@ class AuthService():
         )
 
         await new_token.insert()
+    
+    async def change_password(self, user_id: str, user_data: ChangePasswordSchema):
+        # find user
+        existing_user = await UserModel.find_one({"_id": PydanticObjectId(user_id)})
+        if not existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+            )
 
+        # check if current password is correct one
+        if not verify_password(user_data.current_password, existing_user.password):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Current password is incorrect"
+            )
+
+        # update the current password with new one
+        existing_user.password = hash_password(user_data.new_password)
+        await existing_user.save()
+
+        return {"message": "Password changed successfully"}
+
+    async def change_email(self, user_id: str, user_data: ChangeEmailSchema):
+        # find user
+        existing_user = await UserModel.find_one({"_id": PydanticObjectId(user_id)})
+        if not existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+            )
+
+    
+        if existing_user.email == user_data.new_email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="New email is the same as the current email"
+            )
+
+        
+        email_in_use = await UserModel.find_one({"email": user_data.new_email})
+        if email_in_use:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Email already in use"
+            )
+
+        
+        existing_user.email = user_data.new_email
+        await existing_user.save()
+
+        return {"message": "Email changed successfully", "new_email": existing_user.email}
+    
+
+
+       
 
         
