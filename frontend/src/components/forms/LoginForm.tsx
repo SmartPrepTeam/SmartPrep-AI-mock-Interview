@@ -18,6 +18,7 @@ const LoginForm = () => {
       dispatch(setToken(res.data.access_token));
       dispatch(setUserId(res.data.user_id));
       toast.success('Logged in Successfully');
+      console.log('login running');
       navigate('/resume');
     } catch (e: any) {
       if (e.status === 400) {

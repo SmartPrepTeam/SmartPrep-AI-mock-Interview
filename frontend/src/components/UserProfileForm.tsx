@@ -120,8 +120,8 @@ export default function MyForm() {
       databases: userInfo.databases || [],
       soft_skills: userInfo.soft_skills || [],
       email_address: userInfo.email_address || '',
-      job_title: userInfo.current_position?.job_title.toLowerCase() || '',
-      full_name: userInfo.full_name.toLowerCase() || '',
+      job_title: userInfo.current_position?.job_title?.toLowerCase() || '',
+      full_name: userInfo?.full_name?.toLowerCase() || '',
       github_profile_url: userInfo.github_profile_url || '',
       linkedin_profile_url: userInfo.linkedin_profile_url || '',
       current_location: [

@@ -3,7 +3,7 @@ import InterviewCard from './ui/InterviewCard';
 // For the interviews section on the dashboard
 const InterviewContainer = () => {
   return (
-    <>
+    <div className="flex-1 max-w-screen">
       <p>Welcome to</p>
       <h2 className="font-sans text-lg lg:text-3xl font-bold">
         SmartPrep Interview Practice
@@ -13,7 +13,7 @@ const InterviewContainer = () => {
           return <InterviewCard key={interview.id} interview={interview} />;
         })}
       </div>
-    </>
+    </div>
   );
 };
 

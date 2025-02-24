@@ -2,7 +2,7 @@ from fastapi import FastAPI,APIRouter
 from routes import textual_interview,auth,interview,resume_parser,user_profile
 from config.db import db_lifespan
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.staticfiles import StaticFiles
 version = 'v1'
 app = FastAPI(
     title = "SmartPrep",
@@ -11,7 +11,7 @@ app = FastAPI(
     lifespan = db_lifespan)
 
 origins = [
-      "*",
+    '*',
 ]
 # Add CORS middleware
 app.add_middleware(
@@ -21,6 +21,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],  
 )
+# Serve the uploaded files
+app.mount("/uploads", StaticFiles(directory="../uploads"), name="uploads")
 
 api_router = APIRouter(prefix="/api")
 

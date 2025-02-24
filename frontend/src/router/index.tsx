@@ -1,10 +1,10 @@
 // import React from 'react'
-import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
+import { Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom';
 import SignupForm from '@/components/forms/SignupForm';
 import Home from '@/components/Home';
 import LandingPage from '@/components/LandingPage';
 import LoginForm from '@/components/forms/LoginForm';
-
+import HistoryInsights from '@/components/History/HistoryInsights'
 import ResumeUpload from '@/components/ResumeUpload';
 import UserProfileForm from '@/components/UserProfileForm';
 import NotFoundPage from '@/components/NotFoundPage';
@@ -14,15 +14,8 @@ import InterviewSetupContainer from '@/components/InterviewSetupContainer';
 import { ReactElement } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import AccountSettings from '@/components/AccountSettings';
-import VideoInterviewPage from '@/components/Video-Interview-UI/VideoInterviewPage';
-import VideoInterviewContainer from '@/components/Video-Interview-UI/VideoInterviewContainer';
-import VideoInterviewScore from '@/components/Video-Interview-UI/VideoInterviewScore';
-import VideoScoreContainer from '@/components/Video-Interview-UI/VideoScoreContainer';
- 
 const PrivateRoute = () => {
   const token = useSelector((state: RootState) => state.auth.token);
-  if (token === undefined) return null;
   if (!token) {
     return <Navigate to="/login" replace />;
   }
@@ -30,8 +23,8 @@ const PrivateRoute = () => {
 };
 const PublicRoute = ({ children }: { children: ReactElement }) => {
   const token = useSelector((state: RootState) => state.auth.token);
-  if (token === undefined) return null;
   if (token) {
+    console.log('navigating to home ');
     return <Navigate to="/home" replace />;
   }
   return children;
@@ -65,40 +58,25 @@ const Router = () => {
           }
         ></Route>
         <Route element={<PrivateRoute />}>
-          <Route path="home" element={<Home />}></Route>
-          <Route path="resume" element={<ResumeUpload />}></Route>
-          <Route path="add-profile" element={<UserProfileForm />}></Route>
+          <Route path="/home" element={<Home />}></Route>
+          <Route path="/resume" element={<ResumeUpload />}></Route>
+          <Route path="/add-profile" element={<UserProfileForm />}></Route>
           <Route
-            path="textual-interview"
+            path="/textual-interview"
             element={<TextQuestionContainer />}
           ></Route>
           <Route
-            path="textual-interview/setup"
+            path="/textual-interview/setup"
             element={<InterviewSetupContainer />}
           ></Route>
           <Route
-            path="textual-interview/results"
+            path="/textual-interview/results"
             element={<TextScoreContainer />}
           ></Route>
-          <Route
-            path="account-settings"
-            element={<AccountSettings></AccountSettings>}
-          ></Route>
-           <Route
-            path="video-interview/setup"
-            element={<VideoInterviewPage></VideoInterviewPage>}
-          ></Route>
-           <Route
-            path="video-interview"
-            element={<VideoInterviewContainer></VideoInterviewContainer>}
-          ></Route>
-           <Route
-            path="video-interview/result"
-            element={<VideoScoreContainer></VideoScoreContainer>}
-          ></Route>
-           
+          <Route path="history-insights" element={<HistoryInsights />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
+        
       </Routes>
     </>
   );

@@ -1,10 +1,19 @@
-import CustomProgressBar from './CustomProgressBar';
-import AnimatedCircularProgressBar from '@/components/ui/AnimatedCircularProgressBar';
+import CustomProgressBar from '../CustomProgressBar';
+import AnimatedCircularProgressBar from '../ui/AnimatedCircularProgressBar';
 import { useSelector } from 'react-redux';
-import { RootState } from '../redux/store';
-
+import { RootState } from '../../redux/store';
+import {Feedback } from '../../features/InsightsSlice'
+import React from 'react';
+type stateType = {
+  historyInsights: {
+      feedback: Feedback;
+      answers: string[];
+      questions: string[];
+  };
+};
 const TextInterviewScore = () => {
-  const scoreData = useSelector((state: RootState) => state.score.data);
+    const scoreData=useSelector((state:stateType)=>state.historyInsights.feedback)
+    console.log('Feedback history:',scoreData)
   if (!scoreData) {
     return <></>;
   }
@@ -90,7 +99,7 @@ const TextInterviewScore = () => {
 
 
         
-        <div className="col-span-3 md:col-span-3 lg:col-span-3 xl:col-span-1 rounded-lg bg-[#10132E] border border-white/[0.1] flex flex-col items-center text-center">
+        <div className="col-span-3 md:col-span-3 lg:col-span-3 xl:col-span-3 rounded-lg bg-[#10132E] border border-white/[0.1] flex flex-col items-center text-center">
         <h3 className="text-lg font-semibold mt-8 mb-4">Feedback</h3>
           <p className="text-1xl mb-2 p-2 overflow-y-auto">
             {scoreData.Feedback}

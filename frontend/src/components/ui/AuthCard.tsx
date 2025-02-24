@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardBody,
+  CardContent,
 } from '@/components/ui/Card';
 interface AuthCardProps {
   title: string;
@@ -26,17 +26,18 @@ const AuthCard = ({
   children,
 }: AuthCardProps) => {
   return (
-    <Card>
+    <Card className="mx-auto max-w-sm">
       <CardHeader>
-        <img alt="logo"></img>
-        <CardTitle className="text-3xl">{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+        <CardTitle className="text-3xl text-white text-center">
+          {title}
+        </CardTitle>
+        <CardDescription className="text-center">{description}</CardDescription>
       </CardHeader>
-      <CardBody className="w-full">{children}</CardBody>
+      <CardContent className="w-full">{children}</CardContent>
       <div className="text-center my-4 text-sm text-card-description">
         {message}{' '}
         <Link to={linkHref}>
-          <span className="text-primaryPurple font-semibold">{linkText}</span>
+          <span className="text-[#a9c6f5] font-semibold">{linkText}</span>
         </Link>
       </div>
       {additionalMessage && (

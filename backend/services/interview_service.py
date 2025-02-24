@@ -102,3 +102,27 @@ class InterviewService():
                 detail = "Scores not found"
             )
         return scores
+    async def get_recent_interviews(self,user_id : str , page : int,page_size : int):
+        if page < 1 :
+            raise HTTPException(
+                status_code = HTTP_400_BAD_REQUEST,
+                detail = "Page does not exist"
+            )
+
+        await self.validate_object_id(user_id)
+
+        user_object_id = await self.convert_to_pydantic_object_id(user_id)
+        skip_count = (page - 1)*page_size
+        interview_cursor = ( InterviewQuestion.find({"user_id": user_object_id}).sort([("createdAt",-1)]).skip(skip_count).limit(page_size).project(QuestionShortView))
+        interviews = await interview_cursor.to_list(length=page_size)
+        for interview in interviews:
+            interview.user_id = str(interview.user_id)
+            interview.id = str(interview.id)
+        # check if there are more documents
+        total_interviews = await InterviewQuestion.find({"user_id": user_object_id}).count()
+        has_next_page = (page*page_size) < total_interviews
+        print(interviews)
+        return {
+            "results" : interviews,
+            "hasNextPage" : has_next_page
+        }

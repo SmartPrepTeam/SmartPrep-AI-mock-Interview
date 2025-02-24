@@ -193,6 +193,7 @@ export const links = [
       <IconArrowLeft className="text-neutral-200 h-5 w-5 flex-shrink-0 z-10" />
     ),
   },
+  
 ];
 
 // INterview Types for interview option on the dashboard
@@ -209,7 +210,7 @@ export const interviews = [
     title: 'Video interview',
     img: './grid.svg',
     description: "SmartPrep's exclusive platform for",
-    linkHref: '/video-interview/setup',
+    linkHref: '/textual-interview/setup',
   },
 ];
 // For FAQ of landing page
