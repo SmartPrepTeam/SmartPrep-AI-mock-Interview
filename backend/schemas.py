@@ -78,3 +78,10 @@ class FeedbackData(BaseModel):
 
 class TokenData(BaseModel):
     user_id : str
+
+class ChangeEmailSchema(BaseModel):
+    new_email: EmailStr
+
+class ChangePasswordSchema(BaseModel):
+    current_password: str
+    new_password: str
