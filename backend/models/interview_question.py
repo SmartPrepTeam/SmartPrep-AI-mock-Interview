@@ -8,7 +8,7 @@ class InterviewQuestion(Document):
     job_description: str
     job_title: str
     difficulty_level: Difficulty
-    questions : List[dict]
+    questions : List[str]
     no_of_questions : int
     user_id : PydanticObjectId
     question_type : InterviewType

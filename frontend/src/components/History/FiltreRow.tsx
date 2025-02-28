@@ -150,7 +150,7 @@ const FiltreRow: React.FC = () => {
 
       {/* Search Input */}
       <input
-        className="bg-[#f2edff] text-black h-8 px-3  lg:w-48 md:w-36  sm:w-24 sm:text-xs text-left lg:text-sm rounded-sm p-2"
+        className="bg-[#f2edff] text-black h-8 px-3  lg:w-48 md:w-36  sm:w-24 sm:text-xs text-left lg:text-sm rounded-sm"
         type="text"
         placeholder="Search by job title"
         value={searchQuery}

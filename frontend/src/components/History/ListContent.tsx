@@ -1,14 +1,14 @@
-import React from 'react'
-import FiltreRow from './FiltreRow'
-import Table from './Table'
+import React from 'react';
+import FiltreRow from './FiltreRow';
+import Table from './Table';
 function ListContent() {
   return (
-    <div className=" lg:p-4 lg:mr-5 lg:ml-5 sm:ml-7 w-full h-full  ">
-      <FiltreRow/>
+    <div className=" lg:p-4 lg:mr-5 lg:ml-5 sm:ml-7 w-full h-full">
+      <FiltreRow />
 
-     <Table/>
+      <Table />
     </div>
-  )
+  );
 }
 
-export default ListContent
+export default ListContent;

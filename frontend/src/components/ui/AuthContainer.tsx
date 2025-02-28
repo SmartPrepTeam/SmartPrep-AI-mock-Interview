@@ -5,6 +5,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import img from '/Login.svg';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const schema = z.object({
   email: z.string().email('Invalid email address'),
@@ -28,6 +29,7 @@ const AuthContainer = ({
   onSubmit,
   ...props
 }: AuthContainerProps) => {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -43,6 +45,9 @@ const AuthContainer = ({
   useEffect(() => {
     setFocus('email');
   }, [setFocus]);
+  const handleHomeNavigation = () => {
+    navigate('/home');
+  };
   return (
     <div className="flex min-h-screen justify-center items-center font-Manrope bg-black-100 p-2">
       <div className="w-full lg:w-1/2 ">

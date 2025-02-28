@@ -96,7 +96,7 @@ export const FileUpload = ({
                   key={'file' + idx}
                   layoutId={idx === 0 ? 'file-upload' : 'file-upload-' + idx}
                   className={cn(
-                    'relative overflow-hidden z-40 bg-white dark:bg-neutral-900 flex flex-col items-start justify-start md:h-24 p-4 mt-4 w-full mx-auto rounded-md',
+                    'relative overflow-hidden z-40 bg-white flex flex-col items-start justify-start md:h-24 p-4 mt-4 w-full mx-auto rounded-md',
                     'shadow-sm'
                   )}
                 >
@@ -105,7 +105,7 @@ export const FileUpload = ({
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       layout
-                      className="text-base text-neutral-700 dark:text-neutral-300 truncate max-w-xs"
+                      className="text-base text-neutral-700 truncate max-w-xs"
                     >
                       {file.name}
                     </motion.p>
@@ -113,18 +113,18 @@ export const FileUpload = ({
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       layout
-                      className="rounded-lg px-2 py-1 w-fit flex-shrink-0 text-sm text-neutral-600 dark:bg-neutral-800 dark:text-white shadow-input"
+                      className="rounded-lg px-2 py-1 w-fit flex-shrink-0 text-sm text-neutral-600 d  shadow-input"
                     >
                       {(file.size / (1024 * 1024)).toFixed(2)} MB
                     </motion.p>
                   </div>
 
-                  <div className="flex text-sm md:flex-row flex-col items-start md:items-center w-full mt-2 justify-between text-neutral-600 dark:text-neutral-400">
+                  <div className="flex text-sm md:flex-row flex-col items-start md:items-center w-full mt-2 justify-between text-neutral-600 ">
                     <motion.p
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       layout
-                      className="px-1 py-0.5 rounded-md bg-gray-100 dark:bg-neutral-800 "
+                      className="px-1 py-0.5 rounded-md bg-gray-100  "
                     >
                       {file.type}
                     </motion.p>
@@ -150,7 +150,7 @@ export const FileUpload = ({
                   damping: 20,
                 }}
                 className={cn(
-                  'relative group-hover/file:shadow-2xl z-40 bg-white dark:bg-neutral-900 flex items-center justify-center h-32 mt-4 w-full max-w-[8rem] mx-auto rounded-md',
+                  'relative group-hover/file:shadow-2xl z-40 bg-white  flex items-center justify-center h-32 mt-4 w-full max-w-[8rem] mx-auto rounded-md',
                   'shadow-[0px_10px_50px_rgba(0,0,0,0.1)]'
                 )}
               >
@@ -186,7 +186,7 @@ export function GridPattern() {
   const columns = 41;
   const rows = 11;
   return (
-    <div className="flex bg-gray-100 dark:bg-neutral-900 flex-shrink-0 flex-wrap justify-center items-center gap-x-px gap-y-px  scale-105">
+    <div className="flex bg-gray-100  flex-shrink-0 flex-wrap justify-center items-center gap-x-px gap-y-px  scale-105">
       {Array.from({ length: rows }).map((_, row) =>
         Array.from({ length: columns }).map((_, col) => {
           const index = row * columns + col;

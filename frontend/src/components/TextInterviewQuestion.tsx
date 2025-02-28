@@ -118,7 +118,7 @@ export default function TextInterviewQuestion({
               Question {currentIndex + 1}
             </div>
             <div className="mt-2 font-bold text-lg py-3">
-              <p>{currentQuestion?.question}</p>
+              <p>{currentQuestion}</p>
             </div>
           </div>
           <hr className="h-0.5 mb-3 bg-gray-300 border-0" />

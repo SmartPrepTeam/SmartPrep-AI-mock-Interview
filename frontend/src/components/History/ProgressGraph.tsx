@@ -188,7 +188,7 @@ const ProgressGraph: React.FC<ProgressGraphProps> = () => {
   );
 
   return (
-    <div className="w-full flex flex-col justify-center items-center bg-[#10132E] rounded-xl p-4 ">
+    <div className="w-full flex flex-col justify-center items-center bg-[#10132E] rounded-xl">
       <h2 className="text-white lg:text-xl md:text-lg m-0">
         Interview Progress
       </h2>

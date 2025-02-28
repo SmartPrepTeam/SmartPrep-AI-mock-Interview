@@ -387,7 +387,7 @@ export default function MyForm() {
                     values={field.value}
                     onValuesChange={field.onChange}
                     loop
-                    className="md:max-w-xs"
+                    className="md:max-w-xs "
                   >
                     <MultiSelectorTrigger className="bg-[#10132E]">
                       <MultiSelectorInput placeholder="Select languages" />

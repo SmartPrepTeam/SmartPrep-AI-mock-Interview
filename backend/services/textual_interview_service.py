@@ -84,6 +84,8 @@ class TextualInterviewService():
 
 
         ''' scores the answers '''
+        print(data.answers)
+        print(question.questions)
         prompt = score_the_answers_prompt(question.questions,data.answers)
         chat_response = client.chat.complete(
             model = "mistral-large-latest",
