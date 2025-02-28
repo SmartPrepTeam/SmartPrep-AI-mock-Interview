@@ -4,7 +4,7 @@ import SignupForm from '@/components/forms/SignupForm';
 import Home from '@/components/Home';
 import LandingPage from '@/components/LandingPage';
 import LoginForm from '@/components/forms/LoginForm';
-import HistoryInsights from '@/components/History/HistoryInsights'
+import HistoryInsights from '@/components/History/HistoryInsights';
 import ResumeUpload from '@/components/ResumeUpload';
 import UserProfileForm from '@/components/UserProfileForm';
 import NotFoundPage from '@/components/NotFoundPage';
@@ -19,7 +19,7 @@ import VideoInterviewPage from '@/components/Video-Interview-UI/VideoInterviewPa
 import VideoInterviewContainer from '@/components/Video-Interview-UI/VideoInterviewContainer';
 import VideoInterviewScore from '@/components/Video-Interview-UI/VideoInterviewScore';
 import VideoScoreContainer from '@/components/Video-Interview-UI/VideoScoreContainer';
- 
+
 const PrivateRoute = () => {
   const token = useSelector((state: RootState) => state.auth.token);
   if (!token) {
@@ -79,30 +79,25 @@ const Router = () => {
             path="/textual-interview/results"
             element={<TextScoreContainer />}
           ></Route>
-<<<<<<< HEAD
           <Route path="history-insights" element={<HistoryInsights />} />
-=======
           <Route
             path="account-settings"
             element={<AccountSettings></AccountSettings>}
           ></Route>
-           <Route
+          <Route
             path="video-interview/setup"
             element={<VideoInterviewPage></VideoInterviewPage>}
           ></Route>
-           <Route
+          <Route
             path="video-interview"
             element={<VideoInterviewContainer></VideoInterviewContainer>}
           ></Route>
-           <Route
+          <Route
             path="video-interview/result"
             element={<VideoScoreContainer></VideoScoreContainer>}
           ></Route>
-           
->>>>>>> 3561c64 (Add account settings and textual interview page)
         </Route>
         <Route path="*" element={<NotFoundPage />} />
-        
       </Routes>
     </>
   );

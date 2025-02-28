@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Sidebar, SidebarBody, SidebarLink } from './ui/Sidebar';
-import HistoryList from './History/HistoryList'
+import HistoryList from './History/HistoryList';
 import { Dashboard } from './Dashboard';
 import { Link } from 'react-router-dom';
 import HistoryInsights from './History/HistoryInsights';
@@ -13,8 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setToken, setUserId } from '@/features/authSlice';
 import UserProfile from './UserProfile';
 import AccountSettings from './AccountSettings';
- 
- 
+
 import { RootState } from '@/redux/store';
 export function SidebarDemo() {
   const dispatch = useDispatch();
@@ -34,7 +33,7 @@ export function SidebarDemo() {
   };
   const handleLinkClick = (label: string) => {
     setActiveContent(label);
-    console.log(label)
+    console.log(label);
     if (label === 'Logout') {
       handleLogout();
     }
@@ -84,11 +83,9 @@ export function SidebarDemo() {
       {activeContent === 'Profile' && <UserProfile />}
       {activeContent === 'Interviews' && <Dashboard />}
       {activeContent === 'Settings' && <AccountSettings></AccountSettings>}
-      
-      
+
       {activeContent === 'History' && <HistoryList />}
       {activeContent === 'HistoryInsights' && <HistoryInsights />}
-
     </div>
   );
 }
