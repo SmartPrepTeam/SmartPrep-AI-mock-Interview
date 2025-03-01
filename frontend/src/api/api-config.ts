@@ -18,4 +18,8 @@ export const ENDPOINTS = {
     score_generation: `/textual_interviews/questions`,
     feedback: `/textual_interviews/feedback`,
   },
+  video_interview: {
+    score_generation: `/video_interviews/questions`,
+    feedback: `/video_interviews/feedback`,
+  },
 };

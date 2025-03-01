@@ -1,5 +1,5 @@
 from fastapi import FastAPI,APIRouter
-from routes import textual_interview,auth,interview,resume_parser,user_profile
+from routes import textual_interview,auth,interview,resume_parser,user_profile,video_interview
 from config.db import db_lifespan
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -27,6 +27,7 @@ app.mount("/uploads", StaticFiles(directory="../uploads"), name="uploads")
 api_router = APIRouter(prefix="/api")
 
 api_router.include_router(textual_interview.router)
+api_router.include_router(video_interview.router)
 api_router.include_router(auth.router)
 api_router.include_router(resume_parser.router)
 api_router.include_router(user_profile.router)

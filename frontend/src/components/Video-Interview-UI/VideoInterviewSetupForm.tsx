@@ -1,18 +1,18 @@
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { useEffect } from 'react';
 import { Jobs } from '@/data';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { activePage } from '@/features/activePageSlice';
 import { RootState } from '@/redux/store';
 import toast from 'react-hot-toast';
- import { setTextInterviewData } from '@/features/textInterviewSlice';
 import { difficultyLevels, interviewLengths } from '@/data';
 import InterviewLengthButton from '../ui/InterviewLengthButton';
 import axios from 'axios';
 import MagicButton from '../ui/MagicButton';
 import { Signal, SignalHigh, SignalMedium } from 'lucide-react';
 import { useGenerateQuestionsMutation } from '@/features/apiSlice';
+import { setVideoInterviewData } from '@/features/videoInterviewSlice';
 export default function VideoInterviewSetupForm() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -38,7 +38,6 @@ export default function VideoInterviewSetupForm() {
       interviewLength: Yup.string().required('Select interview length'),
     }),
     onSubmit: async (values) => {
-      
       const interviewLength = parseInt(values.interviewLength.split(' ')[0]);
 
       console.log('Form submitted:', values.difficultyLevel);
@@ -46,10 +45,35 @@ export default function VideoInterviewSetupForm() {
       console.log('Form submitted:', values.jobDescription);
       console.log('Form submitted:', interviewLength);
 
-      navigate('/video-interview');
-       
-      
-      
+      const postData = {
+        userID: userId,
+        difficulty_level: values.difficultyLevel,
+        job_title: values.jobPosition,
+        job_description: values.jobDescription,
+        no_of_questions: interviewLength,
+        question_type: 'video',
+      };
+
+      try {
+        const response = await generateQuestions(postData).unwrap();
+        console.log(response);
+        dispatch(
+          setVideoInterviewData({
+            questions: response.data.data,
+            interviewId: response.data.id,
+          })
+        );
+        dispatch(activePage({ interviewType: 'video', page: 'interview' }));
+        navigate('/video-interview');
+      } catch (err) {
+        if (axios.isAxiosError(err)) {
+          if (err.response?.status === 500) {
+            toast.error('Unable to parse the file');
+          }
+        } else {
+          toast.error('Unexpected error occurred');
+        }
+      }
     },
   });
 
@@ -73,7 +97,8 @@ export default function VideoInterviewSetupForm() {
     formik.setFieldValue('interviewLength', length);
     formik.setFieldTouched('interviewLength', false);
   };
-  
+  if (isError)
+    return toast.error(error.data?.message || 'Unknown Error occured');
   return (
     <div className="flex min-h-[70vh]">
       <form
@@ -95,7 +120,7 @@ export default function VideoInterviewSetupForm() {
                     type="button"
                     className={`text-md bg-slate-950 text-white border border-white/[0.1] rounded-full py-2 px-4 transition duration-200 ease-in-out hover:bg-[#a9c6f5] hover:text-slate-950 ${
                       formik.values.jobPosition === position.JobRole &&
-                      'bg-[#a9c6f5] text-slate-950 border-2 border-white-100' 
+                      'bg-[#a9c6f5] text-slate-950 border-2 border-white-100'
                     }`}
                     onClick={() => handlePositionClick(position)}
                   >

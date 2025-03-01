@@ -64,7 +64,7 @@ export default function InterviewSetupForm() {
             interviewId: response.data.id,
           })
         );
-        dispatch(activePage('quiz'));
+        dispatch(activePage({ interviewType: 'text', page: 'quiz' }));
         navigate('/textual-interview');
       } catch (err) {
         if (axios.isAxiosError(err)) {

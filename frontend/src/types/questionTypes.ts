@@ -1,9 +1,8 @@
-export interface Question {
-  question: string;
-  type: string;
-}
+// export interface Question {
+//   question: string;
+// }
 
 export interface QuestionPageContentProps {
-  questions: Question[];
+  questions: string[];
   question_id: string;
 }

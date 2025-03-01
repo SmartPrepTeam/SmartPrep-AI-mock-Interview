@@ -9,7 +9,7 @@ const TextScoreContainer = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const handleFormNavigation = () => {
-    dispatch(activePage('intro'));
+    dispatch(activePage({ interviewType: 'text', page: 'intro' }));
     navigate('/textual-interview/setup');
   };
   const scoreData = useSelector((state: RootState) => state.score.data);

@@ -11,7 +11,7 @@ export default function TextQuestionContainer() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const handleFormNavigation = () => {
-    dispatch(activePage('intro'));
+    dispatch(activePage({ interviewType: 'text', page: 'intro' }));
     navigate('/textual-interview/setup');
   };
   const { questions, interviewId } = useSelector(

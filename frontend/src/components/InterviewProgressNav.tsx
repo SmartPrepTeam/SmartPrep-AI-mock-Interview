@@ -1,17 +1,12 @@
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-interface RootState {
-  activePage: {
-    value: string;
-  };
-}
-
+import { RootState } from '@/redux/store';
 export default function InterviewProgressNav() {
   const navigate = useNavigate();
   const handleHomeNavigation = () => {
     navigate('/home');
   };
-  const activePage = useSelector((state: RootState) => state.activePage.value);
+  const activePage = useSelector((state: RootState) => state.activePage.text);
   console.log(activePage);
   return (
     <nav className="flex justify-between items-center p-4 ">

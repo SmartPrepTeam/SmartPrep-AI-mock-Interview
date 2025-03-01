@@ -1,6 +1,13 @@
+import { useDispatch } from 'react-redux';
 import InterviewContainer from './InterviewContainer';
 import RecentInterviews from './RecentInterviews';
+import { useEffect } from 'react';
+import { resetActivePage } from '@/features/activePageSlice';
 export const Dashboard = () => {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(resetActivePage());
+  }, [dispatch]);
   return (
     <div className="flex flex-1">
       <div

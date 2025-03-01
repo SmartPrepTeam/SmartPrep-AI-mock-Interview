@@ -69,7 +69,7 @@ export default function TextInterviewQuestion({
       }).unwrap();
       console.log(response);
       dispatch(setTextScoreData(response.data));
-      dispatch(activePage('insights'));
+      dispatch(activePage({ interviewType: 'text', page: 'insights' }));
       navigate('/textual-interview/results');
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -88,7 +88,7 @@ export default function TextInterviewQuestion({
 
     try {
       const response = await getFeedback({
-        question: currentQuestion.question,
+        question: currentQuestion,
         answer: currentAnswer,
       }).unwrap();
       console.log(response);

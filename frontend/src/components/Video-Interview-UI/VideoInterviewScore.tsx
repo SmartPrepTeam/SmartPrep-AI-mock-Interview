@@ -4,13 +4,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@react-three/fiber';
 
 const VideoInterviewScore = () => {
-  const scoreData = {
-    Tone: 70, // out of 100
-    Accuracy: 85,
-    Clarity: 90,
-    Grammar: 80,
-    Feedback: "Great job overall! You demonstrated clear communication and appropriate tone, but there's room for improvement in grammar accuracy."
-  };
+  const scoreData = useSelector((state: RootState) => state.videoScore.data);
   if (!scoreData) {
     return <></>;
   }

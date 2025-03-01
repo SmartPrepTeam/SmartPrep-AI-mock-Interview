@@ -1,14 +1,9 @@
- import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { activePage } from '@/features/activePageSlice';
 import VideoInterviewScore from './VideoInterviewScore';
 import VideoInterviewHeader from './VideoInterviewHeader';
 const VideoScoreContainer = () => {
-  
-   
   return (
     <div className="text-white md:px-16 bg-black-100 min-h-screen w-full">
-      <VideoInterviewHeader></VideoInterviewHeader>
+      <VideoInterviewHeader />
       <div className="my-8 text-center container mx-auto p-4">
         <h2 className="text-2xl mb-4 ">
           Great effort! Use this{' '}
@@ -16,7 +11,7 @@ const VideoScoreContainer = () => {
           approach
         </h2>
       </div>
-     <VideoInterviewScore></VideoInterviewScore>
+      <VideoInterviewScore />
     </div>
   );
 };

@@ -135,6 +135,15 @@ export const apiSlice = createApi({
         url: `/interviews/${user_id}?page=${page}`,
       }),
     }),
+    getScoresForVideos: builder.mutation({
+      query: ({ question_id, user_id, answers }) => ({
+        url: `${ENDPOINTS.video_interview.score_generation}/${question_id}?user_id=${user_id}`,
+        method: 'POST',
+        body: {
+          answers: answers,
+        },
+      }),
+    }),
   }),
 });
 
@@ -149,6 +158,7 @@ export const {
   useGetUserProfileQuery,
   useGenerateQuestionsMutation,
   useGenerateScoresMutation,
+  useGetScoresForVideosMutation,
   useGetFeedbackMutation,
   useGetRecentInterviewsQuery,
 } = apiSlice;
