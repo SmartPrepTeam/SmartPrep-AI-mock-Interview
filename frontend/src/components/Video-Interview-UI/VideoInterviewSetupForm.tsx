@@ -63,7 +63,7 @@ export default function VideoInterviewSetupForm() {
             interviewId: response.data.id,
           })
         );
-        dispatch(activePage({ interviewType: 'video', page: 'interview' }));
+        dispatch(activePage({ interviewType: 'video', page: 'intro' }));
         navigate('/video-interview');
       } catch (err) {
         if (axios.isAxiosError(err)) {

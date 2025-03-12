@@ -20,6 +20,10 @@ export const ENDPOINTS = {
   },
   video_interview: {
     score_generation: `/video_interviews/questions`,
-    feedback: `/video_interviews/feedback`,
+    incomplete_interview: `/video_interviews/incomplete`,
+  },
+  frames: {
+    question: `/frames/question`,
+    interview: `/frames/interview`,
   },
 };

@@ -3,7 +3,18 @@ from routes import textual_interview,auth,interview,resume_parser,user_profile,v
 from config.db import db_lifespan
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from webrtc import signalling_client
+import threading
+
 version = 'v1'
+
+def start_signalling():
+    signalling_client.sio.connect()
+    signalling_client.sio.wait()
+
+# running in background 
+threading.Thread(target=start_signalling,daemon= true).start()
+
 app = FastAPI(
     title = "SmartPrep",
     description = " SmartPrep API provides a collection of tools and resources to assist users in preparing for various types of interviews.Modules include text-based interviews, user profile management, and more.",

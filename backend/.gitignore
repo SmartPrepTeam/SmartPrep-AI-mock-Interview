@@ -72,3 +72,4 @@ gunicorn.error.log
 .vercel
 .env
 backend/.venv/
+node_modules/

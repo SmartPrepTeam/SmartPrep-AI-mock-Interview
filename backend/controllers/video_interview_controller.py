@@ -11,4 +11,7 @@ class VideoInterviewController():
         scores = await self.video_interview_service.get_score(data,question_id,user_id)
         return create_response(SUCCESS_STATUS,"scores fetched successfully",data = scores)
 
+    async def remove_incomplete_interview(self,question_id : str,user_id : str):
+        await self.video_interview_service.remove_incomplete_interview(question_id,user_id)
+        return create_response(SUCCESS_STATUS,"Interview deleted successfully")
             

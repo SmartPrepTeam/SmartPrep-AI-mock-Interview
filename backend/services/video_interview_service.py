@@ -76,5 +76,16 @@ class VideoInterviewService():
         await new_scores.insert()
         return json_data
 
+    async def remove_incomplete_interview(self,question_id : str,user_id : str):
+
+        await self.validate_object_id(question_id)
+        await self.validate_object_id(user_id)
+
+        question_object_id =await self.convert_to_pydantic_object_id(question_id)
+        user_object_id = await self.convert_to_pydantic_object_id(user_id)
+
+        """Deleting questions """
+        await InterviewQuestion.find({"_id" : question_object_id}).delete()
+
   
 

@@ -24,3 +24,12 @@ async def get_score(
     video_interview_controller: VideoInterviewController =  Depends(get_video_interview_controller)
 ):
     return await video_interview_controller.get_score(data,question_id,user_id)
+
+@router.delete("/incomplete/{question_id}",name="Delete interview")
+async def remove_incomplete_interview(
+    user_id : str,
+    question_id: str,
+    token : TokenData = Depends(get_token_manager().get_current_user),
+    video_interview_controller: VideoInterviewController =  Depends(get_video_interview_controller)
+):
+    return await video_interview_controller.remove_incomplete_interview(question_id,user_id)

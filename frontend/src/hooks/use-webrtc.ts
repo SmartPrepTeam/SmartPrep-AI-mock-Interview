@@ -1,26 +1,59 @@
+import { RootState } from '@/redux/store';
 import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { io, type Socket } from 'socket.io-client';
-interface ServerToClientEvents {
-  answer: (data: RTCSessionDescriptionInit) => void;
-  'ice-candidate': (data: RTCIceCandidateInit) => void;
-}
-
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { io, Socket } from 'socket.io-client';
 interface ClientToServerEvents {
-  'ice-candidate': (data: RTCIceCandidateInit) => void;
-  offer: (data: RTCSessionDescriptionInit) => void;
+  sendIceCandidateToSignalingServer: (data: {
+    iceCandidate: RTCIceCandidateInit;
+    iceUserId: string;
+    didIOffer: boolean;
+  }) => void;
+  offer: (data: {
+    userId: string;
+    newOffer: RTCSessionDescriptionInit;
+  }) => void;
+  register: (data: { userId: string; clientType: 'server' | 'client' }) => void;
+  newAnswer: (data: {
+    offer: RTCSessionDescriptionInit;
+    answer: RTCSessionDescriptionInit;
+    offererIceCandidates: RTCIceCandidateInit[];
+    answererIceCandidates: RTCIceCandidateInit[];
+    offererId: string;
+  }) => Promise<RTCIceCandidateInit[]>;
+  disconnect: () => void;
+}
+interface ServerToClientEvents {
+  iceCandidateFromClient: (data: RTCIceCandidateInit) => void;
+  iceCandidateFromServer: (data: RTCIceCandidateInit) => void;
+  AnswerFromServer: (data: RTCSessionDescriptionInit) => void;
+  offer: (data: {
+    offer: RTCSessionDescriptionInit;
+    answer: RTCSessionDescriptionInit | null;
+    offererIceCandidates: RTCIceCandidateInit[];
+    answererIceCandidates: RTCIceCandidateInit[];
+    offererId: string;
+  }) => void;
 }
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  'http://localhost:5000'
+  'http://localhost:8181'
 );
-
+let dataChannel: RTCDataChannel | null = null;
 export const useWebRTC = () => {
+  let userId = useSelector((state: RootState) => state.auth.userId);
+  if (!userId) {
+    userId = '65f2b6d2e6f1a5d47c3f91b7';
+  }
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
 
   const [isInitiator, setIsInitiator] = useState<boolean>(false);
 
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
 
+  const [didIOffer, setDidIOffer] = useState(false);
+
+  const navigate = useNavigate();
   useEffect(() => {
     const initialize = async () => {
       try {
@@ -31,6 +64,7 @@ export const useWebRTC = () => {
         });
         setLocalStream(stream);
       } catch (error) {
+        navigate('/home');
         toast.error('Error accessing media devices.');
       }
     };
@@ -39,35 +73,77 @@ export const useWebRTC = () => {
   }, []);
 
   useEffect(() => {
-    if (localStream && !isInitiator) {
+    if (localStream && !isInitiator && !peerConnectionRef.current) {
       // Create the RTCPeerConnection when the local stream is available
       createPeerConnection();
     }
   }, [localStream, isInitiator]);
+  // handling events from the server
+  useEffect(() => {
+    const handleAnswer = (answer: RTCSessionDescriptionInit) => {
+      console.log('Received Answer from Server:', answer);
+      peerConnectionRef.current?.setRemoteDescription(
+        new RTCSessionDescription(answer)
+      );
+    };
 
+    const handleIceCandidate = (candidate: RTCIceCandidateInit) => {
+      console.log('Received ICE Candidate from Server:', candidate);
+      peerConnectionRef.current?.addIceCandidate(
+        new RTCIceCandidate(candidate)
+      );
+    };
+
+    socket.on('AnswerFromServer', handleAnswer);
+    socket.on('iceCandidateFromServer', handleIceCandidate);
+
+    return () => {
+      socket.off('AnswerFromServer', handleAnswer);
+      socket.off('iceCandidateFromServer', handleIceCandidate);
+    };
+  }, []);
+
+  // function to keep disable the stream
+  const toggleTracks = (enabled: boolean) => {
+    if (localStream) {
+      localStream.getTracks().forEach((track) => {
+        track.enabled = enabled;
+      });
+    }
+  };
   const createPeerConnection = () => {
     try {
-      const configuration: RTCConfiguration = {
+      let peerConfiguration: RTCConfiguration = {
         iceServers: [
-          { urls: 'stun:stun.stunserver.org:3478' }, // STUN server for NAT traversal
+          {
+            urls: [
+              'stun:stun.l.google.com:19302',
+              'stun:stun1.l.google.com:19302',
+            ],
+          },
         ],
       };
 
-      const peerConnection = new RTCPeerConnection(configuration);
+      const peerConnection = new RTCPeerConnection(peerConfiguration);
+      dataChannel = peerConnection.createDataChannel('metadata');
       peerConnectionRef.current = peerConnection;
 
       // Add local stream tracks to the peer connection
       localStream?.getTracks().forEach((track) => {
+        track.enabled = false;
         peerConnectionRef.current?.addTrack(track, localStream);
       });
 
       // Event handlers for peer connection events
 
       // Handle incoming ice candidates
-      peerConnectionRef.current.onicecandidate = (event) => {
-        if (event.candidate) {
-          // Send the ICE candidate to the remote peer
-          socket.emit('ice-candidate', event.candidate);
+      peerConnectionRef.current.onicecandidate = (e) => {
+        if (e.candidate) {
+          socket.emit('sendIceCandidateToSignalingServer', {
+            iceCandidate: e.candidate,
+            iceUserId: userId,
+            didIOffer,
+          });
         }
       };
 
@@ -82,50 +158,28 @@ export const useWebRTC = () => {
       toast.error('Error creating peer connection');
     }
   };
-  const handleAnswer = async (data: RTCSessionDescriptionInit) => {
-    if (!peerConnectionRef.current) return;
-    try {
-      await peerConnectionRef.current.setRemoteDescription(
-        new RTCSessionDescription(data)
-      );
-    } catch (error) {
-      toast.error('Error setting remote description.');
-    }
-  };
-  const handleIceCandidate = async (iceCandidate: RTCIceCandidateInit) => {
-    if (!peerConnectionRef.current) return;
-    try {
-      await peerConnectionRef.current.addIceCandidate(
-        new RTCIceCandidate(iceCandidate)
-      );
-    } catch (error) {
-      toast.error('Error adding ICE candidate.');
-    }
-  };
-  useEffect(() => {
-    socket.on('answer', handleAnswer);
-    socket.on('ice-candidate', handleIceCandidate); // Ensure correct event name
-
-    return () => {
-      socket.off('answer', handleAnswer);
-      socket.off('ice-candidate', handleIceCandidate);
-    };
-  }, []);
   // Create offer and set it as the local description
   const createOffer = async () => {
     const offer = await peerConnectionRef.current?.createOffer();
     await peerConnectionRef.current?.setLocalDescription(offer);
+    setDidIOffer(true);
     if (offer)
       // Send the offer to the remote peer
-      socket.emit('offer', offer);
+      socket.emit('offer', { userId, newOffer: offer });
   };
 
+  //registering the user on the signaling server
+
+  useEffect(() => {
+    if (userId) {
+      socket.emit('register', { userId, clientType: 'client' });
+    }
+  }, [userId]);
   const initiateCall = () => {
     setIsInitiator(true);
     try {
-      // Create the RTCPeerConnection when initiating the call
+      // Create the RTCPeerConnection and Data Channel when initiating the call
       createPeerConnection();
-
       createOffer();
     } catch (error) {
       toast.error('Error creating offer.');
@@ -135,5 +189,7 @@ export const useWebRTC = () => {
   return {
     localStream,
     initiateCall,
+    toggleTracks,
+    dataChannel,
   };
 };

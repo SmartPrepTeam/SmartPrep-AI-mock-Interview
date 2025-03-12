@@ -11,6 +11,7 @@ const MagicButton = ({
   isLoading?: boolean;
   isLoadingText?: string;
   icon?: React.ReactNode;
+
   position?: string;
   handleClick?: () => void;
   otherClasses?: string;

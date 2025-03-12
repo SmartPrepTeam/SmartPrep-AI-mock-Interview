@@ -19,7 +19,7 @@ import VideoInterviewPage from '@/components/Video-Interview-UI/VideoInterviewPa
 import VideoInterviewContainer from '@/components/Video-Interview-UI/VideoInterviewContainer';
 import VideoInterviewScore from '@/components/Video-Interview-UI/VideoInterviewScore';
 import VideoScoreContainer from '@/components/Video-Interview-UI/VideoScoreContainer';
-
+import Restart from '@/components/Video-Interview-UI/Restart';
 const PrivateRoute = () => {
   const token = useSelector((state: RootState) => state.auth.token);
   if (!token) {
@@ -88,6 +88,7 @@ const Router = () => {
             path="video-interview/setup"
             element={<VideoInterviewPage></VideoInterviewPage>}
           ></Route>
+          <Route path="video-interview/restart" element={<Restart />}></Route>
           <Route
             path="video-interview"
             element={<VideoInterviewContainer></VideoInterviewContainer>}

@@ -144,6 +144,21 @@ export const apiSlice = createApi({
         },
       }),
     }),
+    deleteIncompleteInterview: builder.mutation({
+      query: ({ question_id, user_id }) => ({
+        url: `${ENDPOINTS.video_interview.incomplete_interview}/${question_id}`,
+        method: 'DELETE',
+        params: { user_id },
+      }),
+    }),
+    // Endpoints for deleting frames
+    deleteQuestionFrames: builder.mutation({
+      query: ({ interview_id, question_no, user_id }) => ({
+        url: `${ENDPOINTS.frames.question}`,
+        method: 'DELETE',
+        params: { interview_id, question_no, user_id },
+      }),
+    }),
   }),
 });
 
@@ -158,7 +173,9 @@ export const {
   useGetUserProfileQuery,
   useGenerateQuestionsMutation,
   useGenerateScoresMutation,
+  useDeleteIncompleteInterviewMutation,
   useGetScoresForVideosMutation,
   useGetFeedbackMutation,
   useGetRecentInterviewsQuery,
+  useDeleteQuestionFramesMutation,
 } = apiSlice;
