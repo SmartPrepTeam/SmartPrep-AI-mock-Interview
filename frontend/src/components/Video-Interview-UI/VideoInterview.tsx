@@ -111,6 +111,7 @@ const VideoInterview = ({
           JSON.stringify({
             question_no: questionIndex,
             user_id,
+            interview_id,
           })
         );
       };

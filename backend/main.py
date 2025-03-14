@@ -9,11 +9,13 @@ import threading
 version = 'v1'
 
 def start_signalling():
-    signalling_client.sio.connect()
+    signalling_client.sio.connect("http://localhost:8181")
     signalling_client.sio.wait()
 
-# running in background 
-threading.Thread(target=start_signalling,daemon= true).start()
+# running server client in the same event loop as fastapi server
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(signalling_client.start_signalling())
 
 app = FastAPI(
     title = "SmartPrep",

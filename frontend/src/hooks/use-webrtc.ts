@@ -126,6 +126,7 @@ export const useWebRTC = () => {
 
       const peerConnection = new RTCPeerConnection(peerConfiguration);
       dataChannel = peerConnection.createDataChannel('metadata');
+
       peerConnectionRef.current = peerConnection;
 
       // Add local stream tracks to the peer connection

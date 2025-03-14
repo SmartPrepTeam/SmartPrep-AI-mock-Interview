@@ -73,3 +73,5 @@ gunicorn.error.log
 .env
 backend/.venv/
 node_modules/
+deeplearning_models/*.keras
+*.keras
