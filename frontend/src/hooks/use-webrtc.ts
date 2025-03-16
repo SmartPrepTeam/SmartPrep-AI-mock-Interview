@@ -37,7 +37,11 @@ interface ServerToClientEvents {
   }) => void;
 }
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  'http://localhost:8181'
+  'http://localhost:8181',
+  {
+    transports: ['websocket'], // Force WebSocket over polling
+    withCredentials: true,
+  }
 );
 let dataChannel: RTCDataChannel | null = null;
 export const useWebRTC = () => {
@@ -52,7 +56,6 @@ export const useWebRTC = () => {
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
 
   const [didIOffer, setDidIOffer] = useState(false);
-
   const navigate = useNavigate();
   useEffect(() => {
     const initialize = async () => {
@@ -103,14 +106,6 @@ export const useWebRTC = () => {
     };
   }, []);
 
-  // function to keep disable the stream
-  const toggleTracks = (enabled: boolean) => {
-    if (localStream) {
-      localStream.getTracks().forEach((track) => {
-        track.enabled = enabled;
-      });
-    }
-  };
   const createPeerConnection = () => {
     try {
       let peerConfiguration: RTCConfiguration = {
@@ -126,12 +121,22 @@ export const useWebRTC = () => {
 
       const peerConnection = new RTCPeerConnection(peerConfiguration);
       dataChannel = peerConnection.createDataChannel('metadata');
-
+      dataChannel.onopen = () => {
+        console.log('Data channel opened successfully..');
+      };
+      dataChannel.onclose = () => {
+        console.log('Data channel closed successfully..');
+      };
+      dataChannel.onerror = (err) => {
+        console.error('Data channel error : ', err);
+      };
       peerConnectionRef.current = peerConnection;
 
       // Add local stream tracks to the peer connection
       localStream?.getTracks().forEach((track) => {
-        track.enabled = false;
+        console.log(
+          `Adding track to peer connection: ${track.id} (${track.kind})`
+        );
         peerConnectionRef.current?.addTrack(track, localStream);
       });
 
@@ -140,19 +145,55 @@ export const useWebRTC = () => {
       // Handle incoming ice candidates
       peerConnectionRef.current.onicecandidate = (e) => {
         if (e.candidate) {
+          console.log('Sending ICE Candidate:', e.candidate);
           socket.emit('sendIceCandidateToSignalingServer', {
             iceCandidate: e.candidate,
             iceUserId: userId,
-            didIOffer,
+            didIOffer: true,
+          });
+        } else {
+          console.log('ICE Candidate gathering completed.');
+        }
+        if (e.candidate) {
+          socket.emit('sendIceCandidateToSignalingServer', {
+            iceCandidate: e.candidate,
+            iceUserId: userId,
+            didIOffer: true,
           });
         }
       };
 
       // Handle changes in the connection state
+      // Handle connection state changes with more detailed logging
+      peerConnectionRef.current.onconnectionstatechange = () => {
+        console.log(
+          'Connection state changed:',
+          peerConnectionRef.current?.connectionState
+        );
+        // If connection is established, send metadata again to ensure it's received
+        if (
+          peerConnectionRef.current?.connectionState === 'connected' &&
+          dataChannel?.readyState === 'open'
+        ) {
+          console.log(
+            'Connection established, re-sending metadata to ensure receipt'
+          );
+          // This would need access to the metadata, which could be stored in state or context
+        }
+      };
+
       peerConnectionRef.current.oniceconnectionstatechange = () => {
         console.log(
           'ICE connection state:',
           peerConnectionRef.current?.iceConnectionState
+        );
+      };
+
+      // Log signaling state changes
+      peerConnectionRef.current.onsignalingstatechange = () => {
+        console.log(
+          'Signaling state:',
+          peerConnectionRef.current?.signalingState
         );
       };
     } catch (error) {
@@ -186,11 +227,25 @@ export const useWebRTC = () => {
       toast.error('Error creating offer.');
     }
   };
-
+  // Add this function to update track enablement when streaming status changes
+  const updateTracksStatus = (enabled: boolean) => {
+    if (localStream) {
+      console.log(`${enabled ? 'Enabling' : 'Disabling'} local tracks`);
+      localStream.getTracks().forEach((track) => {
+        track.enabled = enabled;
+        console.log(
+          `Track ${track.id} (${track.kind}) enabled: ${track.enabled}`
+        );
+      });
+    }
+  };
   return {
     localStream,
     initiateCall,
-    toggleTracks,
     dataChannel,
+    setLocalStream,
+    peerConnectionRef,
+    socket,
+    updateTracksStatus,
   };
 };

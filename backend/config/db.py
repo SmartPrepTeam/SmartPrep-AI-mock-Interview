@@ -7,8 +7,21 @@ from models.interview_answer import InterviewAnswer
 from models.user import User
 from models.blacklist import BlackList
 from models.user_profile import UserProfileModel
+import asyncio
+from webrtc import signalling_client
 
+async def start_signalling():
+    try:
+        print("🔌 Attempting WebRTC connection...")
+        await signalling_client.sio.connect("http://localhost:8181", transports=["websocket"])
+        print("✅ WebRTC Connection successful!")
+        await signalling_client.sio.wait()
+    except Exception as e:
+        print(f"❌ WebRTC connection error: {e}")
+        
 async def db_lifespan(app:FastAPI):
+    # Logic for webrtc connection
+    signalling_task = asyncio.create_task(start_signalling())
     # on starting the app
     app.mongodb_client = AsyncIOMotorClient(settings.mongodb_url)
     app.database = app.mongodb_client["smartprep_db"]
@@ -21,3 +34,5 @@ async def db_lifespan(app:FastAPI):
 
     # on shutting down the app
     app.mongodb_client.close()
+    signalling_task.cancel()
+

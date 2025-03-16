@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "express": "^4.21.2",
     "mini-svg-data-uri": "^1.4.4",
     "socket.io": "^4.8.1",
     "tailwindcss-animate": "^1.0.7"

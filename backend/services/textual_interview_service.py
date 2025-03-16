@@ -102,7 +102,8 @@ class TextualInterviewService():
             answers = data.answers,
             score = json_data,
             user_id = user_object_id,
-           question_id = question_object_id
+            question_id = question_object_id,
+            type = "text"
         )
         await new_scores.insert()
         return json_data

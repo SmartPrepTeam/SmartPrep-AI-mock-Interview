@@ -16,15 +16,22 @@ import toast from 'react-hot-toast';
 import { activePage } from '@/features/activePageSlice';
 import { setVideoScoreData } from '@/features/videoScoreSlice';
 import { Button } from '../ui/button';
-
 import { useWebRTC } from '@/hooks/use-webrtc';
+
 const VideoInterview = ({
   questions,
   question_id,
 }: QuestionPageContentProps) => {
   // values for building WEBRTC connection
-  const { localStream, initiateCall, toggleTracks, dataChannel } = useWebRTC();
-
+  const {
+    localStream,
+    initiateCall,
+    dataChannel,
+    setLocalStream,
+    peerConnectionRef,
+    socket,
+  } = useWebRTC();
+  const [isStreamingEnabled, setIsStreamingEnabled] = useState(false);
   const dispatch = useDispatch();
   const user_id = useSelector((state: RootState) => state.auth.userId);
   const interview_id = useSelector(
@@ -86,41 +93,85 @@ const VideoInterview = ({
 
   // runs for every question
   const startAnswering = () => {
-    toggleTracks(true);
+    console.log('Tracks before enabling:', localStream?.getTracks());
+
+    // First enable streaming in state
+    setIsStreamingEnabled(true);
+
+    // Update tracks status if the updateTracksStatus function is available
+    if (typeof updateTracksStatus === 'function') {
+      updateTracksStatus(true);
+    } else {
+      // Fallback if the function isn't exposed from the hook
+      if (localStream) {
+        localStream.getTracks().forEach((track) => {
+          track.enabled = true;
+          console.log(
+            `Track ${track.id} (${track.kind}) enabled: ${track.enabled}`
+          );
+        });
+      }
+    }
+
+    console.log('Tracks after enabling:', localStream?.getTracks());
+
+    // Start recording answer
     handleAnswer();
   };
 
   // sending question_id to identify streams on backend
   useEffect(() => {
-    if (dataChannel && dataChannel.readyState === 'open') {
-      console.log('Sending question metadata...');
+    const sendMetaData = () => {
+      if (dataChannel && dataChannel.readyState === 'open') {
+        console.log('Sending question metadata...');
 
-      dataChannel.send(
-        JSON.stringify({
-          question_no: questionIndex,
-          user_id,
-        })
-      );
-    } else if (dataChannel) {
-      console.log('Data channel not open yet, waiting...');
-
-      // Listen for DataChannel to open and then send metadata
-      dataChannel.onopen = () => {
-        console.log('Data channel opened, sending question metadata...');
         dataChannel.send(
           JSON.stringify({
             question_no: questionIndex,
             user_id,
             interview_id,
+            processStream: isStreamingEnabled,
           })
         );
-      };
+      } else if (dataChannel) {
+        console.log('Data channel not open yet, waiting...');
+
+        // Listen for DataChannel to open and then send metadata
+        dataChannel.onopen = () => {
+          console.log('Data channel opened, sending question metadata...');
+          dataChannel.send(
+            JSON.stringify({
+              question_no: questionIndex,
+              user_id,
+              interview_id,
+              processStream: isStreamingEnabled,
+            })
+          );
+        };
+      }
+    };
+    if (dataChannel) {
+      sendMetaData();
     }
-  });
+  }, [dataChannel, questionIndex, user_id, interview_id, isStreamingEnabled]);
   // Used when time is up or when user stops recording his answer
   const stopRecording = () => {
-    toggleTracks(false);
     setIsRecording(false);
+    setIsStreamingEnabled(false);
+    // Update tracks status if the updateTracksStatus function is available
+    if (typeof updateTracksStatus === 'function') {
+      updateTracksStatus(true);
+    } else {
+      // Fallback if the function isn't exposed from the hook
+      if (localStream) {
+        localStream.getTracks().forEach((track) => {
+          track.enabled = false;
+          console.log(
+            `Track ${track.id} (${track.kind}) enabled: ${track.enabled}`
+          );
+        });
+      }
+    }
     stopSpeechToText();
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -139,8 +190,8 @@ const VideoInterview = ({
 
   // Used when user wants to re-record his answer
   const terminateRecording = async () => {
-    toggleTracks(false);
     setIsRecording(false);
+    setIsStreamingEnabled(false);
     stopSpeechToText();
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -171,6 +222,7 @@ const VideoInterview = ({
         dispatch(setVideoScoreData(response.data));
         dispatch(activePage({ interviewType: 'video', page: 'insights' }));
         navigate('/video-interview/result');
+        disconnectFromServer();
       } catch (err) {
         if (axios.isAxiosError(err)) {
           if (err.response?.status === 500) {
@@ -187,6 +239,8 @@ const VideoInterview = ({
   useEffect(() => {
     if (videoRef.current && localStream) {
       videoRef.current.srcObject = localStream;
+      console.log('Video element:', videoRef.current);
+      console.log('Local Stream being assigned:', localStream);
     }
   }, [localStream]);
 
@@ -205,13 +259,34 @@ const VideoInterview = ({
       return updatedAnswers;
     });
   }, [transcript, questionIndex]);
+  const disconnectFromServer = () => {
+    // Close the peer connection
+    if (peerConnectionRef.current) {
+      peerConnectionRef.current.close();
+      peerConnectionRef.current = null;
+    }
 
+    // Close the data channel
+    if (dataChannel) {
+      dataChannel.close();
+    }
+
+    // Stop all tracks in the local stream
+    if (localStream) {
+      localStream.getTracks().forEach((track) => track.stop());
+      setLocalStream(null);
+    }
+
+    // Notify the signaling server that the user is disconnecting
+    socket.emit('disconnect');
+  };
   const handleCancellation = async () => {
     try {
       await deleteIncompleteInterviewMutation({
         question_id,
         user_id,
       }).unwrap();
+      disconnectFromServer();
       navigate('/home');
       toast.error('Interview Terminated');
     } catch (err) {

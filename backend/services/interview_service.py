@@ -93,7 +93,7 @@ class InterviewService():
         question_object_id =await self.convert_to_pydantic_object_id(question_id)
         user_object_id = await self.convert_to_pydantic_object_id(user_id)
 
-        """ Get answers """
+        #  Get Scores 
         scores = await InterviewAnswer.find_one({"question_id" : question_object_id,"user_id": user_object_id}).project(ScoresView)
 
         if not scores:

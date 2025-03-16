@@ -23,31 +23,7 @@ async def get_score(
     token : TokenData = Depends(get_token_manager().get_current_user),
     video_interview_controller: VideoInterviewController =  Depends(get_video_interview_controller)
 ):
-    global interviewDetails
-
-    # Check if interview_id exists
-    if question_id not in interviewDetails:
-        return {"error": "Interview ID not found"}
-
-    # Check if the user_id matches
-    interview_info = interviewDetails[question_id]
-    if interview_info["user_id"] != user_id:
-        return {"error": "User ID mismatch for this interview"}
-    confidence_scores = interview_info["results"]
-
-    # **Delete all questions (reset results)**
-    interview_info["results"] = {}
-
-    # **Remove the interview_id if no more data exists**
-    del interview_Details[interview_id]
-
-    # **Reset the entire dictionary if empty**
-    if not interview_Details:
-        interview_Details = {}
-
-    final_scores = await video_interview_controller.get_score(data,question_id,user_id,confidence_scores)
-    confidence_scores.clear()
-    return final_scores
+    return await video_interview_controller.get_score(data,question_id,user_id)
 
 @router.delete("/incomplete/{question_id}",name="Delete interview")
 async def remove_incomplete_interview(
@@ -57,3 +33,13 @@ async def remove_incomplete_interview(
     video_interview_controller: VideoInterviewController =  Depends(get_video_interview_controller)
 ):
     return await video_interview_controller.remove_incomplete_interview(question_id,user_id)
+
+@router.delete("/frames/question")
+def remove_confidence_scores(
+    user_id : str,
+    interview_id : str,
+    question_no : int,
+    token : TokenData = Depends(get_token_manager().get_current_user),
+    video_interview_controller: VideoInterviewController =  Depends(get_video_interview_controller)
+):
+    return video_interview_controller.remove_confidence_scores(interview_id,user_id,question_no)

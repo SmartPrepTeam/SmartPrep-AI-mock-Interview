@@ -24,6 +24,5 @@ export const ENDPOINTS = {
   },
   frames: {
     question: `/frames/question`,
-    interview: `/frames/interview`,
   },
 };
