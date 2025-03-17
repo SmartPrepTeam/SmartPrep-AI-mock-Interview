@@ -1,18 +1,22 @@
+import os
+import json
+from statistics import mean
 from schemas import Answer
 from utils.prompts import score_the_answers_prompt
 from config.mistral_ai import client
-import json
-from schemas import Answer
 from typing import List
 from models.interview_question import InterviewQuestion
 from models.interview_answer import InterviewAnswer
-from fastapi import HTTPException,status
+from fastapi import HTTPException, status
 from beanie import PydanticObjectId
 from bson import ObjectId
 
+# Directory to store interview scores
+SCORES_DIR = "backend/interview_scores"
+os.makedirs(SCORES_DIR, exist_ok=True)
 
 class VideoInterviewService():
-
+    
     @staticmethod
     async def validate_object_id(id: str):
         """Validates the given ID format."""
@@ -28,7 +32,7 @@ class VideoInterviewService():
         return PydanticObjectId(id)
 
     @staticmethod
-    async def clean_llm_response(raw_response : str ) -> dict:
+    async def clean_llm_response(raw_response: str) -> dict:
         cleaned_response = raw_response.strip('```json\n').strip('```')
         cleaned_response = cleaned_response.replace(r'\n', '\n').replace(r'\"', '"')
         try:
@@ -37,44 +41,113 @@ class VideoInterviewService():
             raise ValueError(f"Failed to parse response: {e}")
         return json_data
 
-    async def get_score(self,data : Answer,question_id : str,user_id : str):
-        '''Fetch questions from the DB'''
+    @staticmethod
+    def findConfidenceForEachQuestion(interview_data: dict) -> List[float]:
+        """Calculates the mean confidence score for each question."""
+        return [mean(scores) for scores in interview_data.values() if scores]
+
+    @staticmethod
+    def deleteConfidenceFile(question_id : str):
+        file_path = os.path.join(SCORES_DIR, f"{question_id}.json")
+        try:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                print(f"File {file_path} deleted successfully.")
+            else:
+                print(f"File {file_path} does not exist.")
+        except Exception as e:
+            print(f"Error deleting file {file_path}: {e}")
+
+    async def get_score(self, data: Answer, question_id: str, user_id: str):
+        """Fetches the interview data, calculates confidence, and scores the answers."""
+        # getting confidence for each question
+        file_path = os.path.join(SCORES_DIR, f"{question_id}.json")
+
+        if os.path.exists(file_path):
+            with open(file_path, "r") as f:
+                interview_data = json.load(f)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to predict confidence"
+            )
+        
+        if "results" not in interview_data:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Invalid interview data format"
+            )
+        confidence_for_each = self.findConfidenceForEachQuestion(interview_data["results"])
+
+        deleteConfidenceFile(question_id)
+
+        # finding scores using llm
         await self.validate_object_id(question_id)
         await self.validate_object_id(user_id)
-
-        question_object_id =await self.convert_to_pydantic_object_id(question_id)
+        
+        question_object_id = await self.convert_to_pydantic_object_id(question_id)
         user_object_id = await self.convert_to_pydantic_object_id(user_id)
 
         question = await InterviewQuestion.find_one({"_id": question_object_id})
     
         if question is None:
-            # Handle no document found
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Textual interview not found")
-
-
-        ''' scores the answers '''
-        print(data.answers)
-        print(question.questions)
-        prompt = score_the_answers_prompt(question.questions,data.answers)
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail="Video interview not found"
+            )
+        
+        prompt = score_the_answers_prompt(question.questions, data.answers)
         chat_response = client.chat.complete(
-            model = "mistral-large-latest",
-            messages = prompt
+            model="mistral-large-latest",
+            messages=prompt
         )
         raw_response = chat_response.choices[0].message.content
-
-        '''  Cleans the response   ''' 
         json_data = await self.clean_llm_response(raw_response)
+        
         if isinstance(json_data, list) and len(json_data) == 1:
             json_data = json_data[0]  # Extract the dictionary from the list
-        '''  makes a new entry in the db  '''
+        
         new_scores = InterviewAnswer(
-            answers = data.answers,
-            score = json_data,
-            user_id = user_object_id,
-           question_id = question_object_id
+            answers=data.answers,
+            score=json_data,
+            user_id=user_object_id,
+            question_id=question_object_id,
+            type = "video",
+            video_confidence = confidence_for_each,
         )
         await new_scores.insert()
-        return json_data
+        return {"llm_scores" : json_data,"video_confidence" : confidence_for_each}
 
-  
+    async def remove_incomplete_interview(self, question_id: str, user_id: str):
+        """Deletes an incomplete interview record."""
+        # delete confidence file
+        deleteConfidenceFile(question_id)
+        # delete questions
+        await self.validate_object_id(question_id)
+        await self.validate_object_id(user_id)
 
+        question_object_id = await self.convert_to_pydantic_object_id(question_id)
+        user_object_id = await self.convert_to_pydantic_object_id(user_id)
+
+        await InterviewQuestion.find_one({"_id": question_object_id}).delete()
+
+    def remove_confidence_for_question(self,interview_id : str,user_id : str,question_no : int):
+        # open the file
+        file_path = os.path.join(SCORES_DIR, f"{interview_id}.json")
+
+        if os.path.exists(file_path):
+            with open(file_path, "r") as f:
+                interview_data = json.load(f)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to predict confidence"
+            )
+        
+        if "results" in interview_data and str(question_no) in interview_data["results"]:
+            del interview_data["results"][str(question_no)]
+            print(f"Deleted confidence score for question {question_no}")
+
+        # Write the updated data back to the file
+        with open(file_path, "w") as f:
+            json.dump(interview_data, f, indent=4)

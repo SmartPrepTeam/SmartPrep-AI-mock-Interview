@@ -1,7 +1,7 @@
 # Request and response schemas for Textual Interviews API endpoints
 
 from pydantic import BaseModel,Field,HttpUrl,EmailStr
-from typing import List,Optional
+from typing import List,Optional,Dict
 from enum import Enum 
 from beanie import PydanticObjectId
 from datetime import datetime
@@ -85,3 +85,15 @@ class ChangeEmailSchema(BaseModel):
 class ChangePasswordSchema(BaseModel):
     current_password: str
     new_password: str
+    
+# for signaling client
+class RTCSessionDescription(BaseModel):
+    type: str
+    sdp: str
+
+class Offer(BaseModel):
+    offer: RTCSessionDescription
+    answer: Optional[RTCSessionDescription] = None
+    offererIceCandidates: List[Dict[str, str]] = Field(default_factory=list)
+    answererIceCandidates: List[Dict[str, str]] = Field(default_factory=list)
+    offererId: str

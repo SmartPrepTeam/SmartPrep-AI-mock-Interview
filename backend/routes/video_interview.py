@@ -24,3 +24,22 @@ async def get_score(
     video_interview_controller: VideoInterviewController =  Depends(get_video_interview_controller)
 ):
     return await video_interview_controller.get_score(data,question_id,user_id)
+
+@router.delete("/incomplete/{question_id}",name="Delete interview")
+async def remove_incomplete_interview(
+    user_id : str,
+    question_id: str,
+    token : TokenData = Depends(get_token_manager().get_current_user),
+    video_interview_controller: VideoInterviewController =  Depends(get_video_interview_controller)
+):
+    return await video_interview_controller.remove_incomplete_interview(question_id,user_id)
+
+@router.delete("/frames/question")
+def remove_confidence_scores(
+    user_id : str,
+    interview_id : str,
+    question_no : int,
+    token : TokenData = Depends(get_token_manager().get_current_user),
+    video_interview_controller: VideoInterviewController =  Depends(get_video_interview_controller)
+):
+    return video_interview_controller.remove_confidence_scores(interview_id,user_id,question_no)

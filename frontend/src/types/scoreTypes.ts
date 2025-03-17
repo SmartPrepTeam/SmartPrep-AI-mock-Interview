@@ -7,9 +7,6 @@ export type textScoreData = {
 };
 
 export type videoScoreData = {
-  Tone: number;
-  Accuracy: number;
-  Clarity: number;
-  Grammar: number;
-  Feedback: string;
+  llm_response: textScoreData;
+  video_confidence: number[];
 };
