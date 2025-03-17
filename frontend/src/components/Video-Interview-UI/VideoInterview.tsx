@@ -30,6 +30,7 @@ const VideoInterview = ({
     setLocalStream,
     peerConnectionRef,
     socket,
+    updateTracksStatus,
   } = useWebRTC();
   const [isStreamingEnabled, setIsStreamingEnabled] = useState(false);
   const dispatch = useDispatch();
@@ -69,10 +70,19 @@ const VideoInterview = ({
   const [deleteQuestionFrames] = useDeleteQuestionFramesMutation();
   // peer-to-peer connection will persist through page refreshes as well
   useEffect(() => {
+    const setupConnection = async () => {
+      try {
+        await initiateCall();
+        console.log('Call initiated successfully');
+      } catch (error) {
+        console.error('Failed to initiate call:', error);
+      }
+    };
+
     if (!localStream) {
-      initiateCall();
+      setupConnection();
     }
-  }, [localStream]);
+  }, [localStream, initiateCall]);
 
   const handleAnswer = () => {
     'Handles Speech to text , storing answers and timer';
