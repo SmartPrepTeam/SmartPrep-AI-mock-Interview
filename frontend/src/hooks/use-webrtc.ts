@@ -22,7 +22,6 @@ interface ClientToServerEvents {
     answererIceCandidates: RTCIceCandidateInit[];
     offererId: string;
   }) => Promise<RTCIceCandidateInit[]>;
-  disconnect: () => void;
 }
 interface ServerToClientEvents {
   iceCandidateFromClient: (data: RTCIceCandidateInit) => void;
@@ -57,23 +56,6 @@ export const useWebRTC = () => {
 
   const [didIOffer, setDidIOffer] = useState(false);
   const navigate = useNavigate();
-  // useEffect(() => {
-  //   const initialize = async () => {
-  //     try {
-  //       // Get local media stream (audio and video)
-  //       const stream = await navigator.mediaDevices.getUserMedia({
-  //         audio: true,
-  //         video: true,
-  //       });
-  //       setLocalStream(stream);
-  //     } catch (error) {
-  //       navigate('/home');
-  //       toast.error('Error accessing media devices.');
-  //     }
-  //   };
-
-  //   initialize();
-  // }, []);
 
   useEffect(() => {
     if (localStream && !isInitiator && !peerConnectionRef.current) {
@@ -106,6 +88,32 @@ export const useWebRTC = () => {
     };
   }, []);
 
+  const cleanUpConnection = () => {
+    try {
+      // Close the peer connection
+      if (peerConnectionRef.current) {
+        peerConnectionRef.current.close();
+        peerConnectionRef.current = null;
+      }
+
+      // Close the data channel
+      if (dataChannel) {
+        dataChannel.close();
+      }
+
+      // Stop all tracks in the local stream
+      if (localStream) {
+        localStream.getTracks().forEach((track) => track.stop());
+        setLocalStream(null);
+      }
+
+      // Notify the signaling server that the user is disconnecting
+      if (socket && socket.connected) socket.disconnect();
+      return true;
+    } catch (err) {
+      console.log('Error during disconnection : ', err);
+    }
+  };
   const createPeerConnection = () => {
     try {
       let peerConfiguration: RTCConfiguration = {
@@ -297,9 +305,7 @@ export const useWebRTC = () => {
     localStream,
     initiateCall,
     dataChannel,
-    setLocalStream,
-    peerConnectionRef,
-    socket,
     updateTracksStatus,
+    cleanUpConnection,
   };
 };

@@ -12,7 +12,7 @@ from beanie import PydanticObjectId
 from bson import ObjectId
 
 # Directory to store interview scores
-SCORES_DIR = "backend/interview_scores"
+SCORES_DIR = "interview_scores"
 os.makedirs(SCORES_DIR, exist_ok=True)
 
 class VideoInterviewService():
@@ -67,19 +67,21 @@ class VideoInterviewService():
             with open(file_path, "r") as f:
                 interview_data = json.load(f)
         else:
+            print("file ka masla hai")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to predict confidence"
             )
         
         if "results" not in interview_data:
+            print("results are not there")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Invalid interview data format"
             )
         confidence_for_each = self.findConfidenceForEachQuestion(interview_data["results"])
 
-        deleteConfidenceFile(question_id)
+        self.deleteConfidenceFile(question_id)
 
         # finding scores using llm
         await self.validate_object_id(question_id)
