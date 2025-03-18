@@ -7,6 +7,6 @@ export type textScoreData = {
 };
 
 export type videoScoreData = {
-  llm_response: textScoreData;
+  llm_scores: textScoreData;
   video_confidence: number[];
 };

@@ -27,12 +27,11 @@ const VideoInterview = ({
     localStream,
     initiateCall,
     dataChannel,
-    setLocalStream,
-    peerConnectionRef,
-    socket,
     updateTracksStatus,
+    cleanUpConnection,
   } = useWebRTC();
   const [isStreamingEnabled, setIsStreamingEnabled] = useState(false);
+  const [hasEnded, setHasEnded] = useState(false);
   const dispatch = useDispatch();
   const user_id = useSelector((state: RootState) => state.auth.userId);
   const interview_id = useSelector(
@@ -79,10 +78,10 @@ const VideoInterview = ({
       }
     };
 
-    if (!localStream) {
+    if (!localStream && !hasEnded) {
       setupConnection();
     }
-  }, [localStream, initiateCall]);
+  }, [localStream, initiateCall, hasEnded]);
 
   const handleAnswer = () => {
     'Handles Speech to text , storing answers and timer';
@@ -223,6 +222,10 @@ const VideoInterview = ({
     } else {
       // submitting at the final question
       try {
+        const disconnected = cleanUpConnection();
+        if (!disconnected) {
+          toast.error('Connection may still be alive');
+        }
         const response = await getScoresForVideos({
           question_id,
           user_id,
@@ -231,8 +234,8 @@ const VideoInterview = ({
         console.log(response);
         dispatch(setVideoScoreData(response.data));
         dispatch(activePage({ interviewType: 'video', page: 'insights' }));
+        setHasEnded(true);
         navigate('/video-interview/result');
-        disconnectFromServer();
       } catch (err) {
         if (axios.isAxiosError(err)) {
           if (err.response?.status === 500) {
@@ -269,34 +272,17 @@ const VideoInterview = ({
       return updatedAnswers;
     });
   }, [transcript, questionIndex]);
-  const disconnectFromServer = () => {
-    // Close the peer connection
-    if (peerConnectionRef.current) {
-      peerConnectionRef.current.close();
-      peerConnectionRef.current = null;
-    }
-
-    // Close the data channel
-    if (dataChannel) {
-      dataChannel.close();
-    }
-
-    // Stop all tracks in the local stream
-    if (localStream) {
-      localStream.getTracks().forEach((track) => track.stop());
-      setLocalStream(null);
-    }
-
-    // Notify the signaling server that the user is disconnecting
-    socket.emit('disconnect');
-  };
   const handleCancellation = async () => {
     try {
       await deleteIncompleteInterviewMutation({
         question_id,
         user_id,
       }).unwrap();
-      disconnectFromServer();
+      const disconnected = cleanUpConnection();
+      if (!disconnected) {
+        toast.error('Connection may still be alive');
+      }
+      setHasEnded(true);
       navigate('/home');
       toast.error('Interview Terminated');
     } catch (err) {

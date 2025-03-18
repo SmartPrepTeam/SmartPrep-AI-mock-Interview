@@ -70,12 +70,10 @@ io.on("connection", (socket) => {
         const socketToSend = Object.values(connectedUsers).find(
           (user) => user.type === "server"
         );
-        socket
-          .to(socketToSend.socketId)
-          .emit("iceCandidateFromClient", {
-            offerer_id: iceUserId,
-            ice_candidate: iceCandidate,
-          });
+        socket.to(socketToSend.socketId).emit("iceCandidateFromClient", {
+          offerer_id: iceUserId,
+          ice_candidate: iceCandidate,
+        });
         console.log(`iceCandidate sent from ${iceUserId} .`);
       } else {
         // iceUserId => offererId here
