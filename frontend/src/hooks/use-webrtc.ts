@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
+import { useDeleteIncompleteInterviewMutation } from '@/features/apiSlice';
 interface ClientToServerEvents {
   sendIceCandidateToSignalingServer: (data: {
     iceCandidate: RTCIceCandidateInit;
@@ -27,6 +28,7 @@ interface ServerToClientEvents {
   iceCandidateFromClient: (data: RTCIceCandidateInit) => void;
   iceCandidateFromServer: (data: RTCIceCandidateInit) => void;
   AnswerFromServer: (data: RTCSessionDescriptionInit) => void;
+  serverDisconnected: () => void;
   offer: (data: {
     offer: RTCSessionDescriptionInit;
     answer: RTCSessionDescriptionInit | null;
@@ -44,10 +46,15 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 );
 let dataChannel: RTCDataChannel | null = null;
 export const useWebRTC = () => {
+  const [deleteIncompleteInterviewMutation] =
+    useDeleteIncompleteInterviewMutation();
   let userId = useSelector((state: RootState) => state.auth.userId);
   if (!userId) {
     userId = '65f2b6d2e6f1a5d47c3f91b7';
   }
+  const question_id = useSelector(
+    (state: RootState) => state.videoInterview.interviewId
+  );
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
 
   const [isInitiator, setIsInitiator] = useState<boolean>(false);
@@ -56,17 +63,11 @@ export const useWebRTC = () => {
 
   const [didIOffer, setDidIOffer] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (localStream && !isInitiator && !peerConnectionRef.current) {
-      // Create the RTCPeerConnection when the local stream is available
-      createPeerConnection();
-    }
-  }, [localStream, isInitiator]);
   // handling events from the server
   useEffect(() => {
     const handleAnswer = (answer: RTCSessionDescriptionInit) => {
       console.log('Received Answer from Server:', answer);
+
       peerConnectionRef.current?.setRemoteDescription(
         new RTCSessionDescription(answer)
       );
@@ -78,13 +79,31 @@ export const useWebRTC = () => {
         new RTCIceCandidate(candidate)
       );
     };
+    const handleDisconnection = async () => {
+      try {
+        await deleteIncompleteInterviewMutation({
+          question_id,
+          user_id: userId,
+        }).unwrap();
+        const disconnected = cleanUpConnection();
 
+        if (!disconnected) {
+          toast.error('Connection may still be alive');
+        }
+
+        toast.error('Server is down , please try later');
+        navigate('/home');
+      } catch (err) {
+        toast.error(err?.data?.message || 'Error terminating interview');
+      }
+    };
     socket.on('AnswerFromServer', handleAnswer);
     socket.on('iceCandidateFromServer', handleIceCandidate);
-
+    socket.on('serverDisconnected', handleDisconnection);
     return () => {
       socket.off('AnswerFromServer', handleAnswer);
       socket.off('iceCandidateFromServer', handleIceCandidate);
+      socket.off('serverDisconnected', handleDisconnection);
     };
   }, []);
 
@@ -203,7 +222,9 @@ export const useWebRTC = () => {
       console.log('Call already in progress, ignoring duplicate call attempt');
       return true; // Return success since a call is already being established
     }
-
+    if (isInitiator) {
+      return true;
+    }
     setIsInitiator(true);
     try {
       // Step 1: Get media stream first
@@ -219,7 +240,13 @@ export const useWebRTC = () => {
           setLocalStream(currentStream);
         } catch (mediaError) {
           console.error('Error getting media stream:', mediaError);
-          throw new Error('Failed to access camera and microphone');
+          toast.error(
+            'Could not access the camera: ' +
+              (mediaError instanceof Error
+                ? mediaError.message
+                : 'Unknown error')
+          );
+          return false;
         }
       } else {
         console.log('Using existing media stream');
@@ -262,7 +289,7 @@ export const useWebRTC = () => {
       };
 
       const offer = await peerConnectionRef.current?.createOffer(offerOptions);
-
+      console.log(offer);
       // Verify media lines are present
       if (!offer?.sdp?.includes('m=audio')) {
         console.error('Missing audio line in SDP offer!');

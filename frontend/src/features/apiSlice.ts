@@ -154,9 +154,8 @@ export const apiSlice = createApi({
     // Endpoints for deleting frames
     deleteQuestionFrames: builder.mutation({
       query: ({ interview_id, question_no, user_id }) => ({
-        url: `${ENDPOINTS.frames.question}`,
+        url: `${ENDPOINTS.video_interview.frames.question}/${interview_id}/${user_id}/${question_no}`,
         method: 'DELETE',
-        params: { interview_id, question_no, user_id },
       }),
     }),
   }),

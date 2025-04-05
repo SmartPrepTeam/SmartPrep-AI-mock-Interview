@@ -48,12 +48,42 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
+    let disconnectedUserId = null;
+    let disconnectedUserType = null;
+    // Find the user who disconnected
     for (const userId in connectedUsers) {
       if (connectedUsers[userId].socketId === socket.id) {
         console.log(`User ${userId} disconnected.`);
+        disconnectedUserId = userId;
+        disconnectedUserType = connectedUsers[userId].type;
         delete connectedUsers[userId];
         break;
       }
+    }
+    if (disconnectedUserId && disconnectedUserType === "server") {
+      offers.forEach((offer) => {
+        const clientId = offer.offererId;
+        const client = connectedUsers[clientId];
+        if (client) {
+          io.to(client.socketId).emit("serverDisconnected");
+          delete connectedUsers[clientId];
+        }
+      });
+      offers.length = 0;
+    }
+    // Remove all offers made by this user
+    else if (disconnectedUserId) {
+      const initialOffersLength = offers.length;
+      for (let i = offers.length - 1; i >= 0; i--) {
+        if (offers[i].offererId === disconnectedUserId) {
+          offers.splice(i, 1);
+        }
+      }
+      console.log(
+        `Removed ${
+          initialOffersLength - offers.length
+        } offer(s) from user ${disconnectedUserId}`
+      );
     }
   });
 
@@ -78,6 +108,7 @@ io.on("connection", (socket) => {
       } else {
         // iceUserId => offererId here
         const offererObj = offers.find((o) => o.offererId === iceUserId);
+        if (!offererObj) return;
         offererObj.answererIceCandidates.push(iceCandidate);
         const socketToSend = connectedUsers[iceUserId];
         socket

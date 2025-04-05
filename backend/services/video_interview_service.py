@@ -104,6 +104,7 @@ class VideoInterviewService():
             messages=prompt
         )
         raw_response = chat_response.choices[0].message.content
+        print(raw_response)
         json_data = await self.clean_llm_response(raw_response)
         
         if isinstance(json_data, list) and len(json_data) == 1:
@@ -123,7 +124,7 @@ class VideoInterviewService():
     async def remove_incomplete_interview(self, question_id: str, user_id: str):
         """Deletes an incomplete interview record."""
         # delete confidence file
-        deleteConfidenceFile(question_id)
+        self.deleteConfidenceFile(question_id)
         # delete questions
         await self.validate_object_id(question_id)
         await self.validate_object_id(user_id)
@@ -136,7 +137,7 @@ class VideoInterviewService():
     def remove_confidence_for_question(self,interview_id : str,user_id : str,question_no : int):
         # open the file
         file_path = os.path.join(SCORES_DIR, f"{interview_id}.json")
-
+        print("comes here 1.1")
         if os.path.exists(file_path):
             with open(file_path, "r") as f:
                 interview_data = json.load(f)
@@ -145,11 +146,11 @@ class VideoInterviewService():
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to predict confidence"
             )
-        
+        print("comes here 1.2")
         if "results" in interview_data and str(question_no) in interview_data["results"]:
             del interview_data["results"][str(question_no)]
             print(f"Deleted confidence score for question {question_no}")
-
+        print("comes here 1.3")
         # Write the updated data back to the file
         with open(file_path, "w") as f:
             json.dump(interview_data, f, indent=4)

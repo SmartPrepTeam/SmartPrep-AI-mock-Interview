@@ -47,72 +47,77 @@ const VideoInterviewScore = () => {
   }, [scoreData.video_confidence]);
   return (
     <>
-      <LineGraph LineChartData={chartData} />
-      <div className="flex justify-center items-start min-h-[70vh] px-3">
-        <div className="grid grid-cols-[1fr,2fr,2fr] gap-4 md:gap-1 auto-rows-[minmax(160px,240px)]">
-          {/* Feedback BOX c1,2r  */}
-          <div className="col-span-3 md:col-span-1 lg:col-span-1 p-1 rounded-lg  bg-[#10132E] border border-white/[0.1] flex flex-col items-center text-center">
+      <div className="w-full flex flex-col lg:flex-row gap-4 px-3">
+        <div className="w-full lg:w-3/5 h-64 md:pr-4 mx-auto p-1 rounded-lg bg-[#10132E] border border-white/[0.1]">
+          <LineGraph LineChartData={chartData} />
+        </div>
+        <div className="w-full xl:w-2/5 flex flex-col md:flex-row gap-4">
+          <div className="w-full lg:w-1/2 bg-[#10132E] border border-white/[0.1] p-4 rounded-lg flex flex-col justify-center items-center">
+            <h3 className="text-lg font-semibold mb-2 text-center">Feedback</h3>
+            <p className="text-md p-2 max-h-40 overflow-y-auto">
+              {scoreData.llm_scores.Feedback}
+            </p>
+          </div>
+          <div className="w-full lg:w-1/2 p-1 rounded-lg bg-[#10132E] border border-white/[0.1] flex flex-col items-center text-center">
             <h3 className="text-lg font-semibold mb-4">Overall Score</h3>
             <AnimatedCircularProgressBar
               value={score}
             ></AnimatedCircularProgressBar>
           </div>
+        </div>
+      </div>
+      <div className="flex min-h-[70vh] px-3 py-4">
+        <div className="w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Top row: Tone and Clarity */}
+            <div className="col-span-1">
+              <CustomProgressBar
+                headings="Tone"
+                markers={{
+                  left: 'Inconsistent',
+                  middle: 'Neutral',
+                  right: 'Appropriate',
+                }}
+                values={scoreData.llm_scores.Tone}
+              />
+            </div>
 
-          {/* Tone BOX c2,r1 */}
-          <div className="col-span-3 md:col-span-2 lg:col-span-1 rounded-lg ">
-            <CustomProgressBar
-              headings="Tone"
-              markers={{
-                left: 'Inconsistent',
-                middle: 'Neutral',
-                right: 'Appropriate',
-              }}
-              values={scoreData.llm_scores.Tone}
-            />
-          </div>
+            <div className="col-span-1">
+              <CustomProgressBar
+                headings="Clarity"
+                markers={{
+                  left: 'Unclear',
+                  middle: 'Needs Work',
+                  right: 'Crystal Clear',
+                }}
+                values={scoreData.llm_scores.Clarity}
+              />
+            </div>
 
-          {/* Clarity BOX c3r1  */}
-          <div className="col-span-3 md:col-span-2 lg:col-span-1 rounded-lg">
-            <CustomProgressBar
-              headings="Clarity"
-              markers={{
-                left: 'Unclear',
-                middle: 'Needs Work',
-                right: 'Crystal Clear',
-              }}
-              values={scoreData.llm_scores.Clarity}
-            />
-          </div>
-          <div className="col-span-3 md:col-span-1 lg:col-span-2 xl:col-span-1 rounded-lg bg-[#10132E] border border-white/[0.1] flex flex-col items-center text-center">
-            <h3 className="text-lg font-semibold mt-8 mb-4">Feedback</h3>
-            <p className="text-sm mb-2 p-2 overflow-y-auto">
-              {scoreData.llm_scores.Feedback}
-            </p>
-          </div>
-          {/* Accuracy BOX c2r2   */}
-          <div className="col-span-3 md:col-span-1 lg:col-span-1 rounded-lg">
-            <CustomProgressBar
-              headings="Accuracy"
-              markers={{
-                left: 'Low',
-                middle: 'Moderate',
-                right: 'Perfect',
-              }}
-              values={scoreData.llm_scores.Accuracy}
-            />
-          </div>
+            {/* Bottom row: Accuracy and Grammar */}
+            <div className="col-span-1">
+              <CustomProgressBar
+                headings="Accuracy"
+                markers={{
+                  left: 'Low',
+                  middle: 'Moderate',
+                  right: 'Perfect',
+                }}
+                values={scoreData.llm_scores.Accuracy}
+              />
+            </div>
 
-          {/* Grammar BOX c3r2 */}
-          <div className="col-span-3 md:col-span-2 lg:col-span-3 xl:col-span-1 rounded-lg">
-            <CustomProgressBar
-              headings="Grammar"
-              markers={{
-                left: 'Poor',
-                middle: 'Good',
-                right: 'Excellent',
-              }}
-              values={scoreData.llm_scores.Grammar}
-            />
+            <div className="col-span-1">
+              <CustomProgressBar
+                headings="Grammar"
+                markers={{
+                  left: 'Poor',
+                  middle: 'Good',
+                  right: 'Excellent',
+                }}
+                values={scoreData.llm_scores.Grammar}
+              />
+            </div>
           </div>
         </div>
       </div>

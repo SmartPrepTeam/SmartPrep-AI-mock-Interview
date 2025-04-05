@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Timer from './Timer';
 import { useNavigate } from 'react-router-dom';
 import Typewriter from '@/Typewriter';
@@ -17,10 +17,12 @@ import { activePage } from '@/features/activePageSlice';
 import { setVideoScoreData } from '@/features/videoScoreSlice';
 import { Button } from '../ui/button';
 import { useWebRTC } from '@/hooks/use-webrtc';
+import useBackButtonHandler from '@/hooks/use-back-button';
 
 const VideoInterview = ({
   questions,
   question_id,
+  // question_id == interview_id
 }: QuestionPageContentProps) => {
   // values for building WEBRTC connection
   const {
@@ -31,6 +33,7 @@ const VideoInterview = ({
     cleanUpConnection,
   } = useWebRTC();
   const [isStreamingEnabled, setIsStreamingEnabled] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasEnded, setHasEnded] = useState(false);
   const dispatch = useDispatch();
   const user_id = useSelector((state: RootState) => state.auth.userId);
@@ -62,6 +65,8 @@ const VideoInterview = ({
       },
     });
 
+  // Handling the back button
+  useBackButtonHandler(question_id, user_id);
   // For getting his scores based on his answers
   const [getScoresForVideos, { isLoading }] = useGetScoresForVideosMutation();
   const [deleteIncompleteInterviewMutation] =
@@ -70,18 +75,18 @@ const VideoInterview = ({
   // peer-to-peer connection will persist through page refreshes as well
   useEffect(() => {
     const setupConnection = async () => {
-      try {
-        await initiateCall();
-        console.log('Call initiated successfully');
-      } catch (error) {
-        console.error('Failed to initiate call:', error);
+      const callStarted = await initiateCall();
+      if (!callStarted) {
+        navigate('/home');
+        return;
       }
+      console.log('Call initiated successfully');
     };
 
     if (!localStream && !hasEnded) {
       setupConnection();
     }
-  }, [localStream, initiateCall, hasEnded]);
+  }, [localStream, initiateCall, hasEnded, navigate]);
 
   const handleAnswer = () => {
     'Handles Speech to text , storing answers and timer';
@@ -163,9 +168,9 @@ const VideoInterview = ({
       sendMetaData();
     }
   }, [dataChannel, questionIndex, user_id, interview_id, isStreamingEnabled]);
+
   // Used when time is up or when user stops recording his answer
-  const stopRecording = () => {
-    setIsRecording(false);
+  const stopRecording = useCallback(async () => {
     setIsStreamingEnabled(false);
     // Update tracks status if the updateTracksStatus function is available
     if (typeof updateTracksStatus === 'function') {
@@ -186,31 +191,76 @@ const VideoInterview = ({
       clearInterval(timerRef.current);
     }
     if (time == 0 && transcript == '') {
-      navigate('/video-interview/restart');
+      try {
+        await deleteIncompleteInterviewMutation({
+          question_id,
+          user_id,
+        }).unwrap();
+        const disconnected = cleanUpConnection();
+        if (!disconnected) {
+          toast.error('Connection may still be alive');
+        }
+        setHasEnded(true);
+        navigate('/video-interview/restart');
+        toast.error('Interview terminated as no audio was detected');
+      } catch (err) {
+        toast.error(err?.data?.message);
+      }
     }
-  };
+    // Wait for some time (e.g., 2 seconds) to allow transcript
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setIsRecording(false);
+  }, [
+    time,
+    transcript,
+    updateTracksStatus,
+    navigate,
+    setIsRecording,
+    setIsStreamingEnabled,
+    cleanUpConnection,
+    deleteIncompleteInterviewMutation,
+    stopSpeechToText,
+    localStream,
+  ]);
 
   // stop recording when time is up
   useEffect(() => {
-    if (time == 0) {
-      stopRecording();
-    }
+    const handleTimeUp = async () => {
+      if (time == 0) {
+        await stopRecording();
+      }
+    };
+    handleTimeUp();
   }, [time, stopRecording]);
 
   // Used when user wants to re-record his answer
   const terminateRecording = async () => {
-    setIsRecording(false);
+    setIsSubmitting(true);
     setIsStreamingEnabled(false);
     stopSpeechToText();
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
+
+    console.log(questionIndex, typeof questionIndex);
     // make call to backend and delete frames of that question
-    await deleteQuestionFrames({ interview_id, questionIndex, user_id });
-    toast.error('Your answer was not be saved as you stopped recording');
+    try {
+      await deleteQuestionFrames({
+        interview_id,
+        question_no: questionIndex,
+        user_id,
+      }).unwrap();
+      toast.error('Your answer was not saved as you stopped recording');
+    } catch (error) {
+      toast.error('Failed to delete frames');
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setIsRecording(false);
+    setIsSubmitting(false);
   };
 
   const handleNextQuestion = async () => {
+    setIsSubmitting(true);
     stopRecording();
     // Wait for some time (e.g., 2 seconds) to allow interim results to become final
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -244,6 +294,8 @@ const VideoInterview = ({
         } else {
           toast.error('Unexpected error occurred');
         }
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -292,9 +344,11 @@ const VideoInterview = ({
 
   // At final answer submission
   if (isLoading) {
-    <div className="flex h-screen items-center justify-center">
-      Assessing the videos....
-    </div>;
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Assessing the videos....
+      </div>
+    );
   }
   return (
     <div className="flex h-screen p-11 bg-black-100 flex-col md:flex-row">
@@ -322,8 +376,9 @@ const VideoInterview = ({
               <button
                 onClick={handleNextQuestion}
                 className="bg-green-500 text-white px-4 py-2 rounded-md"
+                disabled={isSubmitting}
               >
-                Submit
+                {isSubmitting ? 'Processing....' : 'Submit'}
               </button>
               <button
                 onClick={terminateRecording}
@@ -338,10 +393,10 @@ const VideoInterview = ({
 
       <div className="w-1/3 bg-[#10132E] p-4 flex flex-col rounded-md hidden md:flex">
         <div className="text-lg font-bold mb-4 text-white">Transcript</div>
-        <div className="flex-1 overflow-y-auto mb-4">
-          <div className="space-y-2">
-            <span className="text-sm text-[#a9c6f5] ">AI</span>
-            <div className="bg-[#a9c6f5]  p-2 rounded-lg shadow-md">
+        <div className="flex-1 overflow-y-auto mb-4 ">
+          <div className="space-y-2 ">
+            <span className="text-sm text-[#cbd5e1] ">AI</span>
+            <div className="bg-blue-500 text-white p-2 rounded-lg shadow-md">
               <Typewriter
                 key={questionIndex}
                 text={questions[questionIndex]}
@@ -350,11 +405,14 @@ const VideoInterview = ({
               />
             </div>
             {(transcript || interimResult) && (
-              <div className="bg-[#a9c6f5]  p-2 rounded-lg shadow-md">
-                {transcript}{' '}
-                {interimResult && (
-                  <span className="opacity-50">{interimResult}</span>
-                )}
+              <div className="flex flex-col space-y-2">
+                <span className="text-sm text-[#cbd5e1] ml-auto">You</span>
+                <div className="bg-blue-500 p-2 rounded-lg shadow-md ml-auto text-white">
+                  {transcript}{' '}
+                  {interimResult && (
+                    <span className="opacity-50">{interimResult}</span>
+                  )}
+                </div>
               </div>
             )}
           </div>

@@ -21,8 +21,8 @@ export const ENDPOINTS = {
   video_interview: {
     score_generation: `/video_interviews/questions`,
     incomplete_interview: `/video_interviews/incomplete`,
-  },
-  frames: {
-    question: `/frames/question`,
+    frames: {
+      question: `/video_interviews/frames/question`,
+    },
   },
 };

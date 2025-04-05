@@ -15,7 +15,10 @@ from av import VideoFrame
 peer_connections = {}
 
 # Create a Socket.IO client
-sio = socketio.AsyncClient()
+sio = socketio.AsyncClient(reconnection=True, 
+                          reconnection_attempts=10,
+                          reconnection_delay=1,
+                          reconnection_delay_max=5)
 
 # Load the model once when the server starts
 model = tf.keras.models.load_model("deeplearning_models/confidence_measuring_model.keras")
@@ -61,8 +64,13 @@ async def process_frame_with_model(img):
     Returns:
         float: Confidence score between 0 and 1
     """
-    # Run prediction in a separate thread to avoid blocking
-    prediction = await asyncio.to_thread(model.predict, img)
+    try:
+        # Run prediction in a separate thread to avoid blocking
+        prediction = await asyncio.to_thread(model.predict, img)
+        print("model prediction runs correctly")
+    except Exception as e:
+        print(f"Error during prediction : {e}")
+
     
     # Extract the confidence score (assuming the model outputs a single value)
     # If the model outputs an array, extract the confidence value
@@ -91,6 +99,8 @@ async def process_video(video_track, peer_connection,user_id,interview_id):
     
     try:
         while True:
+
+            print(f"Process video function started for user {user_id}, interview {interview_id}")
             # Exit if peer connection is closed
             if peer_connection.connectionState in ["closed", "failed", "disconnected"]:
                 print(f"Peer connection closed for {interview_id}. Stopping video processing.")
@@ -159,8 +169,12 @@ async def connect():
     await sio.emit("register", {"userId": FASTAPI_SERVER_ID, "clientType": "server"})
 
 @sio.event
-def disconnect():
+async def disconnect():
     print("Disconnected from signaling server!")
+    # Cleanup all peer connections
+    for offerer_id, conn in peer_connections.items():
+        await conn.close()
+    peer_connections.clear()
 
 @sio.on('offer')
 async def handle_new_offer(data):
@@ -187,7 +201,7 @@ async def handle_new_offer(data):
     print("Still Connected:", sio.connected)
 
     # Send the answer to the signaling server
-    offerIceCandidates = await sio.call("answer", data)  # Equivalent to emitWithAck()
+    offerIceCandidates = await sio.call("answer", data,timeout = 10)  # Equivalent to emitWithAck()
 
     # Add received ICE candidates
     for ice_candidate in offerIceCandidates:
@@ -221,15 +235,35 @@ async def create_peer_connection(offerObj):
     peer_connection = RTCPeerConnection()
     # Initialize metadata attribute
     peer_connection.metadata = {}
-    
+    # to keep track of running tasks
+    peer_connection.processing_tasks = []
     # Log connection state changes for debugging
     @peer_connection.on("connectionstatechange")
     async def on_connection_state_change():
+        print(f"Connection state changed to: {peer_connection.connectionState}")
         if peer_connection.connectionState in ["failed", "closed", "disconnected"]:
-            print(f"Removing peer connection for interview {interview_id}")
+            # Get user ID from context
+            offerer_id = offerObj.get("offererId")
+            
+            # Log the disconnection event
+            print(f"Client disconnection detected for user {offerer_id}")
+            
+            # Clean up any running tasks
+            if hasattr(peer_connection, "processing_tasks") and peer_connection.processing_tasks:
+                print(f"Cancelling {len(peer_connection.processing_tasks)} tasks for {offerer_id}")
+                for task in peer_connection.processing_tasks:
+                    if not task.done():
+                        task.cancel()
+                        print(f"Task cancelled for {offerer_id}")
+                peer_connection.processing_tasks = []
+            
+            # Close the peer connection
             await peer_connection.close()
-            peer_connections.pop(user_id, None)
-            print(f"Connection state changed to: {peer_connection.connectionState}")
+            
+            # Remove from peer_connections dictionary
+            if offerer_id in peer_connections:
+                del peer_connections[offerer_id]
+                print(f"Peer connection removed for {offerer_id}")
         
     # Log ICE connection state changes for debugging
     @peer_connection.on("iceconnectionstatechange")
@@ -282,7 +316,10 @@ async def create_peer_connection(offerObj):
                 print(f"Starting confidence analysis task for interview: {interview_id}")
                 
                 # Start a processing task that will handle all questions
-                asyncio.create_task(process_video(video_track, peer_connection, user_id,interview_id))
+                task = asyncio.create_task(process_video(video_track, peer_connection, user_id,interview_id))
+                if not hasattr(peer_connection, "processing_tasks"):
+                    peer_connection.processing_tasks = []
+                peer_connection.processing_tasks.append(task)
             else:
                 print("Stream processing skipped due to incomplete metadata!")
                 print("Missing required metadata:", {
@@ -307,7 +344,27 @@ async def create_peer_connection(offerObj):
                     metadata = json.loads(message)
                     peer_connection.metadata = metadata
                     print("Metadata received and stored:", metadata)
-                    
+                    # Check if this is a termination message
+                    if metadata.get("type") == "termination":
+                        print(f"Termination signal received for user {metadata.get('user_id')}")
+                        
+                        # Cancel all processing tasks
+                        if hasattr(peer_connection, "processing_tasks") and peer_connection.processing_tasks:
+                            for task in peer_connection.processing_tasks:
+                                if not task.done():
+                                    task.cancel()
+                            peer_connection.processing_tasks = []
+                        
+                        # Close the connection
+                        asyncio.create_task(peer_connection.close())
+                        
+                        # Remove from peer_connections dictionary
+                        offerer_id = metadata.get("user_id")
+                        if offerer_id in peer_connections:
+                            del peer_connections[offerer_id]
+                            print(f"Peer connection removed for {offerer_id}")
+                        
+                        return
                     
                     # If we have pending tracks and now have complete metadata
                     if (hasattr(peer_connection, "pending_tracks") and 

@@ -16,5 +16,6 @@ class VideoInterviewController():
         return create_response(SUCCESS_STATUS,"Interview deleted successfully")
 
     def remove_confidence_scores(self,interview_id : str,user_id : str,question_no : int):
-        self.video_interview_service.remove_confidence_for_question(interview_id,user_id,question_no)
-        return create_response(SUCCESS_STATUS,"Confidence Scores for question {question_no} deleted successfully") 
+        print("comes here haha")
+        self.video_interview_service.remove_confidence_for_question(interview_id, user_id, question_no)
+        return create_response(SUCCESS_STATUS, f"Confidence Scores for question {question_no} deleted successfully")
