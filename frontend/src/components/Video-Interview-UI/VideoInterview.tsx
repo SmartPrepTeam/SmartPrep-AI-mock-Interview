@@ -18,6 +18,7 @@ import { setVideoScoreData } from '@/features/videoScoreSlice';
 import { Button } from '../ui/button';
 import { useWebRTC } from '@/hooks/use-webrtc';
 import useBackButtonHandler from '@/hooks/use-back-button';
+import { useFaceDetection } from '@/hooks/use-face-detection';
 
 const VideoInterview = ({
   questions,
@@ -32,6 +33,7 @@ const VideoInterview = ({
     updateTracksStatus,
     cleanUpConnection,
   } = useWebRTC();
+
   const [isStreamingEnabled, setIsStreamingEnabled] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasEnded, setHasEnded] = useState(false);
@@ -42,6 +44,11 @@ const VideoInterview = ({
   );
   // related to getting video
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const { startFaceCheck, stopFaceCheck } = useFaceDetection(
+    5000,
+    videoRef,
+    question_id
+  );
   const [isRecording, setIsRecording] = useState(false);
   // related to timer
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -64,7 +71,6 @@ const VideoInterview = ({
         interimResults: true,
       },
     });
-
   // Handling the back button
   useBackButtonHandler(question_id, user_id);
   // For getting his scores based on his answers
@@ -72,6 +78,31 @@ const VideoInterview = ({
   const [deleteIncompleteInterviewMutation] =
     useDeleteIncompleteInterviewMutation();
   const [deleteQuestionFrames] = useDeleteQuestionFramesMutation();
+
+  const handleCancellation = useCallback(async () => {
+    setHasEnded(false);
+    try {
+      await deleteIncompleteInterviewMutation({
+        question_id,
+        user_id,
+      }).unwrap();
+      const disconnected = cleanUpConnection();
+      if (!disconnected) {
+        toast.error('Connection may still be alive');
+      }
+      navigate('/home');
+      toast.error('Interview Terminated');
+    } catch (err) {
+      toast.error(err?.data?.message);
+    }
+  }, [
+    deleteIncompleteInterviewMutation,
+    question_id,
+    user_id,
+    cleanUpConnection,
+    navigate,
+  ]);
+
   // peer-to-peer connection will persist through page refreshes as well
   useEffect(() => {
     const setupConnection = async () => {
@@ -84,7 +115,9 @@ const VideoInterview = ({
     };
 
     if (!localStream && !hasEnded) {
+      console.log('trying to connect to signalling server');
       setupConnection();
+      console.log('connection establised with nodejs');
     }
   }, [localStream, initiateCall, hasEnded, navigate]);
 
@@ -131,6 +164,9 @@ const VideoInterview = ({
 
     // Start recording answer
     handleAnswer();
+    setTimeout(() => {
+      startFaceCheck();
+    }, 1000);
   };
 
   // sending question_id to identify streams on backend
@@ -174,7 +210,7 @@ const VideoInterview = ({
     setIsStreamingEnabled(false);
     // Update tracks status if the updateTracksStatus function is available
     if (typeof updateTracksStatus === 'function') {
-      updateTracksStatus(true);
+      updateTracksStatus(false);
     } else {
       // Fallback if the function isn't exposed from the hook
       if (localStream) {
@@ -200,7 +236,7 @@ const VideoInterview = ({
         if (!disconnected) {
           toast.error('Connection may still be alive');
         }
-        setHasEnded(true);
+        setHasEnded(false);
         navigate('/video-interview/restart');
         toast.error('Interview terminated as no audio was detected');
       } catch (err) {
@@ -210,6 +246,7 @@ const VideoInterview = ({
     // Wait for some time (e.g., 2 seconds) to allow transcript
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsRecording(false);
+    stopFaceCheck();
   }, [
     time,
     transcript,
@@ -235,13 +272,14 @@ const VideoInterview = ({
 
   // Used when user wants to re-record his answer
   const terminateRecording = async () => {
-    setIsSubmitting(true);
     setIsStreamingEnabled(false);
+    setTranscript('');
     stopSpeechToText();
+    stopFaceCheck();
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
-
+    setTime(time);
     console.log(questionIndex, typeof questionIndex);
     // make call to backend and delete frames of that question
     try {
@@ -256,7 +294,6 @@ const VideoInterview = ({
     }
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsRecording(false);
-    setIsSubmitting(false);
   };
 
   const handleNextQuestion = async () => {
@@ -284,7 +321,7 @@ const VideoInterview = ({
         console.log(response);
         dispatch(setVideoScoreData(response.data));
         dispatch(activePage({ interviewType: 'video', page: 'insights' }));
-        setHasEnded(true);
+        setHasEnded(false);
         navigate('/video-interview/result');
       } catch (err) {
         if (axios.isAxiosError(err)) {
@@ -294,10 +331,9 @@ const VideoInterview = ({
         } else {
           toast.error('Unexpected error occurred');
         }
-      } finally {
-        setIsSubmitting(false);
       }
     }
+    setIsSubmitting(false);
   };
 
   //setting the stream
@@ -324,23 +360,6 @@ const VideoInterview = ({
       return updatedAnswers;
     });
   }, [transcript, questionIndex]);
-  const handleCancellation = async () => {
-    try {
-      await deleteIncompleteInterviewMutation({
-        question_id,
-        user_id,
-      }).unwrap();
-      const disconnected = cleanUpConnection();
-      if (!disconnected) {
-        toast.error('Connection may still be alive');
-      }
-      setHasEnded(true);
-      navigate('/home');
-      toast.error('Interview Terminated');
-    } catch (err) {
-      toast.error(err?.data?.message);
-    }
-  };
 
   // At final answer submission
   if (isLoading) {
@@ -366,7 +385,9 @@ const VideoInterview = ({
           {!isRecording ? (
             <button
               onClick={startAnswering}
-              className="bg-blue-500 text-white px-4 py-2 rounded-md"
+              className={`${
+                !isQuestionDisplayed ? 'bg-[#4f678f]' : 'bg-blue-500'
+              } text-white px-4 py-2 rounded-md`}
               disabled={!isQuestionDisplayed}
             >
               Start recording

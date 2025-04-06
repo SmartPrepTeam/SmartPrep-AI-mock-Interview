@@ -102,10 +102,18 @@ async def process_video(video_track, peer_connection,user_id,interview_id):
 
             print(f"Process video function started for user {user_id}, interview {interview_id}")
             # Exit if peer connection is closed
-            if peer_connection.connectionState in ["closed", "failed", "disconnected"]:
+            if peer_connection.connectionState in ["failed", "disconnected"]:
                 print(f"Peer connection closed for {interview_id}. Stopping video processing.")
-                break  # Exit the loop
+                offerer_id = metadata.get("user_id")
+                await cleanup_peer_connection(offerer_id,peer_connection)
+                break
             metadata = peer_connection.metadata
+          
+        #   Exit if termination message is received
+            if metadata.get("type") == "termination":
+                print(f"Termination flag detected in metadata. Stopping processing for {interview_id}")
+                break
+
             process_stream = metadata.get("processStream")
             question_no = metadata.get("question_no")
 
@@ -176,9 +184,18 @@ async def disconnect():
         await conn.close()
     peer_connections.clear()
 
+@sio.on('clientReconnected')
+async def handle_client_reconnection(data):
+    user_id = data.get("userId")
+    print(f"Client {user_id} has reconnected. Cleaning up old resources.")
+    
+    # Clean up any existing peer connection for this user
+    if user_id in peer_connections:
+        await cleanup_peer_connection(user_id, peer_connections[user_id])
+
 @sio.on('offer')
 async def handle_new_offer(data):
-    print("New offer received:", data)
+    # print("New offer received:", data)
     # creating peer connection
     peer_connection = await create_peer_connection(data)
     peer_connections[data["offererId"]] = peer_connection  # Store it using OffererId
@@ -231,6 +248,26 @@ async def handle_new_offer(data):
         except Exception as e:
             print(f"Error adding ICE candidate: {e}")
 
+# Add this function to your FastAPI code
+async def cleanup_peer_connection(offerer_id, peer_connection):
+    """Properly clean up a peer connection and its resources."""
+    print(f"Cleaning up peer connection for {offerer_id}")
+    
+    # Cancel all processing tasks
+    if hasattr(peer_connection, "processing_tasks") and peer_connection.processing_tasks:
+        for task in peer_connection.processing_tasks:
+            if not task.done():
+                task.cancel()
+        peer_connection.processing_tasks = []
+    
+    # Close the connection
+    await peer_connection.close()
+    
+    # Remove from peer_connections dictionary
+    if offerer_id in peer_connections:
+        del peer_connections[offerer_id]
+        print(f"Peer connection removed for {offerer_id}")
+
 async def create_peer_connection(offerObj):
     peer_connection = RTCPeerConnection()
     # Initialize metadata attribute
@@ -241,29 +278,14 @@ async def create_peer_connection(offerObj):
     @peer_connection.on("connectionstatechange")
     async def on_connection_state_change():
         print(f"Connection state changed to: {peer_connection.connectionState}")
-        if peer_connection.connectionState in ["failed", "closed", "disconnected"]:
+        if peer_connection.connectionState in ["failed", "disconnected"]:
             # Get user ID from context
             offerer_id = offerObj.get("offererId")
             
             # Log the disconnection event
             print(f"Client disconnection detected for user {offerer_id}")
-            
-            # Clean up any running tasks
-            if hasattr(peer_connection, "processing_tasks") and peer_connection.processing_tasks:
-                print(f"Cancelling {len(peer_connection.processing_tasks)} tasks for {offerer_id}")
-                for task in peer_connection.processing_tasks:
-                    if not task.done():
-                        task.cancel()
-                        print(f"Task cancelled for {offerer_id}")
-                peer_connection.processing_tasks = []
-            
-            # Close the peer connection
-            await peer_connection.close()
-            
-            # Remove from peer_connections dictionary
-            if offerer_id in peer_connections:
-                del peer_connections[offerer_id]
-                print(f"Peer connection removed for {offerer_id}")
+            if offerer_id :
+                await cleanup_peer_connection(offerer_id,peer_connection)
         
     # Log ICE connection state changes for debugging
     @peer_connection.on("iceconnectionstatechange")
@@ -339,31 +361,23 @@ async def create_peer_connection(offerObj):
         print(f"Data channel received: {channel.label}")
         if channel.label == "metadata":
             @channel.on("message")
-            def on_message(message):
+            async def on_message(message):
                 try:
-                    metadata = json.loads(message)
+                    print(f"Received message on data channel: {message}")
+                
+                    # Parse the message
+                    if isinstance(message, str):
+                        metadata = json.loads(message)
+                    else:
+                        metadata = json.loads(message.decode())
+                    
                     peer_connection.metadata = metadata
                     print("Metadata received and stored:", metadata)
                     # Check if this is a termination message
                     if metadata.get("type") == "termination":
                         print(f"Termination signal received for user {metadata.get('user_id')}")
-                        
-                        # Cancel all processing tasks
-                        if hasattr(peer_connection, "processing_tasks") and peer_connection.processing_tasks:
-                            for task in peer_connection.processing_tasks:
-                                if not task.done():
-                                    task.cancel()
-                            peer_connection.processing_tasks = []
-                        
-                        # Close the connection
-                        asyncio.create_task(peer_connection.close())
-                        
-                        # Remove from peer_connections dictionary
                         offerer_id = metadata.get("user_id")
-                        if offerer_id in peer_connections:
-                            del peer_connections[offerer_id]
-                            print(f"Peer connection removed for {offerer_id}")
-                        
+                        await cleanup_peer_connection(offerer_id,peer_connection)
                         return
                     
                     # If we have pending tracks and now have complete metadata

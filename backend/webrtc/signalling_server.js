@@ -24,8 +24,44 @@ const connectedUsers = {
 const offers = [];
 io.on("connection", (socket) => {
   socket.on("register", ({ userId, clientType }) => {
+    // If user was already registered with a different socket ID, clean up old data
+    if (
+      connectedUsers[userId] &&
+      connectedUsers[userId].socketId !== socket.id
+    ) {
+      console.log(`User ${userId} reconnected. Cleaning up old session.`);
+      // Clean up old socket
+      const oldSocketId = connectedUsers[userId].socketId;
+      // Force disconnect the old socket if it still exists
+      const oldSocket = io.sockets.sockets.get(oldSocketId);
+      if (oldSocket) {
+        console.log(`Forcing disconnection of old socket ${oldSocketId}`);
+        oldSocket.disconnect(true);
+      }
+
+      // Add explicit notification to FastAPI about the reconnection
+      const serverSocket = Object.values(connectedUsers).find(
+        (user) => user.type === "server"
+      );
+      if (serverSocket) {
+        socket.to(serverSocket.socketId).emit("clientReconnected", { userId });
+      }
+      // Remove any offers associated with this user
+      const initialOffersLength = offers.length;
+      for (let i = offers.length - 1; i >= 0; i--) {
+        if (offers[i].offererId === userId) {
+          offers.splice(i, 1);
+        }
+      }
+
+      console.log(
+        `Removed ${initialOffersLength - offers.length} stale offers.`
+      );
+    }
+
+    // Register the user with the new socket ID
     connectedUsers[userId] = { socketId: socket.id, type: clientType };
-    console.log(`User ${userId} connected with socket ID: ${socket.id}`);
+    console.log(`User ${userId} registered with socket ID: ${socket.id}`);
   });
 
   socket.on("offer", ({ userId, newOffer }) => {
@@ -90,6 +126,11 @@ io.on("connection", (socket) => {
   socket.on(
     "sendIceCandidateToSignalingServer",
     ({ iceCandidate, iceUserId, didIOffer }) => {
+      console.log("inside this sendIceCandidateToSignalingServer");
+      console.log("iceCandidate: ", iceCandidate);
+      console.log("iceUserId: ", iceUserId);
+      console.log("didIOffer: ", didIOffer);
+
       if (didIOffer) {
         console.log(`Received ICE candidate from ${iceUserId}:`, iceCandidate);
         // storing it in offerer iceCandidate
@@ -104,11 +145,11 @@ io.on("connection", (socket) => {
           offerer_id: iceUserId,
           ice_candidate: iceCandidate,
         });
-        console.log(`iceCandidate sent from ${iceUserId} .`);
       } else {
         // iceUserId => offererId here
         const offererObj = offers.find((o) => o.offererId === iceUserId);
         if (!offererObj) return;
+        console.log("pushing ice candidates: ", iceCandidate);
         offererObj.answererIceCandidates.push(iceCandidate);
         const socketToSend = connectedUsers[iceUserId];
         socket
@@ -122,7 +163,6 @@ io.on("connection", (socket) => {
   socket.on("answer", (OffererObj, ackFunction) => {
     console.log("answer called");
     // should be sent to the react js client
-    console.log(OffererObj);
     const OfferInOffers = offers.find(
       (s) => s.offererId === OffererObj.offererId
     );

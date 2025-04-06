@@ -125,7 +125,8 @@ export const useWebRTC = () => {
         localStream.getTracks().forEach((track) => track.stop());
         setLocalStream(null);
       }
-
+      setIsInitiator(false);
+      setDidIOffer(false);
       // Notify the signaling server that the user is disconnecting
       if (socket && socket.connected) socket.disconnect();
       return true;
@@ -170,12 +171,11 @@ export const useWebRTC = () => {
             didIOffer: true,
           });
         } else {
-          console.log('ICE Candidate gathering completed.');
+          console.log('ICE Candidate sending completed.');
         }
       };
 
       // Handle changes in the connection state
-      // Handle connection state changes with more detailed logging
       peerConnectionRef.current.onconnectionstatechange = () => {
         console.log(
           'Connection state changed:',
@@ -214,13 +214,32 @@ export const useWebRTC = () => {
   //registering the user on the signaling server
   useEffect(() => {
     if (userId) {
+      console.log('we are registering ');
       socket.emit('register', { userId, clientType: 'client' });
     }
   }, [userId]);
   const initiateCall = async () => {
-    if (peerConnectionRef.current?.signalingState === 'have-local-offer') {
-      console.log('Call already in progress, ignoring duplicate call attempt');
-      return true; // Return success since a call is already being established
+    // Add this check to see if we're already connected
+    if (peerConnectionRef.current) {
+      console.log(
+        'Peer connection already exists. Current state:',
+        peerConnectionRef.current.connectionState
+      );
+
+      // If it's closed or failed, clean it up first
+      if (
+        ['closed', 'failed', 'disconnected'].includes(
+          peerConnectionRef.current.connectionState
+        )
+      ) {
+        console.log(
+          'Connection is in a bad state. Cleaning up before reconnecting...'
+        );
+        cleanUpConnection();
+      } else if (peerConnectionRef.current.connectionState === 'connected') {
+        console.log('Already connected, no need to initiate a new call');
+        return true;
+      }
     }
     if (isInitiator) {
       return true;
@@ -287,8 +306,11 @@ export const useWebRTC = () => {
         offerToReceiveAudio: true,
         offerToReceiveVideo: true,
       };
-
-      const offer = await peerConnectionRef.current?.createOffer(offerOptions);
+      if (!peerConnectionRef.current) {
+        console.error('Peer connection not initialized');
+        return false;
+      }
+      const offer = await peerConnectionRef.current.createOffer(offerOptions);
       console.log(offer);
       // Verify media lines are present
       if (!offer?.sdp?.includes('m=audio')) {
@@ -301,7 +323,11 @@ export const useWebRTC = () => {
 
       await peerConnectionRef.current?.setLocalDescription(offer);
       setDidIOffer(true);
-
+      if (!socket.connected) {
+        console.log('we are registering initiate call ');
+        socket.connect();
+        socket.emit('register', { userId, clientType: 'client' });
+      }
       // Emit offer to server
       socket.emit('offer', { userId, newOffer: offer });
 

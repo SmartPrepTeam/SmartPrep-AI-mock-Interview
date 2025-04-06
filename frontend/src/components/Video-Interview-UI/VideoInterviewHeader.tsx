@@ -4,15 +4,11 @@ import { RootState } from '@/redux/store';
 
 const VideoInterviewHeader = () => {
   const navigate = useNavigate();
-  const handleHomeNavigation = () => {
-    navigate('/home');
-  };
+
   const activePage = useSelector((state: RootState) => state.activePage.video);
   return (
     <nav className="flex justify-between items-center p-4 bg-black-100 ">
-      <div className="text-display-3 p-4" onClick={handleHomeNavigation}>
-        SmartPrep
-      </div>
+      <div className="text-display-3 p-4">SmartPrep</div>
 
       <div className="absolute left-1/2 transform -translate-x-1/2 flex space-x-4 rounded-t max-lg:mt-2 max-md:hidden font-bold text-xl">
         <span
