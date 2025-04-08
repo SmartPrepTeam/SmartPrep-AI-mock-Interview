@@ -7,11 +7,14 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: smartprep
       MONGO_INITDB_ROOT_PASSWORD: smartprep
+      MONGO_INITDB_DATABASE: smartprep_db
     ports:
       - "27018:27017"
     volumes:
       - mongodbdata:/data/db
     restart: always
+    networks:
+      - app-network
 
   backend:
     env_file:
@@ -21,16 +24,30 @@ services:
       dockerfile: ./Dockerfile
     depends_on:
       - mongodb
+      - webrtc
     environment:
-      - MONGODB_URI=mongodb://smartprep:smartprep@mongodb:27017/
-      - DATABASE_NAME=farmdb
+      - mongodb_url=mongodb://smartprep:smartprep@mongodb:27017/smartprep_db
+      - DATABASE_NAME=smartprep_db
     volumes:
-      - ./uploads:/SMARTPREP-AI-MOCK-INTERVIEW/uploads
+      - ./uploads:/api/uploads
     restart: always
     ports:
       - "127.0.0.1:8000:8000"
     expose:
       - 8000
+    networks:
+      - app-network
+
+  webrtc:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./backend/webrtc:/app
+    command: "node signalling_server.js"
+    ports:
+      - "8181:8181"
+    networks:
+      - app-network
 
   frontend:
     env_file:
@@ -40,12 +57,19 @@ services:
       dockerfile: ./Dockerfile
     depends_on:
       - backend
+      - webrtc
     restart: always
     ports:
-      - "127.0.0.1:3006:3006"
+      - "3006:3006"
     expose:
       - 3006
+    networks:
+      - app-network
 
 volumes:
   mongodbdata:
     driver: local
+
+networks:
+  app-network:
+    driver: bridge

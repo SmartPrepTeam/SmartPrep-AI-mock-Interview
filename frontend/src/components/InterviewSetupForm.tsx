@@ -1,6 +1,6 @@
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { useEffect } from 'react';
+
 import { Jobs } from '@/data';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -98,8 +98,7 @@ export default function InterviewSetupForm() {
     formik.setFieldValue('interviewLength', length);
     formik.setFieldTouched('interviewLength', false);
   };
-  if (isError)
-    return toast.error(error.data?.message || 'Unknown Error occured');
+  if (isError) return toast.error('Unknown Error occured');
   return (
     <div className="flex min-h-[70vh]">
       <form

@@ -21,7 +21,7 @@ const Table: React.FC = () => {
     (state: { interviews: { filtredInterviews: Interview[] } }) =>
       state.interviews.filtredInterviews
   );
-  const [error, setError] = useState<string | null>(null);
+  const [_error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(setInterviews(Interviews));

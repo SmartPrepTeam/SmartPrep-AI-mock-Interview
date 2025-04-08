@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { RiFilterOffFill } from 'react-icons/ri';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import {
   filtreByType,
-  filtreByStatus,
   filtreByDifficulty,
   filtreByDuration,
   resetFiltre,
   searchByJobTitle,
 } from '../../features/ListSlice';
-import { Interview } from '../../helper/InterviewList';
 
 const FiltreRow: React.FC = () => {
   const list: ('video' | 'textual')[] = ['video', 'textual'];
-  const status: ('complete' | 'incomplete')[] = ['complete', 'incomplete'];
   const difficultyLevel: ('easy' | 'medium' | 'hard')[] = [
     'easy',
     'medium',
@@ -22,16 +19,12 @@ const FiltreRow: React.FC = () => {
   const duration: ('short' | 'medium' | 'long')[] = ['short', 'medium', 'long'];
 
   const dispatch = useDispatch();
-  const interviews = useSelector(
-    (state: { interviews: { filtredInterviews: Interview[] } }) =>
-      state.interviews.filtredInterviews
-  );
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedType, setSelectedType] = useState<
     'video' | 'textual' | 'List'
   >('List');
-  const [selectedStatus, setSelectedStatus] = useState<
+  const [_selectedStatus, setSelectedStatus] = useState<
     'complete' | 'incomplete' | 'Status'
   >('Status');
   const [selectedDifficulty, setSelectedDifficulty] = useState<

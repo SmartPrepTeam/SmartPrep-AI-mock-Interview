@@ -43,17 +43,6 @@ const Row: React.FC<HistoryRowProps> = ({ interview, index }) => {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'complete':
-        return <FaCheckCircle className="text-green-500" size={16} />;
-      case 'incomplete':
-        return <MdIncompleteCircle className="text-gray-400" size={16} />;
-      default:
-        return null;
-    }
-  };
-
   const getColor = (index: number): string => {
     return index % 2 === 0 ? 'bg-[#10132E]' : 'bg-black-100';
   };

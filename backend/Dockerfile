@@ -12,10 +12,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy requirements first for better caching
 COPY ./requirements.txt /api/requirements.txt
 
+RUN pip install tensorflow
+
 RUN pip install --no-cache-dir -r /api/requirements.txt
 
 # Copy backend code including the Keras model
 COPY . /api
+
+RUN mkdir -p /api/uploads
 
 EXPOSE 8000
 
