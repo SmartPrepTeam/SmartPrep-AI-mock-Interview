@@ -55,6 +55,10 @@ class VideoTrack(MediaStreamTrack):
 SCORES_DIR = "interview_scores"
 os.makedirs(SCORES_DIR, exist_ok=True)
 
+def predict_in_thread(img):
+    local_model = tf.keras.models.load_model("deeplearning_models/confidence_measuring_model.keras")
+    return local_model.predict(img)
+
 async def process_frame_with_model(img):
     """Process a single frame with the confidence measuring model.
     
@@ -66,7 +70,7 @@ async def process_frame_with_model(img):
     """
     try:
         # Run prediction in a separate thread to avoid blocking
-        prediction = await asyncio.to_thread(model.predict, img)
+        prediction = await asyncio.to_thread(predict_in_thread, img)
         print("model prediction runs correctly")
     except Exception as e:
         print(f"Error during prediction : {e}")
