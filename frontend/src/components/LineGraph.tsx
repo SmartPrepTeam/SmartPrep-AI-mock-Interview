@@ -8,6 +8,7 @@ import {
   PointElement,
   Filler,
   LineElement,
+  ChartOptions,
 } from 'chart.js';
 
 ChartJS.register(
@@ -19,9 +20,12 @@ ChartJS.register(
   PointElement,
   LineElement
 );
-
-export const LineGraph = ({ LineChartData }) => {
-  const options = {
+type chartData = {
+  labels: number[];
+  datasets: { label: string; data: number[]; borderColor: string }[];
+};
+export const LineGraph = ({ LineChartData }: { LineChartData: chartData }) => {
+  const options: ChartOptions<'line'> = {
     responsive: true,
     plugins: {
       title: {
@@ -37,7 +41,7 @@ export const LineGraph = ({ LineChartData }) => {
           bottom: 30, // Increase bottom padding to create more space below the title
         },
         position: 'top', // Ensures the title is at the top (this is the default)
-        align: 'center',
+        align: 'center' as const,
       },
     },
     scales: {

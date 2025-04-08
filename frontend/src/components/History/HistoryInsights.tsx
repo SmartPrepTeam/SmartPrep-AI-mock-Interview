@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Feedback } from '../../helper/FeedbackList';
 import { QuestionsList } from '../../helper/QuestionsList';
 import { AnswersList } from '../../helper/AnswersList';

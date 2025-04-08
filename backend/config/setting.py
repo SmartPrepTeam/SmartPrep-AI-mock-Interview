@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     mistral_api_key : str
     secret_key : str
     algorithm : str
+    webrtc_server_url : str
     access_token_expire_minutes : int
     refresh_token_expire_minutes : int
 

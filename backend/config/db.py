@@ -13,7 +13,8 @@ from webrtc import signalling_client
 async def start_signalling():
     try:
         print("🔌 Attempting WebRTC connection...")
-        await signalling_client.sio.connect("http://localhost:8181", transports=["websocket"])
+        webrtc_url = settings.webrtc_server_url
+        await signalling_client.sio.connect(webrtc_url, transports=["websocket"])
         print("✅ WebRTC Connection successful!")
         await signalling_client.sio.wait()
     except Exception as e:

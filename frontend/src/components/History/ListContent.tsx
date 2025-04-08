@@ -1,4 +1,3 @@
-import React from 'react';
 import FiltreRow from './FiltreRow';
 import Table from './Table';
 function ListContent() {

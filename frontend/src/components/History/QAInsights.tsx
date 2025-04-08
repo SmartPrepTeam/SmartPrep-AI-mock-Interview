@@ -1,24 +1,15 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
 import Question from './Question';
 import Answer from './Answer';
-import {
-  Feedback,
-  setAnswers,
-  setQuestions,
-} from '../../features/InsightsSlice';
-import axios from 'axios';
-import { RootState } from '@/redux/store';
-import { useLocation } from 'react-router-dom';
+import { Feedback } from '../../features/InsightsSlice';
+
 type stateType = {
   historyInsights: {
     feedback: Feedback;
     answers: string[];
     questions: string[];
   };
-};
-type LocationState = {
-  interviewId?: string;
 };
 const QAInsights: React.FC = () => {
   const Questions = useSelector(
@@ -29,8 +20,6 @@ const QAInsights: React.FC = () => {
   );
   console.log('analysis history: ', Questions);
 
-  const location = useLocation();
-  const { interviewId } = location.state as LocationState;
   //   const validInterviewId = interviewId ?? '';
   //   const userId = useSelector((state: RootState) => state.auth.userId);
 
