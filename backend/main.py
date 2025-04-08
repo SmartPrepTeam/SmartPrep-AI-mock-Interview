@@ -28,7 +28,7 @@ app.add_middleware(
     allow_headers=["*"],  
 )
 # Serve the uploaded files
-app.mount("/uploads", StaticFiles(directory="../uploads"), name="uploads")
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 api_router = APIRouter(prefix="/api")
 

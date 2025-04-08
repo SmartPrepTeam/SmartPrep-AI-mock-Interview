@@ -12,8 +12,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy requirements first for better caching
 COPY ./requirements.txt /api/requirements.txt
 
-RUN pip install tensorflow
-
+RUN pip install tensorflow 
+RUN pip install opencv-python-headless aiortc python-socketio av numpy
+RUN pip install aiohttp
 RUN pip install --no-cache-dir -r /api/requirements.txt
 
 # Copy backend code including the Keras model
