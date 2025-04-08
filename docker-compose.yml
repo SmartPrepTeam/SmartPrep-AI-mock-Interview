@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: "mongo:latest"
+    container_name: "mongodb_container"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: smartprep
+      MONGO_INITDB_ROOT_PASSWORD: smartprep
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodbdata:/data/db
+    restart: always
+
+  backend:
+    env_file:
+      - backend/.env
+    build:
+      context: ./backend/
+      dockerfile: ./Dockerfile
+    depends_on:
+      - mongodb
+    environment:
+      - MONGODB_URI=mongodb://smartprep:smartprep@mongodb:27017/
+      - DATABASE_NAME=farmdb
+    volumes:
+      - ./uploads:/SMARTPREP-AI-MOCK-INTERVIEW/uploads
+    restart: always
+    ports:
+      - "127.0.0.1:8000:8000"
+    expose:
+      - 8000
+
+  frontend:
+    env_file:
+      - frontend/.env.docker
+    build:
+      context: ./frontend/
+      dockerfile: ./Dockerfile
+    depends_on:
+      - backend
+    restart: always
+    ports:
+      - "127.0.0.1:3006:3006"
+    expose:
+      - 3006
+
+volumes:
+  mongodbdata:
+    driver: local
