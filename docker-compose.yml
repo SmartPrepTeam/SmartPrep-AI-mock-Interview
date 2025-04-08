@@ -1,5 +1,4 @@
 # version: "3.8"
-
 services:
   mongodb:
     image: "mongo:latest"
@@ -36,7 +35,14 @@ services:
     expose:
       - 8000
     networks:
-      - app-network
+      app-network:
+        aliases:
+          - backend-server
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
 
   webrtc:
     image: node:18
@@ -46,8 +52,17 @@ services:
     command: "node signalling_server.js"
     ports:
       - "8181:8181"
+    environment:
+      - NODE_ENV=production
     networks:
-      - app-network
+      app-network:
+        aliases:
+          - webrtc-server
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 500M
 
   frontend:
     env_file:
