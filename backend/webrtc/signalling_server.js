@@ -135,12 +135,14 @@ io.on("connection", (socket) => {
         console.log(`Received ICE candidate from ${iceUserId}:`, iceCandidate);
         // storing it in offerer iceCandidate
         const offererObj = offers.find((o) => o.offererId === iceUserId);
+        console.log("OffererObj", offererObj);
         offererObj.offererIceCandidates.push(iceCandidate);
 
         // finding socket of server
         const socketToSend = Object.values(connectedUsers).find(
           (user) => user.type === "server"
         );
+        console.log("socketTosend:", socketToSend);
         socket.to(socketToSend.socketId).emit("iceCandidateFromClient", {
           offerer_id: iceUserId,
           ice_candidate: iceCandidate,

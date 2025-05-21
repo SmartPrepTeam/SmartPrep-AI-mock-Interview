@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     algorithm : str
     access_token_expire_minutes : int
     refresh_token_expire_minutes : int
-
+    webrtc_server_url : str
     class Config:
         env_file = ".env"
 

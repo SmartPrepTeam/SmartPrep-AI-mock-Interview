@@ -1,5 +1,5 @@
 import { RootState } from '@/redux/store';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -218,7 +218,7 @@ export const useWebRTC = () => {
       socket.emit('register', { userId, clientType: 'client' });
     }
   }, [userId]);
-  const initiateCall = async () => {
+  const initiateCall = useCallback(async () => {
     // Add this check to see if we're already connected
     if (peerConnectionRef.current) {
       console.log(
@@ -341,7 +341,7 @@ export const useWebRTC = () => {
       );
       return false;
     }
-  };
+  }, []);
   // Add this function to update track enablement when streaming status changes
   const updateTracksStatus = (enabled: boolean) => {
     if (localStream) {
